@@ -1,0 +1,3 @@
+name: CyberpunkCityGenerator
+main: io.github.kuohsuanlo.cyberpunkcity.CyberpunkCityGenerator
+version: 1.0.0
