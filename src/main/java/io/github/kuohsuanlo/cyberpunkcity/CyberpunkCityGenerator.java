@@ -23,6 +23,8 @@ public class CyberpunkCityGenerator extends JavaPlugin
     {
         pluginDescriptionFile = getDescription();
         log.info("[CyberpunkCityPlugin] " + pluginDescriptionFile.getFullName() + " enabled");
+        
+       
     }
 
     public void onDisable()

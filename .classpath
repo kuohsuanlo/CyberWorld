@@ -32,7 +32,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/Factions.jar"/>
-	<classpathentry kind="lib" path="lib/MassiveCore.jar"/>
+	<classpathentry kind="lib" path="lib/worldedit-bukkit-6.1.3.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
