@@ -1,5 +1,5 @@
 
-package io.github.kuohsuanlo.cyberpunkcity;
+package io.github.kuohsuanlo.cyberworld;
 
 import org.bukkit.World;
 import org.bukkit.Chunk;
@@ -7,10 +7,10 @@ import org.bukkit.generator.BlockPopulator;
 
 import java.util.Random;
 
-public class CyberpunkCityBlockPopulator extends BlockPopulator
+public class CyberWorldBlockPopulator extends BlockPopulator
 {
     byte[] layerDataValues;
-    protected CyberpunkCityBlockPopulator(byte[] layerDataValues)
+    protected CyberWorldBlockPopulator(byte[] layerDataValues)
     {
         this.layerDataValues = layerDataValues;
     }

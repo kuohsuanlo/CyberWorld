@@ -1,5 +1,5 @@
 <project name="Religion" default="dist" basedir=".">
-	<property name="cyberpunkcity" value="CyberpunkCity"/>
+	<property name="cyberworld" value="CyberWorld"/>
 	<property name="bukkit.jar" location="../Bukkit/dist/Bukkit.jar"/>
 	<property name="plugins" location="../../plugins/"/>
 

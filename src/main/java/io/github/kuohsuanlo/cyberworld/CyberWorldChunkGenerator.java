@@ -1,5 +1,5 @@
 
-package io.github.kuohsuanlo.cyberpunkcity;
+package io.github.kuohsuanlo.cyberworld;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import com.sk89q.worldedit.schematic.SchematicFormat;
 import static java.lang.System.arraycopy;
 import static java.lang.System.inheritedChannel;
 
-public class CyberpunkCityChunkGenerator extends ChunkGenerator
+public class CyberWorldChunkGenerator extends ChunkGenerator
 {
     private Logger log = Logger.getLogger("Minecraft");
     private short[] layer;
@@ -109,7 +109,7 @@ public class CyberpunkCityChunkGenerator extends ChunkGenerator
     private double RNG_chkxz(int chkx,int chkz){
 		return  Math.abs(Math.PI*(chkx+chkz)*10-Math.floor(Math.PI*(chkx+chkz)*10));
     }
-    public CyberpunkCityChunkGenerator(){
+    public CyberWorldChunkGenerator(){
         layerDataValues = null;
         layer = new short[MAX_SPACE_HEIGHT];
         layer[0] = (short)Material.BEDROCK.getId();
@@ -119,18 +119,64 @@ public class CyberpunkCityChunkGenerator extends ChunkGenerator
 
     }
     
-    private EditSession editSession ;
+    /*
+
     public void paste(String schematicName, Location pasteLoc, World world) {
+    	CuboidClipboard cc = null;
+    	try {
+            File file = new File(new StringBuilder(worldPath).append("/").append(schemeName).toString());
+            cc = MCEditSchematicFormat.MCEDIT.load(file);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    	
+    	int bHeight = 0;
+    	int chunkX = pasteLoc.getChunk().getX();
+    	int chunkZ = pasteLoc.getChunk().getZ();
+    	
+    	int width = cc.getWidth();
+        int bredth = cc.getLength();
+        int height = cc.getHeight();
+        int maxHeight = world.getMaxHeight() - 1;
+        int rotation = rng.nextInt(4) * 90;
+        cc.rotate2D(rotation);
+        switch(rotation) {
+            case 90:
+                width = - cc.getWidth();
+                bredth = cc.getLength();
+                break;
+
+            case 180: 
+                width = - cc.getWidth();
+                bredth = - cc.getLength();
+                break;
+
+            case 270: 
+                width = cc.getWidth();
+                bredth = - cc.getLength();
+                break;
+        }
+        
+    	Vector origin = new Vector(chunkX, 1 ,chunkZ);
+    	EditSession es = new EditSession(new BukkitWorld(world), 1000000);
+        try  {
+            cc.paste(es, origin, true);
+        } catch(MaxChangedBlocksException e) {
+            e.printStackTrace();
+        }
+        
+        
+
+	}*/
+    public void paste(String schematicName, Vector origin, World world) {
         try {
             File dir = new File(WINDOWS_PATH + schematicName);
             
-            editSession = new EditSession(new BukkitWorld(world), 64*64*256);
-            editSession.enableQueue();
- 
+            EditSession editSession = new EditSession(new BukkitWorld(world), 64*64*256);
             SchematicFormat schematic = SchematicFormat.getFormat(dir);
             CuboidClipboard clipboard = schematic.load(dir);
  
-            clipboard.paste(editSession, BukkitUtil.toVector(pasteLoc), true);
+            clipboard.paste(editSession,origin, true);
             editSession.flushQueue();
         } catch (DataException | IOException ex) {
             ex.printStackTrace();
@@ -738,7 +784,7 @@ public class CyberpunkCityChunkGenerator extends ChunkGenerator
 			int building_shift_down = (16-building_width)/2 - building_shift_up;
 			
 			
-			//building_type=5;
+			building_type=rng.nextInt(5); //exclusive 5
 			switch(building_type){
 				case 0:	
 					for(int x=0+building_shift_up;x<16-building_shift_down;x++){
@@ -807,77 +853,76 @@ public class CyberpunkCityChunkGenerator extends ChunkGenerator
 
 				case 5:
 					
-					Location loc = new Location(world,0,100,0);
+					//Location loc = new Location(world,0,100,0);
+					Vector origin  = new Vector(chkx ,100, chkz);
+				
 					
-					//Location loc = new Location(world,Math.abs(chkx)*16,100,Math.abs(chkz)*16);
-					paste("mid_1.schematic",loc,world);
-					
-					/*
 					int schematic_type = (int) (Math.round( rng.nextDouble()*20));
+					schematic_type = 14;
 					switch(schematic_type){
 						case 0:
-							paste("high_1.schematic",loc);
+							paste("high_1.schematic",origin,world);
 							break;
 						case 1:
-							paste("high_1.schematic",loc);
+							paste("high_1.schematic",origin,world);
 							break;
 						case 2:
-							paste("high_2.schematic",loc);
+							paste("high_2.schematic",origin,world);
 							break;
 						case 3:
-							paste("high_3.schematic",loc);
+							paste("high_3.schematic",origin,world);
 							break;
 						case 4:
-							paste("high_4.schematic",loc);
+							paste("high_4.schematic",origin,world);
 							break;
 						case 5:
-							paste("high_5.schematic",loc);
+							paste("high_5.schematic",origin,world);
 							break;
 						case 6:
-							paste("high_6.schematic",loc);
+							paste("high_6.schematic",origin,world);
 							break;
 						case 7:
-							paste("high_7.schematic",loc);
+							paste("high_7.schematic",origin,world);
 							break;
 						case 8:
-							paste("mid_1.schematic",loc);
+							paste("mid_1.schematic",origin,world);
 							break;
 						case 9:
-							paste("mid_2.schematic",loc);
+							paste("mid_2.schematic",origin,world);
 							break;
 						case 10:
-							paste("mid_3.schematic",loc);
+							paste("mid_3.schematic",origin,world);
 							break;
 						case 11:
-							paste("mid_4.schematic",loc);
+							paste("mid_4.schematic",origin,world);
 							break;
 						case 12:
-							paste("mid_5.schematic",loc);
+							paste("mid_5.schematic",origin,world);
 							break;
 						case 13:
-							paste("mid_6.schematic",loc);
+							paste("mid_6.schematic",origin,world);
 							break;
 						case 14:
-							paste("low_1.schematic",loc);
+							paste("low_1.schematic",origin,world);
 							break;
 						case 15:
-							paste("low_2.schematic",loc);
+							paste("low_2.schematic",origin,world);
 							break;
 						case 16:
-							paste("low_3.schematic",loc);
+							paste("low_3.schematic",origin,world);
 							break;
 						case 17:
-							paste("low_4.schematic",loc);
+							paste("low_4.schematic",origin,world);
 							break;
 						case 18:
-							paste("low_5.schematic",loc);
+							paste("low_5.schematic",origin,world);
 							break;
 						case 19:
-							paste("low_6.schematic",loc);
+							paste("low_6.schematic",origin,world);
 							break;
 						default:
 							break;
-					}*/
+					}
     				break;	  
 				default:
 					break;
@@ -896,7 +941,7 @@ public class CyberpunkCityChunkGenerator extends ChunkGenerator
     {
         if (layerDataValues != null)
         {
-            return Arrays.asList((BlockPopulator)new CyberpunkCityBlockPopulator(layerDataValues));
+            return Arrays.asList((BlockPopulator)new CyberWorldBlockPopulator(layerDataValues));
         } else
         {
             // This is the default, but just in case default populators change to stock minecraft populators by default...
