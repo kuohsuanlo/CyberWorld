@@ -1,6 +1,5 @@
 package io.github.kuohsuanlo.cyberworld;
 
-
 import java.util.Collections;
 import java.util.Arrays;
  
@@ -14,14 +13,124 @@ public class MazeGenerator {
 	private final int x;
 	private final int y;
 	private final int[][] maze;
+	private final int[][] grid;
  
 	public MazeGenerator(int x, int y) {
 		this.x = x;
 		this.y = y;
 		maze = new int[this.x][this.y];
+		grid = new int[this.x*3][this.y*3];
 		generateMaze(0, 0);
+		transformToGrid();
 	}
- 
+	private void transformToGrid(){
+		for (int iy = 0; iy < y; iy++) {
+			for (int ix = 0;ix < x; ix++) {
+				
+				int j = ix*3;
+				int i = iy*3;
+				switch(maze[ix][iy]) { 
+	            case 0: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	            	break; 
+	            case 1: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break; 
+	            case 2: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break; 
+	            case 3: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break; 
+	            case 4: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 5: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 6: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break;  
+	            case 7: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break;  
+	            case 8: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 9: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 10: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break;  
+	            case 11: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break;  
+	            case 12: 
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 13: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
+	                break;  
+	            case 14:
+	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break;  
+	            case 15: 
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
+	                break; 
+	            default: 
+	                
+				}
+				
+			}
+		}
+	}
+	private void displayGrid() {
+		for (int i = 0; i < y*3; i++) {
+			for (int j = 0; j < x*3; j++) {
+				if(grid[j][i]==0){
+					System.out.print("O");
+				}
+				else{
+					System.out.print("@");
+				}
+			}
+			System.out.println("");
+		}
+		
+	}
 	public void display() {
 		for (int i = 0; i < y; i++) {
 			// draw the north edge
@@ -51,7 +160,6 @@ public class MazeGenerator {
 		}
 		System.out.println("+");
 	}
- 
 	private void generateMaze(int cx, int cy) {
 		DIR[] dirs = DIR.values();
 		Collections.shuffle(Arrays.asList(dirs));
@@ -96,8 +204,9 @@ public class MazeGenerator {
 	public static void main(String[] args) {
 		int x = args.length >= 1 ? (Integer.parseInt(args[0])) : 5	;
 		int y = args.length == 2 ? (Integer.parseInt(args[1])) : 5;
-		MazeGenerator maze = new MazeGenerator(x, y);
-		maze.display();
+		MazeGenerator g = new MazeGenerator(x, y);
+		g.displayGrid();
+		g.display();
 	}
  
 }
