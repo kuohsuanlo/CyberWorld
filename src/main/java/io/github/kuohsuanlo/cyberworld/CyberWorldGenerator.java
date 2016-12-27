@@ -23,7 +23,6 @@ public class CyberWorldGenerator extends JavaPlugin{
     private Logger log = Logger.getLogger("Minecraft");
     PluginDescriptionFile pluginDescriptionFile;
 
-    public Random rng;
     public static final int MAX_BUILDING_WIDTH =4;
     public static final int MAX_DISTANCE_BETWEEN_BUILDING =2;
     public static final int MAX_ROAD_WIDTH =1;
@@ -33,6 +32,7 @@ public class CyberWorldGenerator extends JavaPlugin{
         log.info("[CyberWorld] " + pluginDescriptionFile.getFullName() + " enabled");
         
        
+      
     }
 
     public void onDisable(){

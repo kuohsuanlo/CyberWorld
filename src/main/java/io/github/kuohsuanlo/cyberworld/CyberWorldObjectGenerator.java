@@ -25,14 +25,24 @@ import com.sk89q.worldedit.schematic.SchematicFormat;
 public class CyberWorldObjectGenerator{
 	private Random rng;
 	private Logger log = Logger.getLogger("Minecraft");
-    private double RNG_chkxz(int chkx,int chkz){
-		return  Math.abs(Math.PI*(chkx+chkz)*10-Math.floor(Math.PI*(chkx+chkz)*10));
-    }
+
+    public MazeGenerator mg = null;
     
-    public static final int DIR_EAST_WEST 		=1;
-    public static final int DIR_NORTH_SOUTH		=2;
-    public static final int DIR_INTERSECTION	=0;
-    public static final int DIR_NOT_ROAD		=-1;
+    private long testingSeed= 1205;
+	public CyberWorldObjectGenerator(){
+		//generating the city layout
+		rng = new Random();
+		rng.setSeed(testingSeed);
+		mg = new MazeGenerator(10,10,rng);
+		
+		
+	}
+	
+    
+    public final int DIR_EAST_WEST 		=1;
+    public final int DIR_NORTH_SOUTH		=2;
+    public final int DIR_INTERSECTION	=0;
+    public final int DIR_NOT_ROAD		=-1;
     private long worldSeed;
 
 	//Paving Roads
@@ -102,7 +112,6 @@ public class CyberWorldObjectGenerator{
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
 
     public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
-    	
         for(int y=0;y<33;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
@@ -115,34 +124,67 @@ public class CyberWorldObjectGenerator{
 		        	}
 	    		}
 	    	}
-	    }  
-        
+	    }
         return chunkdata;
-    	
     }
+    
     public ChunkData generateRoadBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
-    	
 		//Paving Roads
 		for(int y=33;y<34;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
-	    			if(calculateRoadDirection(chkx,chkz,ROAD_MOD,ROAD_R)==this.DIR_EAST_WEST ){
-	        			if(z<=2  ||  z>=13){
-	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
-	        			}
+	    			//Here need to import the map so we could what direction to create the road.
+	    			
+	    			if(calculateRoadDirection(chkx,chkz)==this.DIR_EAST_WEST ){
+	        			//if(z<=2  ||  z>=13){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz,ROAD_MOD,ROAD_R)==this.DIR_NORTH_SOUTH ){
-	    				if(x<=2  ||  x>=13){
-	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
-	        			}
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_NORTH_SOUTH ){
+	    				//if(x<=2  ||  x>=13){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz,ROAD_MOD,ROAD_R)==this.DIR_INTERSECTION ){
-	    				if((x<=2  ||  x>=13) && (z<=2  ||  z>=13)){
-	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
-	        			}
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_INTERSECTION ){
+	    				//if((x<=2  ||  x>=13) && (z<=2  ||  z>=13)){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz,ROAD_MOD,ROAD_R)==this.DIR_NOT_ROAD ){
-	    				
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_NOT_ROAD ){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	    			}
+	    		}
+	    		
+	    	}
+	    }
+		
+        return chunkdata;
+    	
+    }
+    public ChunkData generateSewer(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+		//Paving Roads
+		for(int y=33;y<34;y++){
+	    	for(int x=0;x<16;x++){
+	    		for(int z=0;z<16;z++){
+	    			//Here need to import the map so we could what direction to create the road.
+	    			
+	    			if(calculateRoadDirection(chkx,chkz)==this.DIR_EAST_WEST ){
+	        			//if(z<=2  ||  z>=13){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
+	    			}
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_NORTH_SOUTH ){
+	    				//if(x<=2  ||  x>=13){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
+	    			}
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_INTERSECTION ){
+	    				//if((x<=2  ||  x>=13) && (z<=2  ||  z>=13)){
+	        			//	chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
+	        			//}
+	    			}
+	    			else if(calculateRoadDirection(chkx,chkz)==this.DIR_NOT_ROAD ){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	    			}
 	    		}
 	    		
@@ -174,19 +216,21 @@ public class CyberWorldObjectGenerator{
         }
         result[y >> 4][((y & 0xF) << 8) | (z << 4) | x] = blkid;
     }
-    private int calculateRoadDirection(int chkx, int chkz, int mod,int r){
-    	int chkxr=chkx%mod;
-    	int chkzr=chkz%mod;
-    	if(chkxr==r  &&  chkzr==r){
-    		return DIR_INTERSECTION;	
+    private int calculateRoadDirection(int chkx, int chkz){
+    	
+    	int roadType = mg.getRoadType(chkx, chkz);
+    	
+    	switch(roadType){
+		case 0:	
+			return this.DIR_INTERSECTION;
+		case 1:
+			return this.DIR_NOT_ROAD;
+		case -1:
+			return this.DIR_NORTH_SOUTH;
+		case -2:
+			return this.DIR_EAST_WEST;
     	}
-    	else if(chkxr==r  &&  chkzr!=r){
-        		return DIR_NORTH_SOUTH;		
-        }
-    	else if(chkxr!=r  &&  chkzr==r){
-    		return DIR_EAST_WEST ;				 
-    	}
-		return DIR_NOT_ROAD;					
+    	return this.DIR_NOT_ROAD;
     }
     /*
 	public short[][] generateObject(World world, int chkx, int chkz, int mod,int r){
