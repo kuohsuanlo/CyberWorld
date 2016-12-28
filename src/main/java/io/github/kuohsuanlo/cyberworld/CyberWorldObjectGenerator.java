@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator.BiomeGrid;
 import org.bukkit.generator.ChunkGenerator.ChunkData;
+import org.bukkit.material.MaterialData;
 
 import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.EditSession;
@@ -160,6 +161,29 @@ public class CyberWorldObjectGenerator{
 	    	}
 	    }
 		
+		//road line
+		int y=32;
+    	for(int x=0;x<16;x++){
+    		for(int z=0;z<16;z++){
+    			//Here need to import the map so we could what direction to create the road.
+    			
+    			if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+        			if((z == 5  ||  z==10)  &&  (x%4==1  ||  x%4==2) ){
+        				chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
+        			}
+    			}
+    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+    				if((x == 5  ||  x==10)  &&  (z%4==1  ||  z%4==2) ){
+    					chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
+        			}
+    			}
+    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+    				
+    			}
+    		}
+    		
+	    	
+	    }
         return chunkdata;
     	
     }
@@ -431,10 +455,11 @@ public class CyberWorldObjectGenerator{
 	    				//double d = rng.nextDouble();
 	        			if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<sewer_pipe_width*sewer_pipe_width  && 
 	        					((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))>=(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
-	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STEP);
+	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
 	        			}
 	        			else if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)){
-	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.IRON_TRAPDOOR);
+	        				//chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.IRON_TRAPDOOR);
+	        				chunkdata.setBlock(x, y, z, Material.IRON_TRAPDOOR.getId(), (byte) 0x8 );
 	        			}
 	    			}
 	    			
@@ -746,41 +771,44 @@ public class CyberWorldObjectGenerator{
 			
 			
 			building_type=rng.nextInt(5); //exclusive 5
+			Material btype = null;
+			switch(building_type){
+			case 0:	
+				btype = Material.NETHER_BRICK;
+				break;
+			case 1:
+				btype = Material.SMOOTH_BRICK;
+				break;
+			case 2:
+				btype = Material.BRICK;
+				break;
+			case 3:
+				btype = Material.SANDSTONE;
+				break;
+			case 4:
+				btype = Material.COBBLESTONE;
+				break;
+			}
 			
+			int mod_x=0;
+			int mod_z=0;
 			for(int x=0+building_shift_up;x<16-building_shift_down;x++){
 				for(int z=0+building_shift_left;z<16-building_shift_right;z++){
 					for(int y=33;y<33+building_max_height;y++){
 						if(z==0+building_shift_left  ||  z==16-building_shift_right-1  ||  x==0+building_shift_up  ||  x==16-building_shift_down-1||
 							y==33+building_max_height-1){
-							
-							if((x%3==0  ||  z%3==0)  &&  y%5 ==0){
+							if((mod_x%3==0  &&  mod_z%3==0)  &&  y%5 ==0){
 								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLOWSTONE);
 							}
 							else{
-								switch(building_type){
-								case 0:	
-									chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.NETHER_BRICK);
-									break;
-								case 1:
-									chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.SMOOTH_BRICK);
-									break;
-								case 2:
-									chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.BRICK);
-									break;
-								case 3:
-									chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.SANDSTONE);
-									break;
-								case 4:
-									chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-									break;
-								}
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,btype);
 							}
-							
-							
 						}
 						
 					}
+					mod_z+=1;
 				}
+				mod_x+=1;
 			}
 			
 		}

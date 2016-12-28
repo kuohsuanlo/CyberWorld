@@ -18,16 +18,19 @@ public class CityStreetGenerator {
 	private final int x;
 	private final int y;
 	private final int[][] city;
+	private final int[][] hightway;
     private final Random rng;
     private final int minBW;
 	public CityStreetGenerator(int x, int y, Random r, int mmbw) {
 		this.x = x;
 		this.y = y;
 		city = new int[this.x][this.y];
+		hightway = new int[this.x][this.y];
 		rng = r;
 		minBW = mmbw;
 		recursiveSplitting(0,0,x-1,y-1,1);
 		determiningBuilding();
+		determiningHighway();
 	}
 	public int getRoadType(int rx, int rz){
 		rx+=x*0.5;
@@ -40,11 +43,31 @@ public class CityStreetGenerator {
 		}
 		return city[rx%(this.x)][rz%(this.y)];
 	}
+	public int getHighwayType(int rx, int rz){
+		rx+=x*0.5;
+		rz+=y*0.5;
+		if(rx<0){
+			rx*=-1;
+		}
+		if(rz<0){
+			rz*=-1;
+		}
+		return hightway[rx%(this.x)][rz%(this.y)];
+	}
 	private void determiningBuilding(){
 		for(int i=0;i<x;i++){
 			for(int j=0;j<y;j++){
 				if(city[i][j] ==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 					city[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
+				} 
+			}
+		}
+	}
+	private void determiningHighway(){
+		for(int i=0;i<x;i++){
+			for(int j=0;j<y;j++){
+				if(city[i][j] ==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+					hightway[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
 				} 
 			}
 		}
