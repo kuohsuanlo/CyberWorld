@@ -38,7 +38,6 @@ public class CyberWorldObjectGenerator{
 		
 		
 	}
-	
     
     public final static int DIR_EAST_WEST 		=1;
     public final static int DIR_NORTH_SOUTH		=2;
@@ -52,32 +51,12 @@ public class CyberWorldObjectGenerator{
     private static Material ROAD_SIDEWALK_MATERIAL_1 = Material.STEP;
     private static Material ROAD_MATERIAL_1 = Material.QUARTZ_BLOCK;
 
-    private static int ROAD_MOD= 5;
-    private static int ROAD_R= 0;
-    private static int SEWER_MOD= 5;
-    private static int SEWER_R_1= 0;
-    private static int SEWER_R_2= 2;
-    private static int SEWER_R_3= 3;
-    
-    private static int SEWER_TUNNEL_MOD= 3;
-    private static int SEWER_TUNNEL_R= 0;
 
-    private static int SEWER_GATE_MOD= 10;
-    private static int SEWER_GATE_R= SEWER_R_1;
 	
     //Paving High Roads
     private static int LAYER_1_HEIGHT = 64;
     private static int LAYER_2_HEIGHT = 94;
     private static int LAYER_3_HEIGHT = 124;
-
-    private static int LAYER_1_MOD= 10;
-	private static int LAYER_1_R= 5;
-	
-	private static int LAYER_2_MOD= 10;
-	private static int LAYER_2_R= 0;
-	
-	private static int LAYER_3_MOD= 10;
-	private static int LAYER_3_R= 5;
 	
 	private static int LAYER_1_WIDTH = 10;
 	private static int LAYER_2_WIDTH = 10;
@@ -138,22 +117,22 @@ public class CyberWorldObjectGenerator{
 	    		for(int z=0;z<16;z++){
 	    			//Here need to import the map so we could what direction to create the road.
 	    			
-	    			if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+	    			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	        			if(z<=2  ||  z>=13){
 	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	        			}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+	    			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
 	    				if(x<=2  ||  x>=13){
 	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	        			}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+	    			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	    				if((x<=2  ||  x>=13) && (z<=2  ||  z>=13)){
 	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	        			}
 	    			}
-	    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+	    			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
         				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	    			}
 	    		}
@@ -167,17 +146,17 @@ public class CyberWorldObjectGenerator{
     		for(int z=0;z<16;z++){
     			//Here need to import the map so we could what direction to create the road.
     			
-    			if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
         			if((z == 5  ||  z==10)  &&  (x%4==1  ||  x%4==2) ){
         				chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
         			}
     			}
-    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+    			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
     				if((x == 5  ||  x==10)  &&  (z%4==1  ||  z%4==2) ){
     					chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
         			}
     			}
-    			else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+    			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
     				
     			}
     		}
@@ -201,7 +180,7 @@ public class CyberWorldObjectGenerator{
 	    				double d = rng.nextDouble();
 	        			double r = rng.nextDouble();
 	    				//Building Sewer Pipe, Sewer Ground
-		        		if ( calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){ //ROAD
+		        		if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){ //ROAD
 		        			d = (d*Math.abs(z-7)/5);
 		        			//Ground 0 1 2 //sewer road// 13 14 15
 		        			if( y==2  && z>=5 && z<=9){
@@ -223,7 +202,7 @@ public class CyberWorldObjectGenerator{
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
 		        			}
 		            	}
-		        		else if ( calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){ //ROAD
+		        		else if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){ //ROAD
 		        			d = (d*Math.abs(x-7)/5);
 		        			//Ground 0 1 2 //sewer road// 13 14 15
 		        			if(y==2  && x>=5 && x<=9){
@@ -245,7 +224,7 @@ public class CyberWorldObjectGenerator{
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
 		        			}
 		            	}
-		        		else if ( calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){ //INTERSECTION
+		        		else if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){ //INTERSECTION
 		        			//Ground 0 1 2 //sewer road// 13 14 15
 		        			d = Math.max((d*Math.abs(z-7)/5),(d*Math.abs(x-7)/5));
 		        			if(y==2  && ((x>=5 && x<=9) || (z>=5 && z<=9))){
@@ -268,7 +247,7 @@ public class CyberWorldObjectGenerator{
 		        			}
 		            	}
 		        		//Building Pillar
-		        		else if ( calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING ){
+		        		else if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING ){
 
 		        			if((x<0+pillar_width ||  x>15-pillar_width)  &&  (z<0+pillar_width ||  z>15-pillar_width)){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.BRICK);
@@ -300,7 +279,7 @@ public class CyberWorldObjectGenerator{
 		        		
 		        		//building pipe
 		        		
-	    				if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH){
+	    				if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH){
 	    					
 		        			//Pipe Shell
 		        			if(y>=3  &&  ((x-7.5)*(x-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<sewer_pipe_width*sewer_pipe_width  && 
@@ -333,7 +312,7 @@ public class CyberWorldObjectGenerator{
 		        			}
 
 	    				}
-	    				else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST){
+	    				else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST){
 	    					
 		        			//Pipe Shell
 		        			if(y>=3  &&  ((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<sewer_pipe_width*sewer_pipe_width  && 
@@ -366,7 +345,7 @@ public class CyberWorldObjectGenerator{
 		        			}
 
 	    				}
-	    				else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+	    				else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
 	    					
 		        			//Pipe Shell
 		        			if(y>=3  &&  ((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<sewer_pipe_width*sewer_pipe_width  && 
@@ -451,7 +430,7 @@ public class CyberWorldObjectGenerator{
 					//Upward pipe exit,entry to road
 	    			
 	    			//Cross 
-	    			if(y==32  &&  calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+	    			if(y==32  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
 	    				//double d = rng.nextDouble();
 	        			if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<sewer_pipe_width*sewer_pipe_width  && 
 	        					((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))>=(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
@@ -464,7 +443,7 @@ public class CyberWorldObjectGenerator{
 	    			}
 	    			
 	    			//upward
-	    			if(y>sewer_pipe_height  &&  y<=31  &&  calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+	    			if(y>sewer_pipe_height  &&  y<=31  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
 	    				if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)){
 	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);
 	        			}
@@ -484,7 +463,7 @@ public class CyberWorldObjectGenerator{
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			double d =  rng.nextDouble();
-	    			if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING){
+	    			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING){
             			if(z>=0+cave_shift  &&  z<=cave_width+cave_shift){
             				if( ((y-(cave_height))* (y-(cave_height)) + (z-7.5)*(z-7.5))<  (cave_width)*(cave_width)){
             					if(d<=0.01){
@@ -519,7 +498,7 @@ public class CyberWorldObjectGenerator{
 
 	    
 	    //Building Sewer gate
-	    if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+	    if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 		    for(int y=0;y<31;y++){
 		    	for(int x=0;x<16;x++){
 		    		for(int z=0;z<16;z++){
@@ -533,7 +512,7 @@ public class CyberWorldObjectGenerator{
 	    		}
 	    	}
 	    }    	
-	    if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+	    if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			double d = rng.nextDouble();
@@ -553,8 +532,8 @@ public class CyberWorldObjectGenerator{
      
         
         //Building Sewer-Road Entry (Should be after Road paving)
-	    if ( (calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST  ) ||
-	    		(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH )  ){
+	    if ( (cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST  ) ||
+	    		(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH )  ){
 	    	
 			int x;
 	 		int z;
@@ -585,22 +564,22 @@ public class CyberWorldObjectGenerator{
 
 	    			//Road
     				if(y >=LAYER_1_HEIGHT && y<LAYER_1_HEIGHT+2){
-    					if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_1_SRT  &&  z<=LAYER_1_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_1_SRT  &&  x<=LAYER_1_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_1_SRT  &&  x<=LAYER_1_END)  ||  (z>=LAYER_1_SRT  &&  z<=LAYER_1_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     					
@@ -608,23 +587,23 @@ public class CyberWorldObjectGenerator{
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_1_HEIGHT+2 && y<LAYER_1_HEIGHT+3){
-           	    		if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+           	    		if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_1_SW_MIN_END  &&  z>=LAYER_1_SRT)  ||  (z>=LAYER_1_SW_MAX_END  &&  z<=LAYER_1_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_1_SW_MIN_END  &&  x>=LAYER_1_SRT)  ||  (x>=LAYER_1_SW_MAX_END  &&  x<=LAYER_1_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_1_SW_MIN_END )  ||  (x>=LAYER_1_SW_MAX_END )) && ((z<=LAYER_1_SW_MIN_END  )  ||  (z>=LAYER_1_SW_MAX_END ))  &&  !((x<LAYER_1_SRT  ||  x>LAYER_1_END)  &&  (z<LAYER_1_SRT  ||  z>LAYER_1_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -641,22 +620,22 @@ public class CyberWorldObjectGenerator{
 		    		//Layer_2
 	    	    	
     	    		if(y >=LAYER_2_HEIGHT && y<LAYER_2_HEIGHT+2){
-						if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+						if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_2_SRT  &&  z<=LAYER_2_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_2_SRT  &&  x<=LAYER_2_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_2_SRT  &&  x<=LAYER_2_END)  ||  (z>=LAYER_2_SRT  &&  z<=LAYER_2_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     					
@@ -664,23 +643,23 @@ public class CyberWorldObjectGenerator{
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_2_HEIGHT+2 && y<LAYER_2_HEIGHT+3){
-    					if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_2_SW_MIN_END  &&  z>=LAYER_2_SRT)  ||  (z>=LAYER_2_SW_MAX_END  &&  z<=LAYER_2_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_2_SW_MIN_END  &&  x>=LAYER_2_SRT)  ||  (x>=LAYER_2_SW_MAX_END  &&  x<=LAYER_2_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_2_SW_MIN_END )  ||  (x>=LAYER_2_SW_MAX_END )) && ((z<=LAYER_2_SW_MIN_END  )  ||  (z>=LAYER_2_SW_MAX_END ))  &&  !((x<LAYER_2_SRT  ||  x>LAYER_2_END)  &&  (z<LAYER_2_SRT  ||  z>LAYER_2_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -699,45 +678,45 @@ public class CyberWorldObjectGenerator{
     	    		//Layer_3
     	    	
     	    		if(y >=LAYER_3_HEIGHT && y<LAYER_3_HEIGHT+2){
-						if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+						if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_3_SRT  &&  z<=LAYER_3_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_3_SRT  &&  x<=LAYER_3_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_3_SRT  &&  x<=LAYER_3_END)  ||  (z>=LAYER_3_SRT  &&  z<=LAYER_3_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     	    			
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_3_HEIGHT+2 && y<LAYER_3_HEIGHT+3){
-    					if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_3_SW_MIN_END  &&  z>=LAYER_3_SRT)  ||  (z>=LAYER_3_SW_MAX_END  &&  z<=LAYER_3_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_3_SW_MIN_END  &&  x>=LAYER_3_SRT)  ||  (x>=LAYER_3_SW_MAX_END  &&  x<=LAYER_3_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_3_SW_MIN_END )  ||  (x>=LAYER_3_SW_MAX_END )) && ((z<=LAYER_3_SW_MIN_END  )  ||  (z>=LAYER_3_SW_MAX_END ))  &&  !((x<LAYER_3_SRT  ||  x>LAYER_3_END)  &&  (z<LAYER_3_SRT  ||  z>LAYER_3_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -754,13 +733,13 @@ public class CyberWorldObjectGenerator{
      }
     public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
     	//Building Generation
-    	if(calculateRoadDirection(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING ){
+    	if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING ){
 			
 			double d = rng.nextDouble();
 			int building_max_height = (int) (Math.round( d*160)+40);
-			int building_type = (int) (Math.round(d*4));
-			int building_width = (int) (Math.round( d*8)+8);
 			
+			int building_width = (int) (Math.round( d*8)+8);
+			int building_perfloorheight =  4+(int) (Math.round(d*6));
 
 			double d2= rng.nextDouble();
 			int building_shift_left = (int) Math.round( d2 * (16-building_width)/2 ) ;
@@ -770,41 +749,57 @@ public class CyberWorldObjectGenerator{
 			int building_shift_down = (16-building_width)/2 - building_shift_up;
 			
 			
-			building_type=rng.nextInt(5); //exclusive 5
-			Material btype = null;
-			switch(building_type){
-			case 0:	
-				btype = Material.NETHER_BRICK;
-				break;
-			case 1:
-				btype = Material.SMOOTH_BRICK;
-				break;
-			case 2:
-				btype = Material.BRICK;
-				break;
-			case 3:
-				btype = Material.SANDSTONE;
-				break;
-			case 4:
-				btype = Material.COBBLESTONE;
-				break;
-			}
+			
 			
 			int mod_x=0;
 			int mod_z=0;
+			for(int y=33;y<33+building_max_height;y+=building_perfloorheight){
+				Material btype = null;
+				int building_type = rng.nextInt(5); //exclusive 5
+				switch(building_type){
+				case 0:	
+					btype = Material.NETHER_BRICK;
+					break;
+				case 1:
+					btype = Material.SMOOTH_BRICK;
+					break;
+				case 2:
+					btype = Material.BRICK;
+					break;
+				case 3:
+					btype = Material.SANDSTONE;
+					break;
+				case 4:
+					btype = Material.COBBLESTONE;
+					break;
+				}
+
+				for(int x=0+building_shift_up;x<16-building_shift_down;x++){
+					for(int z=0+building_shift_left;z<16-building_shift_right;z++){
+						if(z==0+building_shift_left  ||  z==16-building_shift_right-1  ||  x==0+building_shift_up  ||  x==16-building_shift_down-1){
+							chunkdata.setRegion(x,y,z,x+1,y+building_perfloorheight,z+1,btype);
+						}
+					}
+					
+				}
+				
+				//roof
+				if((y-33)%building_perfloorheight==0){
+					chunkdata.setRegion(building_shift_up,y+building_perfloorheight-1,building_shift_left,16-building_shift_down,y+building_perfloorheight,16-building_shift_right,btype);
+				}
+
+					
+				
+				
+			}
 			for(int x=0+building_shift_up;x<16-building_shift_down;x++){
 				for(int z=0+building_shift_left;z<16-building_shift_right;z++){
 					for(int y=33;y<33+building_max_height;y++){
-						if(z==0+building_shift_left  ||  z==16-building_shift_right-1  ||  x==0+building_shift_up  ||  x==16-building_shift_down-1||
-							y==33+building_max_height-1){
+						if(z==0+building_shift_left  ||  z==16-building_shift_right-1  ||  x==0+building_shift_up  ||  x==16-building_shift_down-1||  y==33+building_max_height-1){
 							if((mod_x%3==0  &&  mod_z%3==0)  &&  y%5 ==0){
 								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLOWSTONE);
 							}
-							else{
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,btype);
-							}
 						}
-						
 					}
 					mod_z+=1;
 				}
@@ -832,12 +827,6 @@ public class CyberWorldObjectGenerator{
         }
     }
 
-    private int calculateRoadDirection(int chkx, int chkz){
-    	
-    	return cg.getRoadType(chkx, chkz);
-    	
-    	
-    }
     /*
 	public short[][] generateObject(World world, int chkx, int chkz, int mod,int r){
 	       
