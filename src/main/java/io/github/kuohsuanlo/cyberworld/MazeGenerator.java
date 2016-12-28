@@ -55,79 +55,79 @@ public class MazeGenerator {
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	            	break; 
 	            case 1: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=-1;grid[j+2][i+1]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break; 
 	            case 2: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=-1;grid[j+2][i+1]=1;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break; 
 	            case 3: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=-1;grid[j+2][i+1]=1;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break; 
 	            case 4: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=-2;grid[j+2][i+1]=-2;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 5: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=-2;grid[j+2][i+1]=-2;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 6: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=-2;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break;  
 	            case 7: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=-2;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=1;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break;  
 	            case 8: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=-2;grid[j+2][i+1]=1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 9: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 10: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break;  
 	            case 11: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=1;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break;  
 	            case 12: 
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=-2;grid[j+2][i+1]=-2;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 13: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=-2;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
 	            	grid[j][i+2]=1;grid[j+1][i+2]=1;grid[j+2][i+2]=1;
 	                break;  
 	            case 14:
 	            	grid[j][i]  =1;grid[j+1][i]  =1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=-2;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break;  
 	            case 15: 
-	            	grid[j][i]  =1;grid[j+1][i]  =-1;grid[j+2][i]  =1;
-	            	grid[j][i+1]=-2;grid[j+1][i+1]=0;grid[j+2][i+1]=-2;
-	            	grid[j][i+2]=1;grid[j+1][i+2]=-1;grid[j+2][i+2]=1;
+	            	grid[j][i]  =1;grid[j+1][i]  =0;grid[j+2][i]  =1;
+	            	grid[j][i+1]=0;grid[j+1][i+1]=0;grid[j+2][i+1]=0;
+	            	grid[j][i+2]=1;grid[j+1][i+2]=0;grid[j+2][i+2]=1;
 	                break; 
 	            default: 
 	                
@@ -140,16 +140,10 @@ public class MazeGenerator {
 		for (int i = 0; i < y*3; i++) {
 			for (int j = 0; j < x*3; j++) {
 				if(grid[j][i]==0){
-					System.out.print("O");
+					System.out.print(" ");
 				}
-				else if(grid[j][i] == 1){
-					System.out.print("@");
-				}
-				else if(grid[j][i] == -1){
-					System.out.print("|");
-				}
-				else if(grid[j][i] == -2){
-					System.out.print("-");
+				else{
+					System.out.print(grid[j][i]);
 				}
 			}
 			System.out.println("");
