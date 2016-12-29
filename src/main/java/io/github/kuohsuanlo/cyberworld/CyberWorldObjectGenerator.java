@@ -39,7 +39,7 @@ public class CyberWorldObjectGenerator{
 		rng = new Random();
 		rng.setSeed(testingSeed);
 
-		cg = new CityStreetGenerator(500,500,rng,2);
+		cg = new CityStreetGenerator(500,500,rng,4,10,10,10,1,1,1);
 		readSchematic();
 	}
     
@@ -48,6 +48,9 @@ public class CyberWorldObjectGenerator{
     public final static int DIR_INTERSECTION	=3;
     public final static int DIR_NOT_ROAD		=-1;
     public final static int DIR_BUILDING		=-2;
+    public final static int DIR_S_BUILDING		=-3;
+    public final static int DIR_M_BUILDING		=-4;
+    public final static int DIR_L_BUILDING		=-5;
     public final static int DIR_NOT_DETERMINED  =0;
 
 	//Paving Roads
