@@ -8,31 +8,26 @@
 
   <repositories>
     <repository>
-      <id>bukkit-repo</id>
-      <url>http://repo.bukkit.org/content/groups/public</url>
+        <id>spigot-repo</id>
+        <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
-    <repository>
-     <id>vault-repo</id>
-     <url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
-    </repository>
-  </repositories>
-  
+</repositories>
 <dependencies>
-<!--Spigot-API-->
-	<dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.9-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-	</dependency>
-	<!--Bukkit API-->
-	<dependency>
-       <groupId>org.bukkit</groupId>
-       <artifactId>bukkit</artifactId>
-       <version>1.9-R0.1-SNAPSHOT</version>
-       <scope>provided</scope>
-	</dependency>
-  </dependencies>
+    <!--Spigot API-->
+    <dependency>
+           <groupId>org.spigotmc</groupId>
+           <artifactId>spigot-api</artifactId>
+           <version>1.10.2-R0.1-SNAPSHOT</version>
+           <scope>provided</scope>
+    </dependency>
+    <!--Bukkit API-->
+    <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.10.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+    </dependency>
+</dependencies>
 
   <build>
     <resources>

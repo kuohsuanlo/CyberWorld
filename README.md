@@ -3,6 +3,6 @@
 
 CyberWorld is a minecraft spigot plugin project. The goal is to 
 
-  - Create some cool cyberpunk city scene.
+  - Create some cool cyberpunk city scenes.
 
-[![N|Solid](https://github.com/kuohsuanlo/CyberWorld/blob/master/images/2016-12-28_22.05.33.png?raw=true)]
+[![N|Solid](https://i.imgur.com/TPGAlyx.png)]

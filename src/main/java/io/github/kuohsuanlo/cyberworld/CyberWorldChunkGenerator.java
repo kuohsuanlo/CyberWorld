@@ -3,34 +3,20 @@ package io.github.kuohsuanlo.cyberworld;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
-import com.sk89q.worldedit.CuboidClipboard;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.data.DataException;
-import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
-import com.sk89q.worldedit.schematic.SchematicFormat;
 
-import static java.lang.System.arraycopy;
-import static java.lang.System.inheritedChannel;
 
 public class CyberWorldChunkGenerator extends ChunkGenerator
 {
@@ -50,20 +36,14 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     public ChunkData generateChunkData(World world, Random random, int chkx, int chkz, BiomeGrid biomes){
     	ChunkData chunkdata = createChunkData(world);
     	
-    	
     	random.setSeed(world.getSeed()/2+chkx+chkz);
-    	//log.warning("[CyberWorld] : "+chkx+" "+chkz+" "+ random.nextInt());
-    	//log.warning("[CyberWorld] : "+chkx+" "+chkz+" "+ random.nextInt());
-    	//random.setSeed(world.getSeed()/2+chkx+chkz);
-    	//log.warning("[CyberWorld] : "+chkx+" "+chkz+" "+ random.nextInt());
-    	//log.warning("[CyberWorld] : "+chkx+" "+chkz+" "+ random.nextInt());
-        
+
     	
     	chunkdata = og.generateTerrain(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateSewer(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz, biomes);
-    	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes);
+    	chunkdata = og.generateBuilding(world,chunkdata, random, chkx, chkz, biomes);
         //og.generateDecoration(world, random, chkx, chkz, biomes);
         //og.generateMines(world, random, chkx, chkz, biomes);
         return chunkdata;

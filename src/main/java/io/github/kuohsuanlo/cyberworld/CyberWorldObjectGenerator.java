@@ -4,10 +4,13 @@ import static java.lang.System.arraycopy;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator.BiomeGrid;
@@ -16,27 +19,28 @@ import org.bukkit.material.MaterialData;
 
 import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.EditSessionFactory;
+import com.sk89q.worldedit.LocalWorld;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.SchematicFormat;
+import com.sk89q.worldedit.world.DataException;
 
 
 public class CyberWorldObjectGenerator{
 	private Random rng;
 	private Logger log = Logger.getLogger("Minecraft");
-
     public CityStreetGenerator cg = null;
-    
     private long testingSeed= 1205;
 	public CyberWorldObjectGenerator(){
 		//generating the city layout
 		rng = new Random();
 		rng.setSeed(testingSeed);
+
 		cg = new CityStreetGenerator(500,500,rng,2);
-		
-		
+		readSchematic();
 	}
     
     public final static int DIR_EAST_WEST 		=1;
@@ -45,7 +49,6 @@ public class CyberWorldObjectGenerator{
     public final static int DIR_NOT_ROAD		=-1;
     public final static int DIR_BUILDING		=-2;
     public final static int DIR_NOT_DETERMINED  =0;
-    private long worldSeed;
 
 	//Paving Roads
     private static Material ROAD_SIDEWALK_MATERIAL_1 = Material.STEP;
@@ -86,10 +89,20 @@ public class CyberWorldObjectGenerator{
 	private static int LAYER_3_SW_MAX_END = LAYER_3_END-LAYER_3_SW_WD;
     
     
-    public static final String WINDOWS_PATH="plugins\\CyberpunkCityGenerator\\schematics\\";
+    public static final String WINDOWS_PATH="plugins\\CyberWorld\\schematics\\";
    
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
-
+    
+    
+	private CuboidClipboard[] cc_list ;
+	private final static int schematicNumber = 32;
+	private void readSchematic(){
+		cc_list = new CuboidClipboard[schematicNumber];
+		for(int i =0;i<schematicNumber;i++){
+			cc_list[i] = Schematic.getSchematic(i+".schematic");
+		
+		}
+	}
     public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
         for(int y=0;y<33;y++){
 	    	for(int x=0;x<16;x++){
@@ -731,10 +744,34 @@ public class CyberWorldObjectGenerator{
          return chunkdata;
      	
      }
-    public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+	public ChunkData generateBuilding(World world, ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
     	//Building Generation
     	if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_BUILDING ){
 			
+        	
+    		int cc = rng.nextInt(schematicNumber);
+  		
+        	for(int j=0;j<cc_list[cc].getWidth();j++){
+        		for(int i=0;i<cc_list[cc].getLength();i++){
+                	for(int k=0;k<cc_list[cc].getHeight();k++){
+        				int y = k+33;
+        				if(cc_list[cc].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[cc].getBlock(new Vector(j,k,i)).getId());
+        				}
+        				
+        			}
+        		}
+        	}
+
+			
+        	
+			
+    	
+
+    		
+    		
+    		
+    		/*
 			double d = rng.nextDouble();
 			int building_max_height = (int) (Math.round( d*160)+40);
 			
@@ -805,43 +842,17 @@ public class CyberWorldObjectGenerator{
 				}
 				mod_x+=1;
 			}
-			
+			*/
 		}
-    	return chunkdata;
+		
+
     	
-    }
-    public void paste(String schematicName, Vector origin, World world) {
-        try {
-            File dir = new File(WINDOWS_PATH + schematicName);
-            
-            EditSession editSession = new EditSession(new BukkitWorld(world), 64*64*256);
-            SchematicFormat schematic = SchematicFormat.getFormat(dir);
-            CuboidClipboard clipboard = schematic.load(dir);
- 
-            clipboard.paste(editSession,origin, true);
-            editSession.flushQueue();
-        } catch (DataException | IOException ex) {
-            ex.printStackTrace();
-        } catch (MaxChangedBlocksException ex) {
-            ex.printStackTrace();
-        }
+    	
+    	
+    	
+    return chunkdata;	
     }
 
-    /*
-	public short[][] generateObject(World world, int chkx, int chkz, int mod,int r){
-	       
 
-
-	    
-
-	  
-	    
-
-	    
-	    
-	    
-	}
-	*/
-	
 }
  		
