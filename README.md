@@ -2,8 +2,8 @@
 
 
 CyberWorld is a minecraft spigot plugin project. The goal is 
-  - Procedurally generatinh complicated cyberpunk city in minecraft 
-  - Automatically merging buildings
+  - Procedurally generating complicated cyberpunk city in minecraft 
+  - Automatically merging buildings into mega-structure
 
 ScreenShot of the city and me : 
 ![ScreenShot](http://i.imgur.com/tct3UYv.png)
