@@ -1,14 +1,10 @@
 
 package io.github.kuohsuanlo.cyberworld;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,8 +16,7 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class CyberWorldChunkGenerator extends ChunkGenerator
 {
-    private Logger log = Logger.getLogger("Minecraft");
-    private short[] layer;
+
     private byte[] layerDataValues;
 
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255

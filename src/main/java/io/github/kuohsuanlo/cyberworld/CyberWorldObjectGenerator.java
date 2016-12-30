@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -34,13 +35,17 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
+	private final static int schematicNumber = 32;
+	private int sz_s=2;
+	private int sz_m=3;
+	private int sz_l=4;
 	public CyberWorldObjectGenerator(){
 		//generating the city layout
 		rng = new Random();
 		rng.setSeed(testingSeed);
-
-		cg = new CityStreetGenerator(500,500,rng,4,32,32,32,1,1,1);
 		readSchematic();
+		cg = new CityStreetGenerator(500,500,rng,4,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		
 	}
 
 	
@@ -99,13 +104,26 @@ public class CyberWorldObjectGenerator{
     
     
 	private CuboidClipboard[] cc_list ;
-	private final static int schematicNumber = 32;
+	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
+	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
+	private ArrayList<CuboidClipboard> cc_list_l = new ArrayList<CuboidClipboard>();
 	private void readSchematic(){
 		cc_list = new CuboidClipboard[schematicNumber];
 		for(int i =0;i<schematicNumber;i++){
 			cc_list[i] = Schematic.getSchematic(i+".schematic");
-		
+			if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
+				cc_list_s.add(cc_list[i]);
+			}
+			else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
+				cc_list_m.add(cc_list[i]);
+			}
+			else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
+				cc_list_l.add(cc_list[i]);
+			}
 		}
+		System.out.print("[CyberWorld] : Final numbers of read schematic(Small/Medium/Large) = "+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
+		
+		
 	}
     public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
         for(int y=0;y<33;y++){
@@ -126,7 +144,6 @@ public class CyberWorldObjectGenerator{
 	    }
         return chunkdata;
     }
-    
     public ChunkData generateRoad(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
 		//Paving Roads
 		for(int y=33;y<34;y++){
@@ -751,332 +768,111 @@ public class CyberWorldObjectGenerator{
 	public ChunkData generateBuilding(World world, ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
     	//Building Generation
 		int layer;
-
+		int layer_ground=32;
+		int layer_height_1=256;
+		int layer_height_2=256;
+		int layer_height_3=256;
+		
+		int layer_start_1 = layer_ground+1;
+		int layer_start_2 = layer_ground+1;
+		int layer_start_3 = layer_ground+1;
+		
 		layer=1;
 		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_S_BUILDING){
 			int type = cg.getBuildingType(chkx,chkz,layer);
+			
+			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.s_size;
+			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.s_size;
+			
 
-			if(cg.getBuildingStruct(chkx, chkz, layer)==1){
-				//System.out.print(0+"~"+Math.min(cc_list[type].getWidth(),16)+","+0+"~"+Math.min(cc_list[type].getLength(),16));
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	                	for(int k=0;k<32;k++){
-	        				int y = k+33;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.SANDSTONE);
-	        			}
-	        		}
-	        	}
-			}
+			int j_start = sx*16;
+			int j_max = (sx+1)*16;
+			int i_start = sz*16;
+			int i_max = (sz+1)*16;
+			
+
+			for(int j=j_start;j<Math.min(cc_list_s.get(type).getWidth(),j_max);j++){
+        		for(int i=i_start;i<Math.min(cc_list_s.get(type).getLength(),i_max);i++){
+                	for(int k=0;k<Math.min(cc_list_s.get(type).getHeight(),layer_height_1);k++){
+        				int y = k+layer_start_1;
+        				int x = j-j_start;
+        				int z = i-i_start;
+        				if(cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
+        					else
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId());
+        				}
+        				
+        			}
+        		}
+        	}
+			
 			
 		}
+		
 		layer=2; // medium
 		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_M_BUILDING){
 			int type = cg.getBuildingType(chkx,chkz,layer);
-    		//int type = rng.nextInt(schematicNumber);
+			
+			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.m_size;
+			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.m_size;
+			
 
-			if(cg.getBuildingStruct(chkx, chkz, layer)==1){
-				//System.out.print(0+"~"+Math.min(cc_list[type].getWidth(),16)+","+0+"~"+Math.min(cc_list[type].getLength(),16));
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+33;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==2){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+33;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.STONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==3){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+33;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.GRAVEL);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==4){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+33;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.SAND);
-	        			}
-	        		}
-	        	}
-			}
-		}
-		
-		
+			int j_start = sx*16;
+			int j_max = (sx+1)*16;
+			int i_start = sz*16;
+			int i_max = (sz+1)*16;
+			for(int j=j_start;j<Math.min(cc_list_m.get(type).getWidth(),j_max);j++){
+        		for(int i=i_start;i<Math.min(cc_list_m.get(type).getLength(),i_max);i++){
+                	for(int k=0;k<Math.min(cc_list_m.get(type).getHeight(),layer_height_2);k++){
+        				int y = k+layer_start_2;
+        				int x = j-j_start;
+        				int z = i-i_start;
+        				if(cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLOWSTONE);
+        					else
+            					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId());
+        				}
+        				
+        			}
+        		}
+        	}
+			
+		}	
+
 		layer=3; // large
 		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_L_BUILDING){
 			int type = cg.getBuildingType(chkx,chkz,layer);
-    		//int type = rng.nextInt(schematicNumber);
-			if(cg.getBuildingStruct(chkx, chkz, layer)==1){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==2){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.GOLD_ORE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==3){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COAL_ORE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==4){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.LAPIS_ORE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==5){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.DIAMOND_ORE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==6){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==7){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==8){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-				
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==9){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==10){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==11){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==12){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==13){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==14){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==15){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.COBBLESTONE);
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==16){
-				for(int j=0;j<16;j++){
-	        		for(int i=0;i<16;i++){
-	        			for(int k=32;k<64;k++){
-	        				int y = k+65;
-	        				chunkdata.setRegion(j,y,i,j+1,y+1,i+1,Material.DIAMOND_BLOCK);
-	        			}
-	        		}
-	        	}
-			}
+			
+			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.l_size;
+			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.l_size;
+			
+
+			int j_start = sx*16;
+			int j_max = (sx+1)*16;
+			int i_start = sz*16;
+			int i_max = (sz+1)*16;
+			for(int j=j_start;j<Math.min(cc_list_l.get(type).getWidth(),j_max);j++){
+        		for(int i=i_start;i<Math.min(cc_list_l.get(type).getLength(),i_max);i++){
+                	for(int k=0;k<Math.min(cc_list_l.get(type).getHeight(),layer_height_3);k++){
+        				int y = k+layer_start_3;
+        				int x = j-j_start;
+        				int z = i-i_start;
+        				if(cc_list_l.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.SEA_LANTERN);
+        					else
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_l.get(type).getBlock(new Vector(j,k,i)).getId());
+        				}
+        				
+        			}
+        		}
+        	}
 			
 		}	
 		
-			
-			/*
-			layer=1; // small
-			if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_S_BUILDING){
-				int type = cg.getBuildingType(chkx,chkz,layer);
-	    		//int type = rng.nextInt(schematicNumber);
-
-				if(cg.getBuildingStruct(chkx, chkz, layer)==1){
-					for(int j=0;j<Math.min(cc_list[type].getWidth(),16);j++){
-		        		for(int i=0;i<Math.min(cc_list[type].getLength(),16);i++){
-		                	for(int k=0;k<cc_list[type].getHeight();k++){
-		        				int y = k+33;
-		        				if(cc_list[type].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-		        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[type].getBlock(new Vector(j,k,i)).getId());
-		        				}
-		        				
-		        			}
-		        		}
-		        	}
-				}
-				
-			}
-			*/
-			/*
-			if(cg.getBuildingStruct(chkx, chkz, layer)==1){
-				System.out.print(0+"~"+Math.min(cc_list[type].getWidth(),16)+","+0+"~"+Math.min(cc_list[type].getLength(),16));
-				for(int j=0;j<Math.min(cc_list[type].getWidth(),16);j++){
-	        		for(int i=0;i<Math.min(cc_list[type].getLength(),16);i++){
-	                	for(int k=0;k<cc_list[type].getHeight();k++){
-	        				int y = k+33;
-	        				if(cc_list[type].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-	        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[type].getBlock(new Vector(j,k,i)).getId());
-	        				}
-	        				
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==2){
-				System.out.print(16+"~"+Math.min(cc_list[type].getWidth(),32)+","+0+"~"+Math.min(cc_list[type].getLength(),16));
-				for(int j=16;j<Math.min(cc_list[type].getWidth(),32);j++){
-	        		for(int i=0;i<Math.min(cc_list[type].getLength(),16);i++){
-	                	for(int k=0;k<cc_list[type].getHeight();k++){
-	        				int y = k+33;
-	        				if(cc_list[type].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-	        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[type].getBlock(new Vector(j,k,i)).getId());
-	        				}
-	        				
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==3){
-				System.out.print(0+"~"+Math.min(cc_list[type].getWidth(),16)+","+16+"~"+Math.min(cc_list[type].getLength(),32));
-				for(int j=0;j<Math.min(cc_list[type].getWidth(),16);j++){
-	        		for(int i=16;i<Math.min(cc_list[type].getLength(),32);i++){
-	                	for(int k=0;k<cc_list[type].getHeight();k++){
-	        				int y = k+33;
-	        				if(cc_list[type].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-	        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[type].getBlock(new Vector(j,k,i)).getId());
-	        				}
-	        				
-	        			}
-	        		}
-	        	}
-			}
-			else if(cg.getBuildingStruct(chkx, chkz, layer)==4){
-				System.out.print(16+"~"+Math.min(cc_list[type].getWidth(),32)+","+16+"~"+Math.min(cc_list[type].getLength(),32));
-				for(int j=16;j<Math.min(cc_list[type].getWidth(),32);j++){
-	        		for(int i=16;i<Math.min(cc_list[type].getLength(),32);i++){
-	                	for(int k=0;k<cc_list[type].getHeight();k++){
-	        				int y = k+33;
-	        				if(cc_list[type].getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-	        					chunkdata.setRegion(j,y,i,j+1,y+1,i+1,cc_list[type].getBlock(new Vector(j,k,i)).getId());
-	        				}
-	        				
-	        			}
-	        		}
-	        	}
-			}*/
-			
-		
-    	
-    	
-    	
     return chunkdata;	
     }
 

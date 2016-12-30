@@ -15,7 +15,7 @@ import java.util.Random;
  *
  */
 
-/*  1  2  3  4       1 2 3  	1
+/*   1  2  3  4       1 2 3  	1
  *   5  6  7  8		  4 5 6	
  *   9 10 11 12	      7 8 9
  *  13 14 15 16
@@ -39,10 +39,10 @@ public class CityStreetGenerator {
     private final double s_rate;
     private final double m_rate;
     private final double l_rate;
-    private int s_size=1;
-    private int m_size=2;
-    private int l_size=4;
-	public CityStreetGenerator(int x, int y, Random r, int mmbw,int s,int m,int l,double sr,double mr,double lr) {
+    public final int s_size;
+    public final int m_size;
+    public final int l_size;
+	public CityStreetGenerator(int x, int y, Random r, int mmbw,int s,int m,int l, int ss, int ms, int ls,double sr,double mr,double lr) {
 		this.x = x;
 		this.y = y;
 		city = new int[this.x][this.y];
@@ -58,9 +58,9 @@ public class CityStreetGenerator {
 		s_rate = sr;
 		m_rate = mr;
 		l_rate = lr;
-		s_size = Math.min(mmbw,s_size);
-		m_size = Math.min(mmbw,m_size);
-		l_size = Math.min(mmbw,l_size);
+		s_size = Math.min(mmbw,ss);
+		m_size = Math.min(mmbw,ms);
+		l_size = Math.min(mmbw,ls);
 		recursiveSplitting(0,0,x-1,y-1,1);
 	}
 	public int getRoadType(int rx, int rz){
@@ -329,7 +329,7 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		/*
+		
 		for(int l=0;l<3;l++){
 
 			System.out.println("building : "+l);
@@ -354,7 +354,7 @@ public class CityStreetGenerator {
 				}
 				System.out.println("");
 			}
-		}	*/
+		}	
 		
 		
 		for(int l=0;l<3;l++){
@@ -407,7 +407,7 @@ public class CityStreetGenerator {
 		int h =20;
 		Random rng = new Random();
 		rng.setSeed(9888);
-		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,3,10,10,10,1,1,1);
+		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,4,10,10,10,2,3,4,1,1,1);
 		g.displayGrid();
 		
 	}

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.CuboidClipboard;
@@ -58,6 +59,7 @@ public class Schematic {
             SchematicFormat.MCEDIT.save(clipboard, schematic);
             editSession.flushQueue();
 
+            
             player.sendMessage("Saved schematic!");
         } catch (IOException | DataException ex) {
             ex.printStackTrace();
@@ -99,6 +101,13 @@ public class Schematic {
 				e.printStackTrace();
 			}
 
+			/*
+            for(int j=0;j<clipboard.getWidth();j++){
+        		for(int i=0;i<clipboard.getLength();i++){
+        			System.out.print(j + "," + i +" : "+Material.getMaterial(clipboard.getBlock(new Vector(j,0,i)).getId()).toString());
+        		}
+        	}
+            */
             return clipboard;
 
     }

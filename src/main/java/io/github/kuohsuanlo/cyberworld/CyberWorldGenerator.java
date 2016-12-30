@@ -1,16 +1,8 @@
 package io.github.kuohsuanlo.cyberworld;
 
-import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
-
-
-
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.reflect.Method;
-import java.util.Random;
 import java.util.logging.Logger;
 /* 0 = ground
  * 1 = road-NS
