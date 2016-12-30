@@ -6,7 +6,7 @@ CyberWorld is a minecraft spigot plugin project. The goal is to
   - Automatically merging buildings
 
 Concept : (from Bladecraft)
-https://i.imgur.com/TPGAlyx.png
+![ScreenShot](http://i.imgur.com/tct3UYv.png)
 
-Demo video : 
+A short 30s demo video : 
 https://youtu.be/qmEDBhrYLpg
