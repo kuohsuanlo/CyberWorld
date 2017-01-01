@@ -35,7 +35,7 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
-	private final static int schematicNumber = 32;
+	private final static int schematicNumber = 44;
 	private int sz_s=2;
 	private int sz_m=3;
 	private int sz_l=4;
@@ -119,6 +119,9 @@ public class CyberWorldObjectGenerator{
 			}
 			else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
 				cc_list_l.add(cc_list[i]);
+			}
+			else{
+				System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
 			}
 		}
 		System.out.print("[CyberWorld] : Final numbers of read schematic(Small/Medium/Large) = "+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());

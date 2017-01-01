@@ -403,8 +403,8 @@ public class CityStreetGenerator {
 		
 	}
 	public static void main(String[] args) {
-		int w =20;
-		int h =20;
+		int w =100;
+		int h =100;
 		Random rng = new Random();
 		rng.setSeed(9888);
 		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,4,10,10,10,2,3,4,1,1,1);
