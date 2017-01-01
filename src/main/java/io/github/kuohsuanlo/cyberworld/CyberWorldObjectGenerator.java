@@ -35,8 +35,9 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
-    private final static int schematicBlueprint = 44;
+    private final static int schematicBlueprint = 89;
 	private final static int schematicNumber = schematicBlueprint*4;
+	private int sz_deco=1;
 	private int sz_s=2;
 	private int sz_m=3;
 	private int sz_l=4;
@@ -105,9 +106,13 @@ public class CyberWorldObjectGenerator{
     
     
 	private CuboidClipboard[] cc_list ;
+	private ArrayList<CuboidClipboard> cc_list_deco = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_l = new ArrayList<CuboidClipboard>();
+	private ArrayList<Material> cc_list_most_s = new ArrayList<Material>();
+	private ArrayList<Material> cc_list_most_m = new ArrayList<Material>();
+	private ArrayList<Material> cc_list_most_l = new ArrayList<Material>();
 	
 	
 	private void readSchematic(){
@@ -115,14 +120,21 @@ public class CyberWorldObjectGenerator{
 		for(int i =0;i<schematicBlueprint;i++){
 			for(int angle = 0;angle<360;angle+=90){
 				cc_list[i] = Schematic.getSchematic(i+".schematic",angle);
-				if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
+				
+				if(cc_list[i].getLength()<=sz_deco*16  && cc_list[i].getWidth()<=sz_deco*16){
+					cc_list_deco.add(cc_list[i]);
+				}
+				else if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
 					cc_list_s.add(cc_list[i]);
+					cc_list_most_s.add(this.getMostMaterial(cc_list[i]));
 				}
 				else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
 					cc_list_m.add(cc_list[i]);
+					cc_list_most_m.add(this.getMostMaterial(cc_list[i]));
 				}
 				else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
 					cc_list_l.add(cc_list[i]);
+					cc_list_most_l.add(this.getMostMaterial(cc_list[i]));
 				}
 				else{
 					System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
@@ -132,7 +144,7 @@ public class CyberWorldObjectGenerator{
 
 
 		}
-		System.out.print("[CyberWorld] : Final numbers of read schematic(Small/Medium/Large) = "+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
+		System.out.print("[CyberWorld] : Final numbers of read schematic(Deco/Small/Medium/Large) = "+cc_list_deco.size()+"/"+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
 		
 		
 	}
@@ -195,10 +207,16 @@ public class CyberWorldObjectGenerator{
         			if((z == 5  ||  z==10)  &&  (x%4==1  ||  x%4==2) ){
         				chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
         			}
+        			else if((z == 5  ||  z==10)  &&  (x%4==3) ){
+        				chunkdata.setBlock(x, y, z, Material.GLOWSTONE );
+        			}
     			}
     			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
     				if((x == 5  ||  x==10)  &&  (z%4==1  ||  z%4==2) ){
     					chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
+        			}
+    				else if((x == 5  ||  x==10)    &&  (x%4==3) ){
+        				chunkdata.setBlock(x, y, z, Material.GLOWSTONE );
         			}
     			}
     			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
@@ -776,7 +794,7 @@ public class CyberWorldObjectGenerator{
          return chunkdata;
      	
      }
-	public ChunkData generateBuilding(World world, ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+	public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
     	//Building Generation
 		int layer;
 		int layer_ground=32;
@@ -786,7 +804,7 @@ public class CyberWorldObjectGenerator{
 		int[] current_size = {cg.s_size,cg.m_size,cg.l_size};
 		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
 		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
-		
+		Object[] all_most_lists = {cc_list_most_s,cc_list_most_m,cc_list_most_l};
 		
 		for(layer=0;layer<3;layer++){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
@@ -823,22 +841,17 @@ public class CyberWorldObjectGenerator{
 		    				int x = j-j_start;
 		    				int z = i-i_start;
 		    				if( chunkdata.getType(x, y, z)!=Material.AIR){
+		    					
 		    					if(mergingWall[x][z]){
 		    						for(int y_s=layer_start;y_s<k+layer_start;y_s++){
 			    						if(chunkdata.getType(x, y_s, z)==Material.AIR){
-			    							
-			    							
-			    							if((x+z)%3==0){
-				    							switch(y_s%8){
-					    							case 1: 
-					    								block_id = Material.WOOD_DOOR.getId();
-					    								break;
-				    							}
+			    							//Paste Most command block type
+			    							if(x%4==0  ||  z%4==0  ||  y%8==0){
+			    								chunkdata.setBlock(x, y_s, z,Material.getMaterial(((ArrayList<Material>)all_most_lists[layer]).get(type).getId()));
 			    							}
 			    							else{
-			    								block_id = getMostMaterial(current_list.get(type)).getId();
+			    								chunkdata.setBlock(x, y_s, z,Material.GRASS);
 			    							}
-			    							chunkdata.setBlock(x, y_s, z,block_id);
 			    						}
 			    					}
 			    					break;
@@ -849,8 +862,8 @@ public class CyberWorldObjectGenerator{
 		    				else{
 		    					//System.out.println(j+"/"+i+"/"+k);
 		    					if(!newIgnoringVoxel[x][z][k]){
-			    					//if(current_list.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-				    					if((x%8==4  &&  z%8==4)  &&  y%8 ==0){
+			    					if(current_list.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+			    						if((x%8==4  &&  z%8==4)  &&  y%8 ==0){
 				    						switch(layer){
 			    							case 0: 
 												chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
@@ -872,18 +885,42 @@ public class CyberWorldObjectGenerator{
 				    							block_id==Material.COAL_BLOCK.getId()  ||   
 				    							block_id==Material.LAPIS_BLOCK.getId()  ||   
 				    							block_id==Material.EMERALD_BLOCK.getId()  || 
-						    					block_id==Material.BEDROCK.getId()  ||     
+						    					block_id==Material.BEDROCK.getId()  ||  
 				    							block_id==Material.REDSTONE_BLOCK.getId()){
 				    							
 				    							block_id = Material.COBBLESTONE.getId();
 				    							chunkdata.setBlock(x, y, z,block_id);
 				    						}
+				    						else if(block_id==Material.GRASS.getId()){
+					    							
+					    							block_id = Material.DIRT.getId();
+					    							chunkdata.setBlock(x, y, z,block_id);
+					    						}
 				    						else{
 				    							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)current_list.get(type).getBlock(new Vector(j,k,i)).getData()));
 				    						}
 				    							
 				    					}
-			    					//}
+			    					}
+		    					}
+		    					else{
+		    						block_id = current_list.get(type).getBlock(new Vector(j,k,i)).getId();
+		    						
+		    						if(block_id==Material.GOLD_BLOCK.getId()  ||  
+		    							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
+		    							block_id==Material.IRON_BLOCK.getId()  ||   
+		    							block_id==Material.COAL_BLOCK.getId()  ||   
+		    							block_id==Material.LAPIS_BLOCK.getId()  ||   
+		    							block_id==Material.EMERALD_BLOCK.getId()  || 
+				    					block_id==Material.BEDROCK.getId()  ||     
+		    							block_id==Material.REDSTONE_BLOCK.getId()){
+		    							
+		    							block_id = Material.COBBLESTONE.getId();
+		    							chunkdata.setBlock(x, y, z,block_id);
+		    						}
+		    						else{
+		    							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)current_list.get(type).getBlock(new Vector(j,k,i)).getData()));
+		    						}
 		    					}
 		    				}
 		    			}
@@ -894,10 +931,63 @@ public class CyberWorldObjectGenerator{
 		}
     return chunkdata;	
     }
-	
+	public ChunkData generateDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+		int layer_ground=32;
+		int layer_start = layer_ground+1;
+		int layer_height = 256;
+		int sx=0;
+		int sz=0;
+		int j_start = sx*16;
+		int j_max = (sx+1)*16;
+		int i_start = sz*16;
+		int i_max = (sz+1)*16;
+		
+		int type = rng.nextInt(cc_list_deco.size());
+		
+		
+		int j_end = Math.min(cc_list_deco.get(type).getWidth(),j_max);
+		int i_end = Math.min(cc_list_deco.get(type).getLength(),i_max);
+		int k_end = Math.min(cc_list_deco.get(type).getHeight(),layer_height);
+		int block_id;
+		for(int j=j_start;j<j_end;j++){
+    		for(int i=i_start;i<i_end;i++){
+            	for(int k=k_end-1;k>=0;k--){
+            		int y = k+layer_start;
+    				int x = j-j_start;
+    				int z = i-i_start;
+            		if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
+            				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ||
+            				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+            	
+	            		block_id = cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getId();
+						
+						if(block_id==Material.GOLD_BLOCK.getId()  ||  
+							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
+							block_id==Material.IRON_BLOCK.getId()  ||   
+							block_id==Material.COAL_BLOCK.getId()  ||   
+							block_id==Material.LAPIS_BLOCK.getId()  ||   
+							block_id==Material.EMERALD_BLOCK.getId()  || 
+	    					block_id==Material.BEDROCK.getId()  ||     
+							block_id==Material.REDSTONE_BLOCK.getId()){
+							
+							block_id = Material.COBBLESTONE.getId();
+							chunkdata.setBlock(x, y, z,block_id);
+						}
+						else{
+							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getData()));
+						}
+            		}
+            	}
+        	}
+    	}
+
+
+	    
+        return chunkdata;
+    	
+    }
 	private Material getMostMaterial(CuboidClipboard cc){
-		return Material.GLOWSTONE;
-		/*
+
 		int[] id_times = new int[500];
 		int now_id =0;
 		for(int y=0;y<cc.getHeight();y++){
@@ -920,7 +1010,7 @@ public class CyberWorldObjectGenerator{
 		        maxIndex = i;
 		    }
 		}
-		return Material.getMaterial(maxIndex);*/
+		return Material.getMaterial(maxIndex);
 		
 	}
 	private boolean[][][] returnOverlappingIgnoredVoxel(CuboidClipboard new_cc,CuboidClipboard old_cc){
