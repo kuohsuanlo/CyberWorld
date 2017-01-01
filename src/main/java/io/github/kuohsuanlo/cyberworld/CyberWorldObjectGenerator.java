@@ -780,70 +780,6 @@ public class CyberWorldObjectGenerator{
 		int layer_start_2 = layer_ground+1;
 		int layer_start_3 = layer_ground+1;
 		
-		layer=1;
-		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_S_BUILDING){
-			int type = cg.getBuildingType(chkx,chkz,layer);
-			
-			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.s_size;
-			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.s_size;
-			
-
-			int j_start = sx*16;
-			int j_max = (sx+1)*16;
-			int i_start = sz*16;
-			int i_max = (sz+1)*16;
-			
-
-			for(int j=j_start;j<Math.min(cc_list_s.get(type).getWidth(),j_max);j++){
-        		for(int i=i_start;i<Math.min(cc_list_s.get(type).getLength(),i_max);i++){
-                	for(int k=0;k<Math.min(cc_list_s.get(type).getHeight(),layer_height_1);k++){
-        				int y = k+layer_start_1;
-        				int x = j-j_start;
-        				int z = i-i_start;
-        				if(cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
-        					else
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId());
-        				}
-        				
-        			}
-        		}
-        	}
-			
-			
-		}
-		
-		layer=2; // medium
-		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_M_BUILDING){
-			int type = cg.getBuildingType(chkx,chkz,layer);
-			
-			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.m_size;
-			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.m_size;
-			
-
-			int j_start = sx*16;
-			int j_max = (sx+1)*16;
-			int i_start = sz*16;
-			int i_max = (sz+1)*16;
-			for(int j=j_start;j<Math.min(cc_list_m.get(type).getWidth(),j_max);j++){
-        		for(int i=i_start;i<Math.min(cc_list_m.get(type).getLength(),i_max);i++){
-                	for(int k=0;k<Math.min(cc_list_m.get(type).getHeight(),layer_height_2);k++){
-        				int y = k+layer_start_2;
-        				int x = j-j_start;
-        				int z = i-i_start;
-        				if(cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLOWSTONE);
-        					else
-            					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId());
-        				}
-        				
-        			}
-        		}
-        	}
-			
-		}	
 
 		layer=3; // large
 		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_L_BUILDING){
@@ -875,6 +811,103 @@ public class CyberWorldObjectGenerator{
         	}
 			
 		}	
+		
+		layer=2; // medium
+		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_M_BUILDING){
+			int type = cg.getBuildingType(chkx,chkz,layer);
+			
+			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.m_size;
+			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.m_size;
+			
+
+			int j_start = sx*16;
+			int j_max = (sx+1)*16;
+			int i_start = sz*16;
+			int i_max = (sz+1)*16;
+			for(int j=j_start;j<Math.min(cc_list_m.get(type).getWidth(),j_max);j++){
+        		for(int i=i_start;i<Math.min(cc_list_m.get(type).getLength(),i_max);i++){
+                	for(int k=0;k<Math.min(cc_list_m.get(type).getHeight(),layer_height_2);k++){
+        				int y = k+layer_start_2;
+        				int x = j-j_start;
+        				int z = i-i_start;
+        				
+        				
+        				// Add scaffold
+        				if( (chunkdata.getType(x, y, z)!=Material.AIR) && 
+            					((j==j_start  ||  j==Math.min(cc_list_m.get(type).getWidth(),j_max)-1)  ||
+            					(i==i_start  ||  i==Math.min(cc_list_m.get(type).getLength(),i_max)-1)) ){
+        					
+        					if(x%16==7  ||  k==Math.min(cc_list_m.get(type).getHeight(),layer_height_1))
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
+        					else
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
+        				}
+        			
+        				
+        				// Add light
+        				else if(cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
+        				}
+        				else{
+        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId());
+        				}
+        				
+        			}
+        		}
+        	}
+			
+		}	
+
+		layer=1;
+		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_S_BUILDING){
+			int type = cg.getBuildingType(chkx,chkz,layer);
+			
+			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.s_size;
+			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.s_size;
+			
+
+			int j_start = sx*16;
+			int j_max = (sx+1)*16;
+			int i_start = sz*16;
+			int i_max = (sz+1)*16;
+			
+			
+			for(int j=j_start;j<Math.min(cc_list_s.get(type).getWidth(),j_max);j++){
+        		for(int i=i_start;i<Math.min(cc_list_s.get(type).getLength(),i_max);i++){
+                	for(int k=0;k<Math.min(cc_list_s.get(type).getHeight(),layer_height_1);k++){
+        				int y = k+layer_start_1;
+        				int x = j-j_start;
+        				int z = i-i_start;
+
+        				// Add scaffold
+        				if( (chunkdata.getType(x, y, z)!=Material.AIR) && 
+            					((j==j_start  ||  j==Math.min(cc_list_s.get(type).getWidth(),j_max)-1)  ||
+            					(i==i_start  ||  i==Math.min(cc_list_s.get(type).getLength(),i_max)-1)) ){
+        					
+        					if(x%16==7  ||  k==Math.min(cc_list_s.get(type).getHeight(),layer_height_1))
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
+        					else
+        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
+        				}
+        			
+        				
+        				// Add light
+        				else if(cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
+								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
+        				}
+        				else{
+        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId());
+        				}
+						
+        				
+        			}
+        		}
+        	}
+			
+			
+		}
 		
     return chunkdata;	
     }
