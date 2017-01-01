@@ -35,7 +35,8 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
-	private final static int schematicNumber = 44;
+    private final static int schematicBlueprint = 44;
+	private final static int schematicNumber = schematicBlueprint*4;
 	private int sz_s=2;
 	private int sz_m=3;
 	private int sz_l=4;
@@ -107,22 +108,29 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_l = new ArrayList<CuboidClipboard>();
+	
+	
 	private void readSchematic(){
 		cc_list = new CuboidClipboard[schematicNumber];
-		for(int i =0;i<schematicNumber;i++){
-			cc_list[i] = Schematic.getSchematic(i+".schematic");
-			if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
-				cc_list_s.add(cc_list[i]);
+		for(int i =0;i<schematicBlueprint;i++){
+			for(int angle = 0;angle<360;angle+=90){
+				cc_list[i] = Schematic.getSchematic(i+".schematic",angle);
+				if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
+					cc_list_s.add(cc_list[i]);
+				}
+				else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
+					cc_list_m.add(cc_list[i]);
+				}
+				else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
+					cc_list_l.add(cc_list[i]);
+				}
+				else{
+					System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
+					break;
+				}
 			}
-			else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
-				cc_list_m.add(cc_list[i]);
-			}
-			else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
-				cc_list_l.add(cc_list[i]);
-			}
-			else{
-				System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
-			}
+
+
 		}
 		System.out.print("[CyberWorld] : Final numbers of read schematic(Small/Medium/Large) = "+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
 		
@@ -601,22 +609,22 @@ public class CyberWorldObjectGenerator{
 
 	    			//Road
     				if(y >=LAYER_1_HEIGHT && y<LAYER_1_HEIGHT+2){
-    					if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_1_SRT  &&  z<=LAYER_1_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_1_SRT  &&  x<=LAYER_1_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_1_SRT  &&  x<=LAYER_1_END)  ||  (z>=LAYER_1_SRT  &&  z<=LAYER_1_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     					
@@ -624,23 +632,23 @@ public class CyberWorldObjectGenerator{
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_1_HEIGHT+2 && y<LAYER_1_HEIGHT+3){
-           	    		if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+           	    		if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_1_SW_MIN_END  &&  z>=LAYER_1_SRT)  ||  (z>=LAYER_1_SW_MAX_END  &&  z<=LAYER_1_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_1_SW_MIN_END  &&  x>=LAYER_1_SRT)  ||  (x>=LAYER_1_SW_MAX_END  &&  x<=LAYER_1_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_1_SW_MIN_END )  ||  (x>=LAYER_1_SW_MAX_END )) && ((z<=LAYER_1_SW_MIN_END  )  ||  (z>=LAYER_1_SW_MAX_END ))  &&  !((x<LAYER_1_SRT  ||  x>LAYER_1_END)  &&  (z<LAYER_1_SRT  ||  z>LAYER_1_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,0)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -657,22 +665,22 @@ public class CyberWorldObjectGenerator{
 		    		//Layer_2
 	    	    	
     	    		if(y >=LAYER_2_HEIGHT && y<LAYER_2_HEIGHT+2){
-						if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+						if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_2_SRT  &&  z<=LAYER_2_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_2_SRT  &&  x<=LAYER_2_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_2_SRT  &&  x<=LAYER_2_END)  ||  (z>=LAYER_2_SRT  &&  z<=LAYER_2_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     					
@@ -680,23 +688,23 @@ public class CyberWorldObjectGenerator{
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_2_HEIGHT+2 && y<LAYER_2_HEIGHT+3){
-    					if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_2_SW_MIN_END  &&  z>=LAYER_2_SRT)  ||  (z>=LAYER_2_SW_MAX_END  &&  z<=LAYER_2_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_2_SW_MIN_END  &&  x>=LAYER_2_SRT)  ||  (x>=LAYER_2_SW_MAX_END  &&  x<=LAYER_2_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_2_SW_MIN_END )  ||  (x>=LAYER_2_SW_MAX_END )) && ((z<=LAYER_2_SW_MIN_END  )  ||  (z>=LAYER_2_SW_MAX_END ))  &&  !((x<LAYER_2_SRT  ||  x>LAYER_2_END)  &&  (z<LAYER_2_SRT  ||  z>LAYER_2_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,1)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -715,45 +723,45 @@ public class CyberWorldObjectGenerator{
     	    		//Layer_3
     	    	
     	    		if(y >=LAYER_3_HEIGHT && y<LAYER_3_HEIGHT+2){
-						if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+						if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     						if(z>=LAYER_3_SRT  &&  z<=LAYER_3_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if(x>=LAYER_3_SRT  &&  x<=LAYER_3_END){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
           	    			if( (x>=LAYER_3_SRT  &&  x<=LAYER_3_END)  ||  (z>=LAYER_3_SRT  &&  z<=LAYER_3_END)){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_MATERIAL_1);
         					}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     	    			
     	        	}
     				//Sidewalk
     				else if(y >=LAYER_3_HEIGHT+2 && y<LAYER_3_HEIGHT+3){
-    					if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
+    					if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
 	                			if((z<=LAYER_3_SW_MIN_END  &&  z>=LAYER_3_SRT)  ||  (z>=LAYER_3_SW_MAX_END  &&  z<=LAYER_3_END)){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
           	    			if((x<=LAYER_3_SW_MIN_END  &&  x>=LAYER_3_SRT)  ||  (x>=LAYER_3_SW_MAX_END  &&  x<=LAYER_3_END)){
 	                    			chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                    		}
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 	                			if(((x<=LAYER_3_SW_MIN_END )  ||  (x>=LAYER_3_SW_MAX_END )) && ((z<=LAYER_3_SW_MIN_END  )  ||  (z>=LAYER_3_SW_MAX_END ))  &&  !((x<LAYER_3_SRT  ||  x>LAYER_3_END)  &&  (z<LAYER_3_SRT  ||  z>LAYER_3_END))){
 	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
 	                			}
 
           	    		}
-          	    		else if(cg.getHighwayType(chkx,chkz,3)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+          	    		else if(cg.getHighwayType(chkx,chkz,2)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
           	    			
           	    		}
     				}
@@ -772,146 +780,440 @@ public class CyberWorldObjectGenerator{
     	//Building Generation
 		int layer;
 		int layer_ground=32;
-		int layer_height_1=256;
-		int layer_height_2=256;
-		int layer_height_3=256;
+		int layer_start = layer_ground+1;
+		int layer_height = 256;
 		
-		int layer_start_1 = layer_ground+1;
-		int layer_start_2 = layer_ground+1;
-		int layer_start_3 = layer_ground+1;
+		int[] current_size = {cg.s_size,cg.m_size,cg.l_size};
+		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
+		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
 		
-
-		layer=3; // large
-		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_L_BUILDING){
-			int type = cg.getBuildingType(chkx,chkz,layer);
-			
-			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.l_size;
-			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.l_size;
-			
-
-			int j_start = sx*16;
-			int j_max = (sx+1)*16;
-			int i_start = sz*16;
-			int i_max = (sz+1)*16;
-			for(int j=j_start;j<Math.min(cc_list_l.get(type).getWidth(),j_max);j++){
-        		for(int i=i_start;i<Math.min(cc_list_l.get(type).getLength(),i_max);i++){
-                	for(int k=0;k<Math.min(cc_list_l.get(type).getHeight(),layer_height_3);k++){
-        				int y = k+layer_start_3;
-        				int x = j-j_start;
-        				int z = i-i_start;
-        				if(cc_list_l.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.SEA_LANTERN);
-        					else
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_l.get(type).getBlock(new Vector(j,k,i)).getId());
-        				}
-        				
-        			}
-        		}
-        	}
-			
-		}	
 		
-		layer=2; // medium
-		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_M_BUILDING){
-			int type = cg.getBuildingType(chkx,chkz,layer);
-			
-			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.m_size;
-			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.m_size;
-			
-
-			int j_start = sx*16;
-			int j_max = (sx+1)*16;
-			int i_start = sz*16;
-			int i_max = (sz+1)*16;
-			for(int j=j_start;j<Math.min(cc_list_m.get(type).getWidth(),j_max);j++){
-        		for(int i=i_start;i<Math.min(cc_list_m.get(type).getLength(),i_max);i++){
-                	for(int k=0;k<Math.min(cc_list_m.get(type).getHeight(),layer_height_2);k++){
-        				int y = k+layer_start_2;
-        				int x = j-j_start;
-        				int z = i-i_start;
-        				
-        				
-        				// Add scaffold
-        				if( (chunkdata.getType(x, y, z)!=Material.AIR) && 
-            					((j==j_start  ||  j==Math.min(cc_list_m.get(type).getWidth(),j_max)-1)  ||
-            					(i==i_start  ||  i==Math.min(cc_list_m.get(type).getLength(),i_max)-1)) ){
-        					
-        					if(x%16==7  ||  k==Math.min(cc_list_m.get(type).getHeight(),layer_height_1))
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-        					else
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
-        				}
-        			
-        				
-        				// Add light
-        				else if(cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
-        				}
-        				else{
-        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_m.get(type).getBlock(new Vector(j,k,i)).getId());
-        				}
-        				
-        			}
-        		}
-        	}
-			
-		}	
-
-		layer=1;
-		if(cg.getBuilding(chkx, chkz, layer)==CyberWorldObjectGenerator.DIR_S_BUILDING){
-			int type = cg.getBuildingType(chkx,chkz,layer);
-			
-			int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%cg.s_size;
-			int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/cg.s_size;
-			
-
-			int j_start = sx*16;
-			int j_max = (sx+1)*16;
-			int i_start = sz*16;
-			int i_max = (sz+1)*16;
-			
-			
-			for(int j=j_start;j<Math.min(cc_list_s.get(type).getWidth(),j_max);j++){
-        		for(int i=i_start;i<Math.min(cc_list_s.get(type).getLength(),i_max);i++){
-                	for(int k=0;k<Math.min(cc_list_s.get(type).getHeight(),layer_height_1);k++){
-        				int y = k+layer_start_1;
-        				int x = j-j_start;
-        				int z = i-i_start;
-
-        				// Add scaffold
-        				if( (chunkdata.getType(x, y, z)!=Material.AIR) && 
-            					((j==j_start  ||  j==Math.min(cc_list_s.get(type).getWidth(),j_max)-1)  ||
-            					(i==i_start  ||  i==Math.min(cc_list_s.get(type).getLength(),i_max)-1)) ){
-        					
-        					if(x%16==7  ||  k==Math.min(cc_list_s.get(type).getHeight(),layer_height_1))
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-        					else
-        						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
-        				}
-        			
-        				
-        				// Add light
-        				else if(cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
-        					if((x%8==0  &&  z%8==0)  &&  y%10 ==0)
-								chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
-        				}
-        				else{
-        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,cc_list_s.get(type).getBlock(new Vector(j,k,i)).getId());
-        				}
-						
-        				
-        			}
-        		}
-        	}
-			
-			
+		for(layer=0;layer<3;layer++){
+			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
+				ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
+				
+				int type = cg.getBuildingType(chkx,chkz,layer);
+				int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%current_size[layer];
+				int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/current_size[layer];
+				int j_start = sx*16;
+				int j_max = (sx+1)*16;
+				int i_start = sz*16;
+				int i_max = (sz+1)*16;
+				int j_end = Math.min(current_list.get(type).getWidth(),j_max);
+				int i_end = Math.min(current_list.get(type).getLength(),i_max);
+				int k_end = Math.min(current_list.get(type).getHeight(),layer_height);
+				
+				boolean[][] mergingWall ;
+				boolean[][][] newIgnoringVoxel ;
+				
+				if(layer>=1){
+					int last_type = cg.getBuildingType(chkx,chkz,layer-1);
+					mergingWall = returnOverlappingMap( ((ArrayList<CuboidClipboard>) all_lists[layer]).get(type),((ArrayList<CuboidClipboard>) all_lists[layer-1]).get(last_type));
+					newIgnoringVoxel = returnOverlappingIgnoredVoxel( ((ArrayList<CuboidClipboard>) all_lists[layer]).get(type),((ArrayList<CuboidClipboard>) all_lists[layer-1]).get(last_type));
+				}
+				else{
+					mergingWall = new boolean[16][16];
+					newIgnoringVoxel = new boolean[16][16][256];
+				}
+				int block_id  = Material.AIR.getId();
+				for(int j=j_start;j<j_end;j++){
+		    		for(int i=i_start;i<i_end;i++){
+		            	for(int k=k_end-1;k>=0;k--){
+		    				int y = k+layer_start;
+		    				int x = j-j_start;
+		    				int z = i-i_start;
+		    				if( chunkdata.getType(x, y, z)!=Material.AIR){
+		    					if(mergingWall[x][z]){
+		    						for(int y_s=layer_start;y_s<k+layer_start;y_s++){
+			    						if(chunkdata.getType(x, y_s, z)==Material.AIR){
+			    							
+			    							
+			    							if((x+z)%3==0){
+				    							switch(y_s%8){
+					    							case 1: 
+					    								block_id = Material.WOOD_DOOR.getId();
+					    								break;
+				    							}
+			    							}
+			    							else{
+			    								block_id = getMostMaterial(current_list.get(type)).getId();
+			    							}
+			    							chunkdata.setBlock(x, y_s, z,block_id);
+			    						}
+			    					}
+			    					break;
+		    					}
+		    					
+		    				}
+		    				//  Put light and replace expansive block
+		    				else{
+		    					//System.out.println(j+"/"+i+"/"+k);
+		    					if(!newIgnoringVoxel[x][z][k]){
+			    					//if(current_list.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+				    					if((x%8==4  &&  z%8==4)  &&  y%8 ==0){
+				    						switch(layer){
+			    							case 0: 
+												chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.JACK_O_LANTERN);
+			    								break;
+			    							case 1: 
+												chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLOWSTONE);
+			    								break;
+			    							case 2: 
+												chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.SEA_LANTERN);
+			    								break;
+			    							}
+										}
+				    					else{
+				    						block_id = current_list.get(type).getBlock(new Vector(j,k,i)).getId();
+				    						
+				    						if(block_id==Material.GOLD_BLOCK.getId()  ||  
+				    							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
+				    							block_id==Material.IRON_BLOCK.getId()  ||   
+				    							block_id==Material.COAL_BLOCK.getId()  ||   
+				    							block_id==Material.LAPIS_BLOCK.getId()  ||   
+				    							block_id==Material.EMERALD_BLOCK.getId()  || 
+						    					block_id==Material.BEDROCK.getId()  ||     
+				    							block_id==Material.REDSTONE_BLOCK.getId()){
+				    							
+				    							block_id = Material.COBBLESTONE.getId();
+				    							chunkdata.setBlock(x, y, z,block_id);
+				    						}
+				    						else{
+				    							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)current_list.get(type).getBlock(new Vector(j,k,i)).getData()));
+				    						}
+				    							
+				    					}
+			    					//}
+		    					}
+		    				}
+		    			}
+		    		}
+		    	}
+			}
+		
 		}
-		
     return chunkdata;	
     }
+	
+	private Material getMostMaterial(CuboidClipboard cc){
+		return Material.GLOWSTONE;
+		/*
+		int[] id_times = new int[500];
+		int now_id =0;
+		for(int y=0;y<cc.getHeight();y++){
+			for(int x=0;x<cc.getWidth();x++){
+				for(int z=0;z<cc.getLength();z++){
+					now_id = cc.getBlock(new Vector(x,y,z)).getId();
+					if(now_id<id_times.length  &&  now_id!=Material.AIR.getId()){
+						id_times[now_id]++;
+					}
+					
+				}
+			}
+		}
+		
+		int maxIndex = 0;
+		int max=0;
+		for (int i = 0; i < id_times.length; i++) {
+		    if (id_times[i] > max) {
+		        max = id_times[i];
+		        maxIndex = i;
+		    }
+		}
+		return Material.getMaterial(maxIndex);*/
+		
+	}
+	private boolean[][][] returnOverlappingIgnoredVoxel(CuboidClipboard new_cc,CuboidClipboard old_cc){
+		
+		int MAX_Y_CONSIDERED = 256;
+		
+		boolean[][][] old_area = new boolean[16][16][MAX_Y_CONSIDERED];
+		boolean[][][] new_area = new boolean[16][16][MAX_Y_CONSIDERED];
+		boolean[][][] old_dilation_area = new boolean[16][16][MAX_Y_CONSIDERED];
+		boolean[][][] new_dilation_area = new boolean[16][16][MAX_Y_CONSIDERED];
+		boolean[][][] overlap_area = new boolean[16][16][MAX_Y_CONSIDERED];
+		boolean[][][] final_area = new boolean[16][16][MAX_Y_CONSIDERED];
 
+		boolean in_x_area;
+		boolean in_z_area;
+		
+		int max_x_old = Math.min(16, old_cc.getWidth());
+		int max_z_old = Math.min(16, old_cc.getLength());
+		int max_y_old = Math.min(MAX_Y_CONSIDERED, old_cc.getHeight());
+
+		int max_x_new = Math.min(16, new_cc.getWidth());
+		int max_z_new = Math.min(16, new_cc.getLength());
+		int max_y_new = Math.min(MAX_Y_CONSIDERED, new_cc.getHeight());
+		
+
+		// extract data
+		for(int y=0;y<max_y_old;y++){
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(old_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						old_area[x][z][y]=true;
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+		for(int y=0;y<max_y_new;y++){
+			for(int x=0;x<max_x_new;x++){
+				for(int z=0;z<max_z_new;z++){
+					if(new_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						new_area[x][z][y]=true;
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+		
+		// erosion
+		for(int y=0;y<max_y_old;y++){
+			for(int z=0;z<max_z_old;z++){
+				in_x_area =false;
+				for(int x=0;x<max_x_old;x++){
+					if(in_x_area == false  &&  old_area[x][z][y]==true){
+						old_dilation_area[x][z][y]=true;
+						in_x_area=true;
+					}
+					else if(in_x_area == true  &&  old_area[x][z][y]==false){
+						old_dilation_area[x][z][y]=true;
+					}
+					else if(in_x_area == true  &&  old_area[x][z][y]==true){
+						old_dilation_area[x][z][y]=true;
+						in_x_area=false;
+					}
+					else if(in_x_area==true  &&  x==15){
+						old_dilation_area[x][z][y]=true; 
+					}
+				}
+			}
+			for(int x=0;x<max_x_old;x++){
+				in_z_area =false;
+				for(int z=0;z<max_z_old;z++){
+					if(in_z_area == false  &&  old_area[x][z][y]==true){
+						old_dilation_area[x][z][y]=true;
+						in_x_area=true;
+					}
+					else if(in_z_area == true  &&  old_area[x][z][y]==false){
+						old_dilation_area[x][z][y]=true;
+					}
+					else if(in_z_area == true  &&  old_area[x][z][y]==true){
+						old_dilation_area[x][z][y]=true;
+						in_x_area=false;
+					}
+					else if(in_z_area==true  &&  z==15){
+						old_dilation_area[x][z][y]=true; 
+					}
+				}
+			}
+		}
+
+		for(int y=0;y<max_y_new;y++){
+			for(int z=0;z<max_z_new;z++){
+				in_x_area =false;
+				for(int x=0;x<max_x_new;x++){
+					if(in_x_area == false  &&  new_area[x][z][y]==true){
+						new_dilation_area[x][z][y]=true;
+						in_x_area=true;
+					}
+					else if(in_x_area == true  &&  new_area[x][z][y]==false){
+						new_dilation_area[x][z][y]=true;
+					}
+					else if(in_x_area == true  &&  new_area[x][z][y]==true){
+						new_dilation_area[x][z][y]=true;
+						in_x_area=false;
+					}
+					else if(in_x_area==true  &&  x==15){
+						new_dilation_area[x][z][y]=true; 
+					}
+				}
+			}
+			for(int x=0;x<max_x_new;x++){
+				in_z_area =false;
+				for(int z=0;z<max_z_new;z++){
+					if(in_z_area == false  &&  new_area[x][z][y]==true){
+						new_dilation_area[x][z][y]=true;
+						in_x_area=true;
+					}
+					else if(in_z_area == true  &&  new_area[x][z][y]==false){
+						new_dilation_area[x][z][y]=true;
+					}
+					else if(in_z_area == true  &&  new_area[x][z][y]==true){
+						new_dilation_area[x][z][y]=true;
+						in_x_area=false;
+					}
+					else if(in_z_area==true  &&  z==15){
+						new_dilation_area[x][z][y]=true; 
+					}
+				}
+			}
+			
+		}
+
+		
+		
+		//overlap area edge
+
+		int max_y_overlapped = Math.max(max_y_old, max_y_new);
+		
+		for(int y=0;y<max_y_overlapped;y++){
+			for(int x=0;x<16;x++){
+				for(int z=0;z<16;z++){		
+					if(new_dilation_area[x][z][y]  &&  old_dilation_area[x][z][y]){
+						overlap_area[x][z][y]=true;
+					}
+				}
+			}
+		}
+		
+		return overlap_area;
+		
+	}
+	private boolean[][] returnOverlappingMap(CuboidClipboard new_cc,CuboidClipboard old_cc){
+		boolean[][] old_area = new boolean[16][16];
+		boolean[][] new_area = new boolean[16][16];
+		boolean[][] old_edge_area = new boolean[16][16];
+		boolean[][] new_edge_area = new boolean[16][16];
+		boolean[][] overlap_area = new boolean[16][16];
+		boolean[][] overlap_edge_area = new boolean[16][16];
+		boolean[][] final_area = new boolean[16][16];
+	
+		boolean in_x_area;
+		boolean in_z_area;
+
+
+		int max_x_old = Math.min(16, old_cc.getWidth());
+		int max_z_old = Math.min(16, old_cc.getLength());
+		for(int x=0;x<max_x_old;x++){
+			for(int z=0;z<max_z_old;z++){
+				for(int y=0;y<old_cc.getHeight();y++){
+					if(old_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						old_area[x][z]=true;
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+
+		int max_x_new = Math.min(16, new_cc.getWidth());
+		int max_z_new = Math.min(16, new_cc.getLength());
+		for(int x=0;x<max_x_new;x++){
+			for(int z=0;z<max_z_new;z++){
+				for(int y=0;y<new_cc.getHeight();y++){
+					if(new_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						new_area[x][z]=true;
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		for(int z=0;z<16;z++){	
+			in_x_area = false;
+			for(int x=0;x<16;x++){
+				if(in_x_area==false  &&  old_area[x][z]==true){
+					old_edge_area[x][z]=true;
+					in_x_area = true;
+				}
+				else if(in_x_area==true  &&  old_area[x][z]==false){
+					in_x_area = false;
+				}
+				else if(in_x_area==true  &&  x==15){
+					old_edge_area[x][z]=true; 
+				}
+			}
+		}
+		for(int x=0;x<16;x++){
+			in_z_area = false;	
+			for(int z=0;z<16;z++){		
+				if(in_z_area==false  &&  old_area[x][z]==true){
+					old_edge_area[x][z]=true;
+					in_z_area = true;
+				}
+				else if(in_z_area==true  &&  old_area[x][z]==false){
+					in_z_area = false;
+				}
+				else if(in_z_area==true  &&  z==15){
+					old_edge_area[x][z]=true; 
+				}
+			}
+		}
+		
+		
+		for(int z=0;z<16;z++){	
+			in_x_area = false;
+			for(int x=0;x<16;x++){
+				if(in_x_area==false  &&  new_area[x][z]==true){
+					new_edge_area[x][z]=true;
+					in_x_area = true;
+				}
+				else if(in_x_area==true  &&  new_area[x][z]==false){
+					in_x_area = false;
+				}
+				else if(in_x_area==true  &&  x==15){
+					new_edge_area[x][z]=true; 
+				}
+			}
+		}
+		for(int x=0;x<16;x++){
+			in_z_area = false;
+			for(int z=0;z<16;z++){		
+				if(in_z_area==false  &&  new_area[x][z]==true){
+					new_edge_area[x][z]=true;
+					in_z_area = true;
+				}
+				else if(in_z_area==true  &&  new_area[x][z]==false){
+					in_z_area = false;
+				}
+				else if(in_z_area==true  &&  z==15){
+					new_edge_area[x][z]=true; 
+				}
+			}
+		}
+			
+		
+		/*
+		System.out.println("----------------------");
+		System.out.println("old_area\n"+Arrays.deepToString(old_area));
+		System.out.println("new_area\n"+Arrays.deepToString(new_area));
+		System.out.println("old_edge_area\n"+Arrays.deepToString(old_edge_area));
+		System.out.println("new_edge_area\n"+Arrays.deepToString(new_edge_area));
+		System.out.println("overlap_edge_area\n"+Arrays.deepToString(overlap_edge_area));
+		System.out.println("final_edge_area\n"+Arrays.deepToString(final_edge_area));
+		*/
+		
+
+		//overlap area edge
+		for(int x=0;x<16;x++){
+			for(int z=0;z<16;z++){		
+				if(new_edge_area[x][z]  &&  old_edge_area[x][z]){
+					overlap_edge_area[x][z]=true;
+				}
+			}
+		}
+		
+		for(int x=0;x<16;x++){
+			for(int z=0;z<16;z++){		
+				if(overlap_edge_area[x][z]  &&  new_edge_area[x][z]){
+					final_area[x][z]=true;
+				}
+			}
+		}
+
+		return final_area;
+
+	}
 
 }
  		

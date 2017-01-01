@@ -87,7 +87,7 @@ public class Schematic {
             ex.printStackTrace();
         }
     }
-    public static CuboidClipboard getSchematic(String schematicName) {
+    public static CuboidClipboard getSchematic(String schematicName, int angle) {
              File dir = new File(CyberWorldObjectGenerator.WINDOWS_PATH + schematicName);
 
 
@@ -96,18 +96,12 @@ public class Schematic {
             
 			try {
 				clipboard = schematic.load(dir);
+				
 			} catch (DataException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			/*
-            for(int j=0;j<clipboard.getWidth();j++){
-        		for(int i=0;i<clipboard.getLength();i++){
-        			System.out.print(j + "," + i +" : "+Material.getMaterial(clipboard.getBlock(new Vector(j,0,i)).getId()).toString());
-        		}
-        	}
-            */
+			clipboard.rotate2D(angle);
             return clipboard;
 
     }

@@ -62,6 +62,16 @@ public class CityStreetGenerator {
 		m_size = Math.min(mmbw,ms);
 		l_size = Math.min(mmbw,ls);
 		recursiveSplitting(0,0,x-1,y-1,1);
+		fillNotDeterminedRoad();
+	}
+	private void fillNotDeterminedRoad(){
+		for(int i=0;i<x;i++){
+			for(int j=0;j<y;j++){
+				if(city[i][j]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+					city[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
+				}
+			}
+		}
 	}
 	public int getRoadType(int rx, int rz){
 		rx+=x*0.5;
@@ -83,7 +93,7 @@ public class CityStreetGenerator {
 		if(rz<0){
 			rz*=-1;
 		}
-		return hightway[rx%(this.x)][rz%(this.y)][layer-1];
+		return hightway[rx%(this.x)][rz%(this.y)][layer];
 	}
 	public int getBuilding(int rx, int rz,int layer){
 		rx+=x*0.5;
@@ -94,7 +104,7 @@ public class CityStreetGenerator {
 		if(rz<0){
 			rz*=-1;
 		}
-		return building[rx%(this.x)][rz%(this.y)][layer-1];
+		return building[rx%(this.x)][rz%(this.y)][layer];
 	}
 	public int getBuildingType(int rx, int rz,int layer){
 		rx+=x*0.5;
@@ -105,7 +115,7 @@ public class CityStreetGenerator {
 		if(rz<0){
 			rz*=-1;
 		}
-		return building_type[rx%(this.x)][rz%(this.y)][layer-1];
+		return building_type[rx%(this.x)][rz%(this.y)][layer];
 	}
 	public int getBuildingStruct(int rx, int rz,int layer){
 		rx+=x*0.5;
@@ -116,13 +126,17 @@ public class CityStreetGenerator {
 		if(rz<0){
 			rz*=-1;
 		}
-		return building_struct[rx%(this.x)][rz%(this.y)][layer-1];
+		return building_struct[rx%(this.x)][rz%(this.y)][layer];
 	}	
     void recursiveSplitting(int point1x, int point1y, int point2x, int point2y, int recursiveTimes){
 		if(Math.abs(point1x-point2x+1)<=minBW  ||  Math.abs(point1y-point2y+1)<=minBW){
 			
 			point2x= Math.min(point2x+1,x);
 			point2y= Math.min(point2y+1,y);
+			
+			
+			
+			
 			
 			for(int l=0;l<3;l++){
 				if(l==0  &&  rng.nextDouble()<s_rate){
@@ -182,8 +196,6 @@ public class CityStreetGenerator {
 									}
 								}
 							}
-
-							
 						}
 					}
 				}
@@ -198,46 +210,50 @@ public class CityStreetGenerator {
 			int y_margin = Math.abs(point1y-point2y+1)-(minBW);
 			int x_highway_margin = Math.abs(point1x-point2x+1)-(minBW);
 			int y_highway_margin = Math.abs(point1y-point2y+1)-(minBW);
+
 			if(x_margin>0){
 				x_shift = rng.nextInt(x_margin);
 			}
 			if(y_margin>0){
 				y_shift = rng.nextInt(y_margin);
 			}
+
+			int intersectionX = point1x+minBW+x_shift;
+			int intersectionY = point1y+minBW+y_shift;
+			
 			if(x_margin>0 && y_margin>0){
 				for(int i=point1x;i<=point2x;i++){
-					if(city[i][point1y+minBW+y_shift] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-						city[i][point1y+minBW+y_shift]=CyberWorldObjectGenerator.DIR_EAST_WEST;
+					if(city[i][intersectionY] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						city[i][intersectionY]=CyberWorldObjectGenerator.DIR_EAST_WEST;
 					}
 				}
 				for(int i=point1y;i<=point2y;i++){
-					if(city[point1x+minBW+x_shift][i] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-						city[point1x+minBW+x_shift][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
+					if(city[intersectionX][i] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						city[intersectionX][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
 					}
 				}
+				
+
+				
 				//starting point & end point
 				if(recursiveTimes!=1){
 					if(point1y-1>=0){
-						city[point1x+minBW+x_shift][point1y-1] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						city[intersectionX][point1y-1] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 					if(point2y+1<y){
-						city[point1x+minBW+x_shift][point2y+1] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						city[intersectionX][point2y+1] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 					if(point1x-1>=0){
-						city[point1x-1][point1y+minBW+y_shift] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						city[point1x-1][intersectionY] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 					if(point2x+1<y){
-						city[point2x+1][point1y+minBW+y_shift] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						city[point2x+1][intersectionY] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 				}
 				//intersection
-				city[point1x+minBW+x_shift][point1y+minBW+y_shift] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+				city[intersectionX][intersectionY] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 				
-				int intersectionX = point1x+minBW+x_shift;
-				int intersectionY = point1y+minBW+y_shift;
 				//System.out.println(recursiveTimes + " : intersection point"+ intersectionX+","+intersectionY);
-				
-			
 				
 				
 				// left-up, left-down, right-up, right-down
@@ -254,15 +270,15 @@ public class CityStreetGenerator {
 					boolean highwayCutout_z = rng.nextDouble()>0.66;
 					if(highwayCutout_x){
 						for(int i=point1x;i<=point2x;i++){
-							if(hightway[i][point1y+minBW+y_shift][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-								hightway[i][point1y+minBW+y_shift][l]=CyberWorldObjectGenerator.DIR_EAST_WEST;
+							if(hightway[i][intersectionY][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+								hightway[i][intersectionY][l]=CyberWorldObjectGenerator.DIR_EAST_WEST;
 							}
 						}
 					}
 					if(highwayCutout_z){
 						for(int i=point1y;i<=point2y;i++){
-							if(hightway[point1x+minBW+x_shift][i][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-								hightway[point1x+minBW+x_shift][i][l]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
+							if(hightway[intersectionX][i][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+								hightway[intersectionX][i][l]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
 							}
 						}
 					}
@@ -270,28 +286,26 @@ public class CityStreetGenerator {
 					if(recursiveTimes!=1){
 						if(highwayCutout_x){
 							if(point1x-1>=0){
-								hightway[point1x-1][point1y+minBW+y_shift][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								hightway[point1x-1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 							if(point2x+1<y){
-								hightway[point2x+1][point1y+minBW+y_shift][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								hightway[point2x+1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 						}
 						if(highwayCutout_z){
 							if(point1y-1>=0){
-								hightway[point1x+minBW+x_shift][point1y-1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								hightway[intersectionX][point1y-1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 							if(point2y+1<y){
-								hightway[point1x+minBW+x_shift][point2y+1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								hightway[intersectionX][point2y+1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 						}
 					}
 					//intersection
 					if(highwayCutout_x&&highwayCutout_z){
-						hightway[point1x+minBW+x_shift][point1y+minBW+y_shift][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						hightway[intersectionX][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 				}
-				
-				
 			}
 			
 		}
@@ -329,7 +343,7 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		
+		/*
 		for(int l=0;l<3;l++){
 
 			System.out.println("building : "+l);
@@ -355,8 +369,8 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		
-		
+		*/
+		/*
 		for(int l=0;l<3;l++){
 
 			System.out.println("building_type : "+l);
@@ -382,7 +396,7 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		
+		*/
 		for(int l=0;l<3;l++){
 
 			System.out.println("building_struct : "+l);
@@ -403,10 +417,10 @@ public class CityStreetGenerator {
 		
 	}
 	public static void main(String[] args) {
-		int w =100;
-		int h =100;
+		int w =30;
+		int h =30;
 		Random rng = new Random();
-		rng.setSeed(9888);
+		rng.setSeed(6666);
 		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,4,10,10,10,2,3,4,1,1,1);
 		g.displayGrid();
 		
