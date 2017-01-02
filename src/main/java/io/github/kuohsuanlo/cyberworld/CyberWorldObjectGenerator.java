@@ -35,6 +35,7 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
+    //private final static int schematicBlueprint = 4;
     private final static int schematicBlueprint = 89;
 	private final static int schematicNumber = schematicBlueprint*4;
 	private int sz_deco=1;
@@ -114,6 +115,11 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<Material> cc_list_most_m = new ArrayList<Material>();
 	private ArrayList<Material> cc_list_most_l = new ArrayList<Material>();
 	
+
+	private ArrayList<boolean[][][]> cc_list_filled_s = new ArrayList<boolean[][][]>();
+	private ArrayList<boolean[][][]> cc_list_filled_m = new ArrayList<boolean[][][]>();
+	private ArrayList<boolean[][][]> cc_list_filled_l = new ArrayList<boolean[][][]>();
+	
 	
 	private void readSchematic(){
 		cc_list = new CuboidClipboard[schematicNumber];
@@ -126,14 +132,17 @@ public class CyberWorldObjectGenerator{
 				}
 				else if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
 					cc_list_s.add(cc_list[i]);
+					cc_list_filled_s.add(this.getfilledArea(cc_list[i]));
 					cc_list_most_s.add(this.getMostMaterial(cc_list[i]));
 				}
 				else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
 					cc_list_m.add(cc_list[i]);
+					cc_list_filled_m.add(this.getfilledArea(cc_list[i]));
 					cc_list_most_m.add(this.getMostMaterial(cc_list[i]));
 				}
 				else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
 					cc_list_l.add(cc_list[i]);
+					cc_list_filled_l.add(this.getfilledArea(cc_list[i]));
 					cc_list_most_l.add(this.getMostMaterial(cc_list[i]));
 				}
 				else{
@@ -804,65 +813,49 @@ public class CyberWorldObjectGenerator{
 		int[] current_size = {cg.s_size,cg.m_size,cg.l_size};
 		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
 		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
-		Object[] all_most_lists = {cc_list_most_s,cc_list_most_m,cc_list_most_l};
+		Object[] all_filled_lists = {cc_list_filled_s,cc_list_filled_m,cc_list_filled_l};
 		
+
 		for(layer=0;layer<3;layer++){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
 				ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
 				
 				int type = cg.getBuildingType(chkx,chkz,layer);
-				int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)%current_size[layer];
-				int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)/current_size[layer];
-				int j_start = sx*16;
-				int j_max = (sx+1)*16;
-				int i_start = sz*16;
-				int i_max = (sz+1)*16;
-				int j_end = Math.min(current_list.get(type).getWidth(),j_max);
-				int i_end = Math.min(current_list.get(type).getLength(),i_max);
+				int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)/current_size[layer];
+				int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)%current_size[layer];
+				int i_start = sx*16;
+				int i_max = (sx+1)*16;
+				int j_start = sz*16;
+				int j_max = (sz+1)*16;
+				int i_end = Math.min(current_list.get(type).getWidth(),i_max);
+				int j_end = Math.min(current_list.get(type).getLength(),j_max);
 				int k_end = Math.min(current_list.get(type).getHeight(),layer_height);
 				
-				boolean[][] mergingWall ;
 				boolean[][][] newIgnoringVoxel ;
 				
 				if(layer>=1){
 					int last_type = cg.getBuildingType(chkx,chkz,layer-1);
-					mergingWall = returnOverlappingMap( ((ArrayList<CuboidClipboard>) all_lists[layer]).get(type),((ArrayList<CuboidClipboard>) all_lists[layer-1]).get(last_type));
-					newIgnoringVoxel = returnOverlappingIgnoredVoxel( ((ArrayList<CuboidClipboard>) all_lists[layer]).get(type),((ArrayList<CuboidClipboard>) all_lists[layer-1]).get(last_type));
+					boolean [][][] new_filled = ((ArrayList<boolean[][][]>)all_filled_lists[layer]).get(type);
+					boolean [][][] old_filled = ((ArrayList<boolean[][][]>)all_filled_lists[layer-1]).get(last_type);
+					
+					newIgnoringVoxel = returnOverlappingIgnoredVoxel(new_filled,old_filled);
 				}
 				else{
-					mergingWall = new boolean[16][16];
-					newIgnoringVoxel = new boolean[16][16][256];
+					newIgnoringVoxel = new boolean [i_end][j_end][k_end] ;
 				}
 				int block_id  = Material.AIR.getId();
-				for(int j=j_start;j<j_end;j++){
-		    		for(int i=i_start;i<i_end;i++){
+	    		for(int i=i_start;i<i_end;i++){
+	    			for(int j=j_start;j<j_end;j++){
 		            	for(int k=k_end-1;k>=0;k--){
 		    				int y = k+layer_start;
 		    				int x = j-j_start;
 		    				int z = i-i_start;
-		    				if( chunkdata.getType(x, y, z)!=Material.AIR){
+		    				if( chunkdata.getType(x, y, z)==Material.AIR){
 		    					
-		    					if(mergingWall[x][z]){
-		    						for(int y_s=layer_start;y_s<k+layer_start;y_s++){
-			    						if(chunkdata.getType(x, y_s, z)==Material.AIR){
-			    							//Paste Most command block type
-			    							if(x%4==0  ||  z%4==0  ||  y%8==0){
-			    								chunkdata.setBlock(x, y_s, z,Material.getMaterial(((ArrayList<Material>)all_most_lists[layer]).get(type).getId()));
-			    							}
-			    							else{
-			    								chunkdata.setBlock(x, y_s, z,Material.GRASS);
-			    							}
-			    						}
-			    					}
-			    					break;
-		    					}
-		    					
-		    				}
-		    				//  Put light and replace expansive block
-		    				else{
-		    					//System.out.println(j+"/"+i+"/"+k);
-		    					if(!newIgnoringVoxel[x][z][k]){
-			    					if(current_list.get(type).getBlock(new Vector(j,k,i)).getId()!=Material.AIR.getId()){
+		    					//true ==> paste the block
+		    					if(!newIgnoringVoxel[i][j][k]){
+		    						block_id = current_list.get(type).getBlock(new Vector(i,k,j)).getId();
+			    					if(block_id!=Material.AIR.getId()){
 			    						if((x%8==4  &&  z%8==4)  &&  y%8 ==0){
 				    						switch(layer){
 			    							case 0: 
@@ -877,50 +870,11 @@ public class CyberWorldObjectGenerator{
 			    							}
 										}
 				    					else{
-				    						block_id = current_list.get(type).getBlock(new Vector(j,k,i)).getId();
 				    						
-				    						if(block_id==Material.GOLD_BLOCK.getId()  ||  
-				    							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
-				    							block_id==Material.IRON_BLOCK.getId()  ||   
-				    							block_id==Material.COAL_BLOCK.getId()  ||   
-				    							block_id==Material.LAPIS_BLOCK.getId()  ||   
-				    							block_id==Material.EMERALD_BLOCK.getId()  || 
-						    					block_id==Material.BEDROCK.getId()  ||  
-				    							block_id==Material.REDSTONE_BLOCK.getId()){
-				    							
-				    							block_id = Material.COBBLESTONE.getId();
-				    							chunkdata.setBlock(x, y, z,block_id);
-				    						}
-				    						else if(block_id==Material.GRASS.getId()){
-					    							
-					    							block_id = Material.DIRT.getId();
-					    							chunkdata.setBlock(x, y, z,block_id);
-					    						}
-				    						else{
-				    							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)current_list.get(type).getBlock(new Vector(j,k,i)).getData()));
-				    						}
+				    						chunkdata.setBlock(x, y, z, new MaterialData(fixBannedBlock(block_id), (byte)current_list.get(type).getBlock(new Vector(i,k,j)).getData()));
 				    							
 				    					}
 			    					}
-		    					}
-		    					else{
-		    						block_id = current_list.get(type).getBlock(new Vector(j,k,i)).getId();
-		    						
-		    						if(block_id==Material.GOLD_BLOCK.getId()  ||  
-		    							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
-		    							block_id==Material.IRON_BLOCK.getId()  ||   
-		    							block_id==Material.COAL_BLOCK.getId()  ||   
-		    							block_id==Material.LAPIS_BLOCK.getId()  ||   
-		    							block_id==Material.EMERALD_BLOCK.getId()  || 
-				    					block_id==Material.BEDROCK.getId()  ||     
-		    							block_id==Material.REDSTONE_BLOCK.getId()){
-		    							
-		    							block_id = Material.COBBLESTONE.getId();
-		    							chunkdata.setBlock(x, y, z,block_id);
-		    						}
-		    						else{
-		    							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)current_list.get(type).getBlock(new Vector(j,k,i)).getData()));
-		    						}
 		    					}
 		    				}
 		    			}
@@ -958,24 +912,13 @@ public class CyberWorldObjectGenerator{
             		if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
             				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ||
             				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
-            	
+
 	            		block_id = cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getId();
-						
-						if(block_id==Material.GOLD_BLOCK.getId()  ||  
-							block_id==Material.DIAMOND_BLOCK.getId()  || 	  
-							block_id==Material.IRON_BLOCK.getId()  ||   
-							block_id==Material.COAL_BLOCK.getId()  ||   
-							block_id==Material.LAPIS_BLOCK.getId()  ||   
-							block_id==Material.EMERALD_BLOCK.getId()  || 
-	    					block_id==Material.BEDROCK.getId()  ||     
-							block_id==Material.REDSTONE_BLOCK.getId()){
+	            		if(block_id!=Material.AIR.getId()){
+	            			chunkdata.setBlock(x, y, z, new MaterialData(fixBannedBlock(block_id), (byte)cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getData()));
 							
-							block_id = Material.COBBLESTONE.getId();
-							chunkdata.setBlock(x, y, z,block_id);
-						}
-						else{
-							chunkdata.setBlock(x, y, z, new MaterialData(block_id, (byte)cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getData()));
-						}
+	            		}
+	            		
             		}
             	}
         	}
@@ -1013,149 +956,24 @@ public class CyberWorldObjectGenerator{
 		return Material.getMaterial(maxIndex);
 		
 	}
-	private boolean[][][] returnOverlappingIgnoredVoxel(CuboidClipboard new_cc,CuboidClipboard old_cc){
-		
-		int MAX_Y_CONSIDERED = 256;
-		
-		boolean[][][] old_area = new boolean[16][16][MAX_Y_CONSIDERED];
-		boolean[][][] new_area = new boolean[16][16][MAX_Y_CONSIDERED];
-		boolean[][][] old_dilation_area = new boolean[16][16][MAX_Y_CONSIDERED];
-		boolean[][][] new_dilation_area = new boolean[16][16][MAX_Y_CONSIDERED];
-		boolean[][][] overlap_area = new boolean[16][16][MAX_Y_CONSIDERED];
-		boolean[][][] final_area = new boolean[16][16][MAX_Y_CONSIDERED];
+	private boolean[][][] returnOverlappingIgnoredVoxel(boolean[][][] new_cc,boolean[][][] old_cc){
 
-		boolean in_x_area;
-		boolean in_z_area;
-		
-		int max_x_old = Math.min(16, old_cc.getWidth());
-		int max_z_old = Math.min(16, old_cc.getLength());
-		int max_y_old = Math.min(MAX_Y_CONSIDERED, old_cc.getHeight());
+		int max_x_old = Math.max(new_cc.length , old_cc.length);
+		int max_z_old = Math.max(new_cc[0].length , old_cc[0].length);
+		int max_y_old = Math.max(new_cc[0][0].length , old_cc[0][0].length);
 
-		int max_x_new = Math.min(16, new_cc.getWidth());
-		int max_z_new = Math.min(16, new_cc.getLength());
-		int max_y_new = Math.min(MAX_Y_CONSIDERED, new_cc.getHeight());
+		boolean[][][] overlap_area = new boolean[max_x_old][max_z_old][max_y_old];
 		
+		
+		max_x_old = Math.min(new_cc.length , old_cc.length);
+		max_z_old = Math.min(new_cc[0].length , old_cc[0].length);
+		max_y_old = Math.min(new_cc[0][0].length , old_cc[0][0].length);
 
-		// extract data
+		
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
-					if(old_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
-						old_area[x][z][y]=true;
-					}
-					else{
-						break;
-					}
-				}
-			}
-		}
-		for(int y=0;y<max_y_new;y++){
-			for(int x=0;x<max_x_new;x++){
-				for(int z=0;z<max_z_new;z++){
-					if(new_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
-						new_area[x][z][y]=true;
-					}
-					else{
-						break;
-					}
-				}
-			}
-		}
-		
-		// erosion
-		for(int y=0;y<max_y_old;y++){
-			for(int z=0;z<max_z_old;z++){
-				in_x_area =false;
-				for(int x=0;x<max_x_old;x++){
-					if(in_x_area == false  &&  old_area[x][z][y]==true){
-						old_dilation_area[x][z][y]=true;
-						in_x_area=true;
-					}
-					else if(in_x_area == true  &&  old_area[x][z][y]==false){
-						old_dilation_area[x][z][y]=true;
-					}
-					else if(in_x_area == true  &&  old_area[x][z][y]==true){
-						old_dilation_area[x][z][y]=true;
-						in_x_area=false;
-					}
-					else if(in_x_area==true  &&  x==15){
-						old_dilation_area[x][z][y]=true; 
-					}
-				}
-			}
-			for(int x=0;x<max_x_old;x++){
-				in_z_area =false;
-				for(int z=0;z<max_z_old;z++){
-					if(in_z_area == false  &&  old_area[x][z][y]==true){
-						old_dilation_area[x][z][y]=true;
-						in_x_area=true;
-					}
-					else if(in_z_area == true  &&  old_area[x][z][y]==false){
-						old_dilation_area[x][z][y]=true;
-					}
-					else if(in_z_area == true  &&  old_area[x][z][y]==true){
-						old_dilation_area[x][z][y]=true;
-						in_x_area=false;
-					}
-					else if(in_z_area==true  &&  z==15){
-						old_dilation_area[x][z][y]=true; 
-					}
-				}
-			}
-		}
-
-		for(int y=0;y<max_y_new;y++){
-			for(int z=0;z<max_z_new;z++){
-				in_x_area =false;
-				for(int x=0;x<max_x_new;x++){
-					if(in_x_area == false  &&  new_area[x][z][y]==true){
-						new_dilation_area[x][z][y]=true;
-						in_x_area=true;
-					}
-					else if(in_x_area == true  &&  new_area[x][z][y]==false){
-						new_dilation_area[x][z][y]=true;
-					}
-					else if(in_x_area == true  &&  new_area[x][z][y]==true){
-						new_dilation_area[x][z][y]=true;
-						in_x_area=false;
-					}
-					else if(in_x_area==true  &&  x==15){
-						new_dilation_area[x][z][y]=true; 
-					}
-				}
-			}
-			for(int x=0;x<max_x_new;x++){
-				in_z_area =false;
-				for(int z=0;z<max_z_new;z++){
-					if(in_z_area == false  &&  new_area[x][z][y]==true){
-						new_dilation_area[x][z][y]=true;
-						in_x_area=true;
-					}
-					else if(in_z_area == true  &&  new_area[x][z][y]==false){
-						new_dilation_area[x][z][y]=true;
-					}
-					else if(in_z_area == true  &&  new_area[x][z][y]==true){
-						new_dilation_area[x][z][y]=true;
-						in_x_area=false;
-					}
-					else if(in_z_area==true  &&  z==15){
-						new_dilation_area[x][z][y]=true; 
-					}
-				}
-			}
-			
-		}
-
-		
-		
-		//overlap area edge
-
-		int max_y_overlapped = Math.max(max_y_old, max_y_new);
-		
-		for(int y=0;y<max_y_overlapped;y++){
-			for(int x=0;x<16;x++){
-				for(int z=0;z<16;z++){		
-					if(new_dilation_area[x][z][y]  &&  old_dilation_area[x][z][y]){
+					if(new_cc[x][z][y]  &&  old_cc[x][z][y]){
 						overlap_area[x][z][y]=true;
 					}
 				}
@@ -1165,145 +983,105 @@ public class CyberWorldObjectGenerator{
 		return overlap_area;
 		
 	}
-	private boolean[][] returnOverlappingMap(CuboidClipboard new_cc,CuboidClipboard old_cc){
-		boolean[][] old_area = new boolean[16][16];
-		boolean[][] new_area = new boolean[16][16];
-		boolean[][] old_edge_area = new boolean[16][16];
-		boolean[][] new_edge_area = new boolean[16][16];
-		boolean[][] overlap_area = new boolean[16][16];
-		boolean[][] overlap_edge_area = new boolean[16][16];
-		boolean[][] final_area = new boolean[16][16];
-	
-		boolean in_x_area;
-		boolean in_z_area;
+	private boolean[][][] getfilledArea(CuboidClipboard cc){
+		boolean[][] dia_tmp_x =null;
+		boolean[][] dia_tmp_z =null;
+		
+		int max_x_old = cc.getWidth();
+		int max_z_old = cc.getLength();
+		int max_y_old = cc.getHeight();
+		
 
-
-		int max_x_old = Math.min(16, old_cc.getWidth());
-		int max_z_old = Math.min(16, old_cc.getLength());
-		for(int x=0;x<max_x_old;x++){
-			for(int z=0;z<max_z_old;z++){
-				for(int y=0;y<old_cc.getHeight();y++){
-					if(old_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
-						old_area[x][z]=true;
+		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] filled = new boolean[max_x_old][max_z_old][max_y_old];
+		
+		for(int y=0;y<max_y_old;y++){
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						area[x][z][y]=true;
 					}
-					else{
+				}
+			}
+		}
+		
+		for(int y=0;y<max_y_old;y++){
+			int z_s = 0;
+			int z_e = 0;
+			int x_s = 0;
+			int x_e = 0;
+			for(int x=0;x<max_x_old;x++){
+				
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						z_s=z;
+						break;
+					}
+				}
+				for(int z=max_z_old-1;z>=0;z--){
+					if(area[x][z][y]){
+						z_e = z;
 						break;
 					}
 				}
 			}
-		}
-
-		int max_x_new = Math.min(16, new_cc.getWidth());
-		int max_z_new = Math.min(16, new_cc.getLength());
-		for(int x=0;x<max_x_new;x++){
-			for(int z=0;z<max_z_new;z++){
-				for(int y=0;y<new_cc.getHeight();y++){
-					if(new_cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
-						new_area[x][z]=true;
-					}
-					else{
-						break;
-					}
-				}
-			}
-		}
-		
-		
-		for(int z=0;z<16;z++){	
-			in_x_area = false;
-			for(int x=0;x<16;x++){
-				if(in_x_area==false  &&  old_area[x][z]==true){
-					old_edge_area[x][z]=true;
-					in_x_area = true;
-				}
-				else if(in_x_area==true  &&  old_area[x][z]==false){
-					in_x_area = false;
-				}
-				else if(in_x_area==true  &&  x==15){
-					old_edge_area[x][z]=true; 
-				}
-			}
-		}
-		for(int x=0;x<16;x++){
-			in_z_area = false;	
-			for(int z=0;z<16;z++){		
-				if(in_z_area==false  &&  old_area[x][z]==true){
-					old_edge_area[x][z]=true;
-					in_z_area = true;
-				}
-				else if(in_z_area==true  &&  old_area[x][z]==false){
-					in_z_area = false;
-				}
-				else if(in_z_area==true  &&  z==15){
-					old_edge_area[x][z]=true; 
-				}
-			}
-		}
-		
-		
-		for(int z=0;z<16;z++){	
-			in_x_area = false;
-			for(int x=0;x<16;x++){
-				if(in_x_area==false  &&  new_area[x][z]==true){
-					new_edge_area[x][z]=true;
-					in_x_area = true;
-				}
-				else if(in_x_area==true  &&  new_area[x][z]==false){
-					in_x_area = false;
-				}
-				else if(in_x_area==true  &&  x==15){
-					new_edge_area[x][z]=true; 
-				}
-			}
-		}
-		for(int x=0;x<16;x++){
-			in_z_area = false;
-			for(int z=0;z<16;z++){		
-				if(in_z_area==false  &&  new_area[x][z]==true){
-					new_edge_area[x][z]=true;
-					in_z_area = true;
-				}
-				else if(in_z_area==true  &&  new_area[x][z]==false){
-					in_z_area = false;
-				}
-				else if(in_z_area==true  &&  z==15){
-					new_edge_area[x][z]=true; 
-				}
-			}
-		}
 			
-		
-		/*
-		System.out.println("----------------------");
-		System.out.println("old_area\n"+Arrays.deepToString(old_area));
-		System.out.println("new_area\n"+Arrays.deepToString(new_area));
-		System.out.println("old_edge_area\n"+Arrays.deepToString(old_edge_area));
-		System.out.println("new_edge_area\n"+Arrays.deepToString(new_edge_area));
-		System.out.println("overlap_edge_area\n"+Arrays.deepToString(overlap_edge_area));
-		System.out.println("final_edge_area\n"+Arrays.deepToString(final_edge_area));
-		*/
-		
-
-		//overlap area edge
-		for(int x=0;x<16;x++){
-			for(int z=0;z<16;z++){		
-				if(new_edge_area[x][z]  &&  old_edge_area[x][z]){
-					overlap_edge_area[x][z]=true;
+			for(int z=0;z<max_z_old;z++){
+				
+				for(int x=0;x<max_x_old;x++){
+					if(area[x][z][y]){
+						x_s = x;
+						break;
+					}
+				}
+				for(int x=max_x_old-1;x>=0;x--){
+					if(area[x][z][y]){
+						x_e = x;
+						break;
+					}
 				}
 			}
-		}
-		
-		for(int x=0;x<16;x++){
-			for(int z=0;z<16;z++){		
-				if(overlap_edge_area[x][z]  &&  new_edge_area[x][z]){
-					final_area[x][z]=true;
+			dia_tmp_x = new boolean[max_x_old][max_z_old];
+			dia_tmp_z = new boolean[max_x_old][max_z_old];
+			for(int x=0;x<max_x_old;x++){
+				for(int z =z_s;z<=z_e;z++){
+					dia_tmp_z[x][z]=true;
 				}
 			}
+			for(int z=0;z<max_z_old;z++){
+				for(int x =x_s;x<=x_e;x++){
+					dia_tmp_x[x][z]=true;
+				}
+			}
+			
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(dia_tmp_x[x][z]  &&  dia_tmp_z[x][z]){
+						filled[x][z][y]=true;
+					}
+				}
+			}
+				
+			
 		}
-
-		return final_area;
-
+		return filled;
+		
 	}
+	private int fixBannedBlock(int block_id){
+		if(block_id==Material.GOLD_BLOCK.getId()  ||  
+				block_id==Material.DIAMOND_BLOCK.getId()  || 	  
+				block_id==Material.IRON_BLOCK.getId()  ||   
+				block_id==Material.COAL_BLOCK.getId()  ||   
+				block_id==Material.LAPIS_BLOCK.getId()  ||   
+				block_id==Material.EMERALD_BLOCK.getId()  || 
+				block_id==Material.BEDROCK.getId()  ||     
+				block_id==Material.REDSTONE_BLOCK.getId()){
+				
+				block_id = Material.COBBLESTONE.getId();
+		}
+		return block_id;
+	}
+
 
 }
  		
