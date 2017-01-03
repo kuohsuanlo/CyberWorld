@@ -15,8 +15,8 @@ import java.util.Random;
  *
  */
 
-/*   1  2  3  4       1 2 3  	1
- *   5  6  7  8		  4 5 6	
+/*   1  2  3  4       1 2 3  	1 2
+ *   5  6  7  8		  4 5 6	    3 4
  *   9 10 11 12	      7 8 9
  *  13 14 15 16
  *		Large		  Medium    Small
@@ -70,6 +70,11 @@ public class CityStreetGenerator {
 				if(city[i][j]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 					city[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
 				}
+				for(int l=0;l<3;l++){
+					if(hightway[i][j][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						hightway[i][j][l] = CyberWorldObjectGenerator.DIR_BUILDING;
+					}
+				}
 			}
 		}
 	}
@@ -85,8 +90,8 @@ public class CityStreetGenerator {
 		return city[rx%(this.x)][rz%(this.y)];
 	}
 	public int getHighwayType(int rx, int rz,int layer){
-		rx+=x*0.5;
-		rz+=y*0.5;
+		rx+=x*(0.5+layer*0.25)+layer;
+		rz+=y*(0.5+layer*0.25)+layer;
 		if(rx<0){
 			rx*=-1;
 		}
@@ -266,8 +271,8 @@ public class CityStreetGenerator {
 
 			if(x_highway_margin>0 && y_highway_margin>0){
 				for(int l=0;l<3;l++){
-					boolean highwayCutout_x = rng.nextDouble()>0.66;
-					boolean highwayCutout_z = rng.nextDouble()>0.66;
+					boolean highwayCutout_x = rng.nextDouble()>0.33;
+					boolean highwayCutout_z = rng.nextDouble()>0.33;
 					if(highwayCutout_x){
 						for(int i=point1x;i<=point2x;i++){
 							if(hightway[i][intersectionY][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
@@ -323,6 +328,9 @@ public class CityStreetGenerator {
 				else  if(city[j][i]==CyberWorldObjectGenerator.DIR_BUILDING ){
 					System.out.print(" ");
 				}
+				else{
+					System.out.print("U");
+				}
 			}
 			System.out.println("");
 		}
@@ -332,12 +340,17 @@ public class CityStreetGenerator {
 			System.out.println("HIGHWAY : "+l);
 			for (int i = 0; i < y; i++) {
 				for (int j = 0; j < x; j++) {
-					if(hightway[j][i][l]>0){
-						//System.out.print(city[j][i]);
+					if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  hightway[j][i][l]==CyberWorldObjectGenerator.DIR_EAST_WEST  || hightway[j][i][l]==CyberWorldObjectGenerator.DIR_INTERSECTION){
 						System.out.print("x");
 					}
-					else{
+					else if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED ){
+						System.out.print("*");
+					}
+					else  if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_BUILDING ){
 						System.out.print(" ");
+					}
+					else{
+						System.out.print("U");
 					}
 				}
 				System.out.println("");
@@ -417,11 +430,11 @@ public class CityStreetGenerator {
 		
 	}
 	public static void main(String[] args) {
-		int w =100;
-		int h =100;
+		int w =30;
+		int h =30;
 		Random rng = new Random();
 		rng.setSeed(6666);
-		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,4,10,10,10,2,3,4,1,1,1);
+		CityStreetGenerator g = new CityStreetGenerator(w, h,rng,4,10,10,10,1,2,4,1,1,1);
 		g.displayGrid();
 		
 	}

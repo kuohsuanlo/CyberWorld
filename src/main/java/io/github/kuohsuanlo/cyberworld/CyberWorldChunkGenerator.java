@@ -37,9 +37,9 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	chunkdata = og.generateTerrain(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateSewer(chunkdata, random, chkx, chkz, biomes);
-    	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes);
     	chunkdata = og.generateDecoration(chunkdata, random, chkx, chkz, biomes);
+    	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz, biomes);
         //og.generateMines(world, random, chkx, chkz, biomes);
         return chunkdata;
     	
