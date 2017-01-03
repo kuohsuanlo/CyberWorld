@@ -130,7 +130,8 @@ public class CyberWorldObjectGenerator{
 				if(cc_list[i].getLength()<=sz_deco*16  && cc_list[i].getWidth()<=sz_deco*16){
 					cc_list_deco.add(cc_list[i]);
 				}
-				else if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
+				
+				if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
 					cc_list_s.add(cc_list[i]);
 					cc_list_filled_s.add(this.getfilledArea(cc_list[i]));
 					cc_list_most_s.add(this.getMostMaterial(cc_list[i]));
@@ -149,6 +150,7 @@ public class CyberWorldObjectGenerator{
 					System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
 					break;
 				}
+				
 			}
 
 
@@ -213,18 +215,18 @@ public class CyberWorldObjectGenerator{
     			//Here need to import the map so we could what direction to create the road.
     			
     			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
-        			if((z == 5  ||  z==10)  &&  (x%4==1  ||  x%4==2) ){
+        			if((z == 5  ||  z==10)  &&  (x%8==1  ||  x%8==2) ){
         				chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
         			}
-        			else if((z == 5  ||  z==10)  &&  (x%4==3) ){
+        			else if((z == 5  ||  z==10)  &&  (x%8==3) ){
         				chunkdata.setBlock(x, y, z, Material.GLOWSTONE );
         			}
     			}
     			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
-    				if((x == 5  ||  x==10)  &&  (z%4==1  ||  z%4==2) ){
+    				if((x == 5  ||  x==10)  &&  (z%8==1  ||  z%8==2) ){
     					chunkdata.setBlock(x, y, z, Material.STAINED_CLAY.getId(), (byte) 0x4 );
         			}
-    				else if((x == 5  ||  x==10)    &&  (x%4==3) ){
+    				else if((x == 5  ||  x==10)    &&  (z%8==3) ){
         				chunkdata.setBlock(x, y, z, Material.GLOWSTONE );
         			}
     			}
@@ -838,7 +840,7 @@ public class CyberWorldObjectGenerator{
 					boolean [][][] new_filled = ((ArrayList<boolean[][][]>)all_filled_lists[layer]).get(type);
 					boolean [][][] old_filled = ((ArrayList<boolean[][][]>)all_filled_lists[layer-1]).get(last_type);
 					
-					newIgnoringVoxel = returnOverlappingIgnoredVoxel(new_filled,old_filled);
+					newIgnoringVoxel = new boolean [i_end][j_end][k_end] ;//returnOverlappingIgnoredVoxel(new_filled,old_filled);
 				}
 				else{
 					newIgnoringVoxel = new boolean [i_end][j_end][k_end] ;
@@ -903,15 +905,28 @@ public class CyberWorldObjectGenerator{
 		int i_end = Math.min(cc_list_deco.get(type).getLength(),i_max);
 		int k_end = Math.min(cc_list_deco.get(type).getHeight(),layer_height);
 		int block_id;
-		for(int j=j_start;j<j_end;j++){
-    		for(int i=i_start;i<i_end;i++){
-            	for(int k=k_end-1;k>=0;k--){
-            		int y = k+layer_start;
-    				int x = j-j_start;
-    				int z = i-i_start;
-            		if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
-            				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ||
-            				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+		
+		boolean near_road=false;
+		
+		for(int cx = chkx-1; cx<chkx+2;cx++){
+			for(int cz = chkz-1; cz<chkz+2;cz++){
+				if(cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
+						cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ||
+						cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+					
+					near_road =true;
+				}
+			}
+		}
+		
+		if(near_road){
+			for(int j=j_start;j<j_end;j++){
+	    		for(int i=i_start;i<i_end;i++){
+	            	for(int k=k_end-1;k>=0;k--){
+	            		int y = k+layer_start;
+	    				int x = j-j_start;
+	    				int z = i-i_start;
+
 
 	            		block_id = cc_list_deco.get(type).getBlock(new Vector(j,k,i)).getId();
 	            		if(block_id!=Material.AIR.getId()){
@@ -921,8 +936,12 @@ public class CyberWorldObjectGenerator{
 	            		
             		}
             	}
-        	}
-    	}
+			}
+		}
+			
+
+		
+
 
 
 	    

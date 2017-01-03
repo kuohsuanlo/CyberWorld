@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.CuboidClipboard;
+import com.sk89q.worldedit.CuboidClipboard.FlipDirection;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EmptyClipboardException;
 import com.sk89q.worldedit.LocalPlayer;
@@ -102,6 +103,7 @@ public class Schematic {
 				e.printStackTrace();
 			}
 			clipboard.rotate2D(angle);
+			
             return clipboard;
 
     }
