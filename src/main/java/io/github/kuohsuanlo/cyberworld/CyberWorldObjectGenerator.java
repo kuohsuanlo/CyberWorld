@@ -86,7 +86,7 @@ public class CyberWorldObjectGenerator{
 	private static int[] LAYER_SW_MIN_END = {LAYER_SRT[0]+LAYER_SW_WD[0],LAYER_SRT[1]+LAYER_SW_WD[1],LAYER_SRT[2]+LAYER_SW_WD[2]};
 	private static int[] LAYER_SW_MAX_END = {LAYER_END[0]-LAYER_SW_WD[0],LAYER_END[1]-LAYER_SW_WD[1],LAYER_END[2]-LAYER_SW_WD[2]};
 
-    public static final String WINDOWS_PATH="plugins\\CyberWorld\\schematics\\";
+    public static final String WINDOWS_PATH="./plugins/CyberWorld/schematics/";
    
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
     
@@ -860,7 +860,12 @@ public class CyberWorldObjectGenerator{
 		}
     return chunkdata;	
     }
-	public ChunkData generateDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+	public ChunkData generateBuildingDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+		
+        return chunkdata;
+    	
+    }
+	public ChunkData generateGroundDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
 		int layer_ground=32;
 		int layer_start = layer_ground+1;
 		int layer_height = 256;

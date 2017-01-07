@@ -2,27 +2,24 @@ package io.github.kuohsuanlo.cyberworld;
 
 import java.util.Random;
 
-public class HeightsGenerator {
+public class CyberWorldBiomeGenerator {
  
-    private static final float AMPLITUDE = 75f;
-    private static final int OCTAVES = 3;
+    private final float AMPLITUDE;
+    private static final int OCTAVES = 4;
     private static final float ROUGHNESS = 0.3f;
  
-    private Random random = new Random();
+
+    private Random random;
     private int seed;
     private int xOffset = 0;
     private int zOffset = 0;
  
-    public HeightsGenerator() {
+    public CyberWorldBiomeGenerator(Random rng, int biome_types) {
+    	this.AMPLITUDE  = (biome_types-1)*20;
+    	this.random = rng;
         this.seed = random.nextInt(1000000000);
     }
-     
-    //only works with POSITIVE gridX and gridZ values!
-    public HeightsGenerator(int gridX, int gridZ, int vertexCount, int seed) {
-        this.seed = seed;
-        xOffset = gridX * (vertexCount-1);
-        zOffset = gridZ * (vertexCount-1);
-    }
+    
  
     public float generateHeight(int x, int z) {
         float total = 0;
@@ -66,8 +63,42 @@ public class HeightsGenerator {
     }
  
     private float getNoise(int x, int z) {
-        random.setSeed(x * 49632 + z * 325176 + seed);
+        random.setSeed(x * 91205 + z * 90722 + seed);
         return random.nextFloat() * 2f - 1f;
     }
+	public static void main(String[] args) {
+		Random rng = new Random(1205);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,7);
+		for(int i=0;i<100;i++){
+			for(int j=0;j<100;j++){
+				int biome_type = Math.round(Math.abs(h.generateHeight(i, j))/10);
+				switch(biome_type){
+					case 0:
+						System.out.print("~");
+						break;
+					case 1:
+						System.out.print(".");
+						break;
+					case 2:
+						System.out.print("o");
+						break;
+					case 3:
+						System.out.print("O");
+						break;
+					case 4:
+						System.out.print("@");
+						break;
+					case 5:
+						System.out.print("x");
+						break;
+					case 6:
+						System.out.print("|");
+						break;
+				}
+			}
+			System.out.println();
+		}
+		
+	}
  
 }
