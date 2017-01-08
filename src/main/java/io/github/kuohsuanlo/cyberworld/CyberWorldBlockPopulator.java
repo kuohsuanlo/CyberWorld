@@ -15,10 +15,8 @@ public class CyberWorldBlockPopulator extends BlockPopulator
         this.layerDataValues = layerDataValues;
     }
 
-    public void populate(World world, Random random, Chunk chunk)
-    {
-        if (layerDataValues != null)
-        {
+    public void populate(World world, Random random, Chunk chunk){
+        if (layerDataValues != null){
             int x = chunk.getX() << 4;
             int z = chunk.getZ() << 4;
 

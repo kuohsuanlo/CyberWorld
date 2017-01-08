@@ -167,6 +167,8 @@ public class CityStreetGenerator {
 					}
 				}
 				else if(l==1  &&  rng.nextDouble()<m_rate){
+					//if(is not poor area, see height map){}
+						
 					for(int i=point1x;i<=point2x;i+=m_size){
 						for(int j=point1y;j<=point2y;j+=m_size){
 							int m_type = rng.nextInt(m_build_num);

@@ -2,7 +2,7 @@ package io.github.kuohsuanlo.cyberworld;
 
 import java.util.Random;
 
-public class CyberWorldBiomeGenerator {
+public class TerrainHeightGenerator {
  
     private final float AMPLITUDE;
     private final int OCTAVES ;
@@ -14,9 +14,9 @@ public class CyberWorldBiomeGenerator {
     private int xOffset = 0;
     private int zOffset = 0;
  
-    public CyberWorldBiomeGenerator(Random rng, int biome_types,int oct) {
+    public TerrainHeightGenerator(Random rng, int maximum_height,int oct) {
     	this.OCTAVES = oct;
-    	this.AMPLITUDE  = (biome_types-1)*20;
+    	this.AMPLITUDE  = maximum_height;
     	this.random = rng;
         this.seed = random.nextInt(900000000);
     }
@@ -24,8 +24,8 @@ public class CyberWorldBiomeGenerator {
  
     public float generateHeight(int x, int z) {
         float total = 0;
-        x = x+10000;
-        z = z+10000;
+        x = x+262144;
+        z = z+262144;
         float d = (float) Math.pow(2, OCTAVES-1);
         for(int i=0;i<OCTAVES;i++){
             float freq = (float) (Math.pow(2, i) / d);
@@ -75,7 +75,7 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,5,4);
+		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,50,4);
 
 		for(int i=-50;i<50;i++){
 			for(int j=-50;j<50;j++){
