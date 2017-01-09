@@ -109,6 +109,17 @@ public class TerrainHeightGenerator {
 			System.out.println();
 		}
 		
+		for(int i=-10;i<10;i++){
+			for(int j=-10;j<10;j++){
+
+				rng.setSeed(91205*((i+1000)/3)+9722*((j+1000)/3));
+				System.out.print(rng.nextInt(4));
+			}
+			System.out.println();
+		}
+		
+		
+		
 	}
  
 }

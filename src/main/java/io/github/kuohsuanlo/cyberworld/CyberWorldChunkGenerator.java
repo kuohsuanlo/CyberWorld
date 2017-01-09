@@ -40,6 +40,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	int biome_type = bg.generateType(chkx, chkz);
 		if(biome_type>=0){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes);
@@ -55,11 +56,8 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateFactorySewer(chunkdata, random, chkx, chkz, biomes);
     	}
-
         return chunkdata;
-    	
-    }
-    
+    } 
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world)
     {
@@ -72,7 +70,6 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
             return new ArrayList<BlockPopulator>();
         }
     }
-
     @Override
     public Location getFixedSpawnLocation(World world, Random random)
     {
