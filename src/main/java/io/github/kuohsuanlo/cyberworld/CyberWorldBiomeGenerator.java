@@ -75,36 +75,31 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,5,4);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,8,5);
 
 		for(int i=-50;i<50;i++){
 			for(int j=-50;j<50;j++){
 
 				rng.setSeed(1205*i+722*j);
 				int biome_type = h.generateType(i,j);
-				switch(biome_type){
-					case 0:
-						System.out.print(" ");
-						break;
-					case 1:
-						System.out.print("-");
-						break;
-					case 2:
-						System.out.print("~");
-						break;
-					case 3:
-						System.out.print("o");
-						break;
-					case 4:
-						System.out.print("O");
-						break;
-					case 5:
-						System.out.print("0");
-						break;
-					case 6:
-						System.out.print("@");
-						break;
-				}
+				if(biome_type>=5){
+					System.out.print("0");
+		    	}
+				else if(biome_type>=4){
+					System.out.print("O");
+		    	}
+				else if(biome_type>=3){
+					System.out.print("o");
+		    	}
+		    	else if(biome_type>=2){
+					System.out.print("~");
+		    	}
+		    	else if(biome_type>=1){
+					System.out.print("-");
+		    	}
+		    	else if(biome_type>=0){
+		    		System.out.print(" ");
+		    	}
 			}
 			System.out.println();
 		}

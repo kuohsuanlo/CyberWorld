@@ -124,6 +124,10 @@ public class CyberWorldObjectGenerator{
 			else{
 				System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
 			}
+			
+			//System.out.println("FRAME_AREA : "+i);
+			//printMap(this.getFrameArea(cc_list[i]));
+			//System.out.println("FILLED_AREA : "+i);
 			//printMap(this.getfilledArea(cc_list[i]));
 		}
 		System.out.print("[CyberWorld] : Final numbers of read schematic(Deco/Small/Medium/Large) = "+cc_list_deco.size()+"/"+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
@@ -849,7 +853,7 @@ public class CyberWorldObjectGenerator{
          return chunkdata;
      	
      }
-	public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+	public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes, int start_of_layer){
     	//Building Generation
 		int layer;
 		int layer_ground=32;
@@ -861,7 +865,7 @@ public class CyberWorldObjectGenerator{
 		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
 		
 		
-		int s_layer_nubmer=2;
+		int s_layer_nubmer=start_of_layer;
 		for(layer=s_layer_nubmer;layer>=0;layer--){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
 				
@@ -949,7 +953,9 @@ public class CyberWorldObjectGenerator{
     }
 	public ChunkData generateBuildingDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
 		//on top, on group, on side
-        return chunkdata;
+    	//Building Generation
+		
+		return chunkdata;
     	
     }
 	public ChunkData generateGroundDecoration(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
@@ -1399,6 +1405,58 @@ public class CyberWorldObjectGenerator{
 		return overlap_area;
 		
 	}
+	private boolean[][][] getFrameArea(CuboidClipboard cc){
+		
+		int max_x_old = cc.getWidth();
+		int max_z_old = cc.getLength();
+		int max_y_old = cc.getHeight();
+		
+
+		boolean[][][] filled = this.getfilledArea(cc);
+		boolean[][][] frame = new boolean[max_x_old][max_z_old][max_y_old];
+		
+		for(int y=0;y<max_y_old;y++){
+			//bindind z
+			for(int x=0;x<max_x_old;x++){
+
+				for(int z=0;z<max_z_old;z++){
+					if(filled[x][z][y]){
+						frame[x][z][y]=true;
+						break;
+					}
+				}
+				for(int z=max_z_old-1;z>=0;z--){
+					if(filled[x][z][y]){
+						frame[x][z][y]=true;
+						break;
+					}
+				}
+			}
+			
+			//bindind x
+			for(int z=0;z<max_z_old;z++){	
+				for(int x=0;x<max_x_old;x++){
+					if(filled[x][z][y]){
+						frame[x][z][y]=true;
+						break;
+					}
+				}
+				for(int x=max_x_old-1;x>=0;x--){
+					if(filled[x][z][y]){
+						frame[x][z][y]=true;
+						break;
+					}
+				}
+			}
+			
+		}
+		
+		
+		return frame;
+		
+		
+	}	
+	
 	private boolean[][][] getfilledArea(CuboidClipboard cc){
 		boolean[][] dia_tmp_x =null;
 		boolean[][] dia_tmp_z =null;
