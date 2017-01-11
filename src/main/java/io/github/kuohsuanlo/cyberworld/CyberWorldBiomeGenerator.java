@@ -80,7 +80,7 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,8,5);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,12,5);
 
 		for(int i=-50;i<50;i++){
 			for(int j=-50;j<50;j++){
