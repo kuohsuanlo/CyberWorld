@@ -30,6 +30,7 @@ public class CityStreetGenerator {
 	private final int[][][] building;
 	private final int[][][] building_type;
 	private final int[][][] building_rotation;
+	private final long[][][] building_rng_seeds;
 	private final int[][][] building_struct;
 	private final int[][][] hightway;
     private final Random rng;
@@ -51,6 +52,7 @@ public class CityStreetGenerator {
 		building = new int[this.x][this.y][3];
 		building_type= new int[this.x][this.y][3];
 		building_rotation= new int[this.x][this.y][3];
+		building_rng_seeds= new long[this.x][this.y][3];
 		building_struct=new int[this.x][this.y][3];
 		rng = r;
 		minBW = mmbw;
@@ -135,6 +137,19 @@ public class CityStreetGenerator {
 		}
 		return building_rotation[rx%(this.x)][rz%(this.y)][layer];
 	}
+	public long getBuildingSeed(int rx, int rz,int layer){
+		rx+=x*0.5;
+		rz+=y*0.5;
+		if(rx<0){
+			rx*=-1;
+		}
+		if(rz<0){
+			rz*=-1;
+		}
+		return building_rng_seeds[rx%(this.x)][rz%(this.y)][layer];
+	}	
+	
+	
 	public int getBuildingStruct(int rx, int rz,int layer){
 		rx+=x*0.5;
 		rz+=y*0.5;
@@ -162,6 +177,7 @@ public class CityStreetGenerator {
 							if((Math.min(i+s_size,point2x) - i)>=s_size  &&  (Math.min(j+s_size,point2y) - j)>=s_size){
 								int s_type = rng.nextInt(s_build_num);
 								int angle = rng.nextInt(4);
+								long seed = rng.nextLong();
 								int current_struct = 1;
 								for(int s2=j;s2<Math.min(j+s_size,point2y);s2++){
 									for(int s1=i;s1<Math.min(i+s_size,point2x);s1++){
@@ -169,6 +185,7 @@ public class CityStreetGenerator {
 										building[s1][s2][l]=CyberWorldObjectGenerator.DIR_S_BUILDING;
 										building_type[s1][s2][l]=s_type;
 										building_rotation[s1][s2][l]=angle;
+										building_rng_seeds[s1][s2][l]=seed;
 										building_struct[s1][s2][l]=current_struct;
 										current_struct++;
 									}
@@ -186,6 +203,7 @@ public class CityStreetGenerator {
 						for(int j=point1y;j<=point2y;j+=m_size){
 							int m_type = rng.nextInt(m_build_num);
 							int angle = rng.nextInt(4);
+							long seed = rng.nextLong();
 							if((Math.min(i+m_size,point2x) - i)>=m_size  &&  (Math.min(j+m_size,point2y) - j)>=m_size){
 								int current_struct = 1;
 								for(int s2=j;s2<Math.min(j+m_size,point2y);s2++){
@@ -194,6 +212,7 @@ public class CityStreetGenerator {
 										building[s1][s2][l]=CyberWorldObjectGenerator.DIR_M_BUILDING;
 										building_type[s1][s2][l]=m_type;
 										building_rotation[s1][s2][l]=angle;
+										building_rng_seeds[s1][s2][l]=seed;
 										building_struct[s1][s2][l]=current_struct;
 										current_struct++;
 									}
@@ -207,6 +226,7 @@ public class CityStreetGenerator {
 						for(int j=point1y;j<=point2y;j+=l_size){
 							int l_type = rng.nextInt(l_build_num);
 							int angle = rng.nextInt(4);
+							long seed = rng.nextLong();
 							if((Math.min(i+l_size,point2x) - i)>=l_size  &&  (Math.min(j+l_size,point2y) - j)>=l_size){
 								int current_struct = 1;
 								for(int s2=j;s2<Math.min(j+l_size,point2y);s2++){
@@ -215,6 +235,7 @@ public class CityStreetGenerator {
 										building[s1][s2][l]=CyberWorldObjectGenerator.DIR_L_BUILDING;
 										building_type[s1][s2][l]=l_type;
 										building_rotation[s1][s2][l]=angle;
+										building_rng_seeds[s1][s2][l]=seed;
 										building_struct[s1][s2][l]=current_struct;
 										current_struct++;
 									}
@@ -453,6 +474,16 @@ public class CityStreetGenerator {
 			for (int i = 0; i < y; i++) {
 				for (int j = 0; j < x; j++) {
 					System.out.print(building_rotation[j][i][l]);
+				}
+				System.out.println("");
+			}
+		}	
+		for(int l=0;l<3;l++){
+
+			System.out.println("building_rng_seeds : "+l);
+			for (int i = 0; i < y; i++) {
+				for (int j = 0; j < x; j++) {
+					System.out.print(building_rng_seeds[j][i][l]+",");
 				}
 				System.out.println("");
 			}

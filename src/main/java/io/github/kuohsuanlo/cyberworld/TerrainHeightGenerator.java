@@ -16,7 +16,7 @@ public class TerrainHeightGenerator {
  
     public TerrainHeightGenerator(Random rng, int maximum_height,int oct) {
     	this.OCTAVES = oct;
-    	this.AMPLITUDE  = maximum_height;
+    	this.AMPLITUDE  = maximum_height*2;
     	this.random = rng;
         this.seed = random.nextInt(900000000);
     }
@@ -24,8 +24,8 @@ public class TerrainHeightGenerator {
  
     public float generateHeight(int x, int z) {
         float total = 0;
-        x = x+262144;
-        z = z+262144;
+        x = x+160000;
+        z = z+160000;
         float d = (float) Math.pow(2, OCTAVES-1);
         for(int i=0;i<OCTAVES;i++){
             float freq = (float) (Math.pow(2, i) / d);
@@ -35,9 +35,6 @@ public class TerrainHeightGenerator {
         return total;
     }
 
-    public int generateType(int x, int z) {
-        return Math.round(Math.abs(this.generateHeight(x, z))/10);
-    }
     private float getInterpolatedNoise(float x, float z){
         int intX = (int) x;
         int intZ = (int) z;
@@ -75,36 +72,35 @@ public class TerrainHeightGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,50,4);
+		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,80,4);
 
 		for(int i=-50;i<50;i++){
 			for(int j=-50;j<50;j++){
 
 				rng.setSeed(1205*i+722*j);
-				int biome_type = h.generateType(i,j);
-				switch(biome_type){
-					case 0:
-						System.out.print(" ");
-						break;
-					case 1:
-						System.out.print("-");
-						break;
-					case 2:
-						System.out.print("~");
-						break;
-					case 3:
-						System.out.print("o");
-						break;
-					case 4:
-						System.out.print("O");
-						break;
-					case 5:
-						System.out.print("0");
-						break;
-					case 6:
-						System.out.print("@");
-						break;
-				}
+				int biome_type = Math.round(h.generateHeight(i,j)/10);
+				if(biome_type>=5){
+					System.out.print("0");
+		    	}
+				else if(biome_type>=4){
+					System.out.print("O");
+		    	}
+				else if(biome_type>=3){
+					System.out.print("o");
+		    	}
+		    	else if(biome_type>=2){
+					System.out.print("~");
+		    	}
+		    	else if(biome_type>=1){
+					System.out.print("-");
+		    	}
+		    	else if(biome_type>=0){
+		    		System.out.print(" ");
+		    	}
+		    	else{
+		    		System.out.print("x");
+		    	}
+				
 			}
 			System.out.println();
 		}

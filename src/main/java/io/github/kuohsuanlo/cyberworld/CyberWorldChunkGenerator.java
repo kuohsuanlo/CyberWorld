@@ -87,8 +87,13 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	}
     	else if(biome_type>=0){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateFactorySewer(chunkdata, random, chkx, chkz, biomes);
+    	}
+    	else{
+        	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes);
     	}
         return chunkdata;
     } 

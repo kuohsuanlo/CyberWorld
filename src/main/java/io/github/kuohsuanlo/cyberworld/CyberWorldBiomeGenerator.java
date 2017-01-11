@@ -36,7 +36,12 @@ public class CyberWorldBiomeGenerator {
     }
 
     public int generateType(int x, int z) {
-        return Math.round(Math.abs(this.generateHeight(x, z))/10);
+    	int height = Math.round(this.generateHeight(x, z));
+    	
+    	if(height<=0  &&  -1*height<=AMPLITUDE/6)
+    		height=0;
+    	
+        return Math.round(height/10);
     }
     private float getInterpolatedNoise(float x, float z){
         int intX = (int) x;
@@ -99,6 +104,9 @@ public class CyberWorldBiomeGenerator {
 		    	}
 		    	else if(biome_type>=0){
 		    		System.out.print(" ");
+		    	}
+		    	else{
+		    		System.out.print("x");
 		    	}
 			}
 			System.out.println();

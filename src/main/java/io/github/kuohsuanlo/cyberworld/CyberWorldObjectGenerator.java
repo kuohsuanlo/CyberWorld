@@ -25,6 +25,7 @@ import com.sk89q.worldedit.EditSessionFactory;
 import com.sk89q.worldedit.LocalWorld;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.schematic.SchematicFormat;
@@ -32,28 +33,32 @@ import com.sk89q.worldedit.world.DataException;
 
 
 public class CyberWorldObjectGenerator{
-	private Random rng;
+	private final Random rng;
+	private final Random bm_rng;
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
-    //private final static int schematicBlueprint = 4;
-    private final static int schematicBlueprint = 124;
+    private final static int schematicBlueprint = 4;
+    //private final static int schematicBlueprint = 124;
 	private final static int schematicNumber = schematicBlueprint*1;
 	private int sz_deco=1;
 	private int sz_s=2;
 	private int sz_m=3;
 	private int sz_l=4;
 
-    private final TerrainHeightGenerator hg;
+    private final TerrainHeightGenerator hcg;
     private final int FACTORY_TERRAIN_OCTAVE = 5;
     private final int FACTORY_TERRAIN_HEIGHT = 40;
     
 	public CyberWorldObjectGenerator(){
 		rng = new Random();
 		rng.setSeed(testingSeed);
+		bm_rng = new Random();
+		bm_rng.setSeed(testingSeed);
+		
 		readSchematic();
 		cg = new CityStreetGenerator(500,500,rng,4,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
-        hg = new TerrainHeightGenerator(rng,FACTORY_TERRAIN_HEIGHT,FACTORY_TERRAIN_OCTAVE);
+		hcg = new TerrainHeightGenerator(rng,FACTORY_TERRAIN_HEIGHT,FACTORY_TERRAIN_OCTAVE);
 	}
 
     public final static int DIR_EAST_WEST 		=1;
@@ -66,6 +71,9 @@ public class CyberWorldObjectGenerator{
     public final static int DIR_L_BUILDING		=-5;
     public final static int DIR_NOT_DETERMINED  =0;
 
+    public final static int MAX_MOST_MATERIAL =5;
+    private final static int[] POSSIBLE_MATERIAL = {1,2,3,4,17,20,24,35,43,95,98,159,179,201};
+    
 	//Paving Roads
     private static Material ROAD_SIDEWALK_MATERIAL_1 = Material.STEP;
     private static Material HIGHWAY_MATERIAL = Material.QUARTZ_BLOCK;
@@ -96,9 +104,12 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_l = new ArrayList<CuboidClipboard>();
-	private ArrayList<Material> cc_list_most_s = new ArrayList<Material>();
-	private ArrayList<Material> cc_list_most_m = new ArrayList<Material>();
-	private ArrayList<Material> cc_list_most_l = new ArrayList<Material>();
+	private ArrayList<CuboidClipboard> cc_list_s_b = new ArrayList<CuboidClipboard>();
+	private ArrayList<CuboidClipboard> cc_list_m_b = new ArrayList<CuboidClipboard>();
+	private ArrayList<CuboidClipboard> cc_list_l_b = new ArrayList<CuboidClipboard>();
+	private ArrayList<int[]> cc_list_most_s = new ArrayList<int[]>();
+	private ArrayList<int[]> cc_list_most_m = new ArrayList<int[]>();
+	private ArrayList<int[]> cc_list_most_l = new ArrayList<int[]>();
 	
 
 	
@@ -111,14 +122,17 @@ public class CyberWorldObjectGenerator{
 			
 			if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
 				cc_list_s.add(cc_list[i]);
+				cc_list_s_b.add(cc_list[i]);
 				cc_list_most_s.add(this.getMostMaterial(cc_list[i]));
 			}
 			else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
 				cc_list_m.add(cc_list[i]);
+				cc_list_m_b.add(cc_list[i]);
 				cc_list_most_m.add(this.getMostMaterial(cc_list[i]));
 			}
 			else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
 				cc_list_l.add(cc_list[i]);
+				cc_list_l_b.add(cc_list[i]);
 				cc_list_most_l.add(this.getMostMaterial(cc_list[i]));
 			}
 			else{
@@ -858,23 +872,17 @@ public class CyberWorldObjectGenerator{
 		int layer;
 		int layer_ground=32;
 		int layer_start = layer_ground+1;
-		int layer_height = 256;
 		
 		int[] current_size = {cg.s_size,cg.m_size,cg.l_size};
 		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
 		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
-		
+		Object[] all_b_lists = {cc_list_s_b,cc_list_m_b,cc_list_l_b};
+		Object[] all_m_lists = {cc_list_most_s,cc_list_most_m,cc_list_most_l};
 		
 		int s_layer_nubmer=start_of_layer;
 		for(layer=s_layer_nubmer;layer>=0;layer--){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
-				
-				
-				ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
-				
-				int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
-				//int angle = 0;
-				
+
 				int type = cg.getBuildingType(chkx,chkz,layer);
 				int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)/current_size[layer];
 				int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)%current_size[layer];
@@ -882,13 +890,61 @@ public class CyberWorldObjectGenerator{
 				int i_max = (sx+1)*16;
 				int j_start = sz*16;
 				int j_max = (sz+1)*16;
+
+
+				
+				int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
+				//int angle = 0;
+				
+				ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
+				ArrayList<CuboidClipboard> current_b_list =  (ArrayList<CuboidClipboard>) all_b_lists[layer] ;
+				ArrayList<int[]> current_m_list=  (ArrayList<int[]>) all_m_lists[layer] ;
 				
 
-				current_list.get(type).rotate2D(angle);
-						
+				//replace bulding blocks rng
+				int[] used_material = new int[MAX_MOST_MATERIAL];
+				bm_rng.setSeed(cg.getBuildingSeed(chkx, chkz, layer));
+				for(int i=0;i<MAX_MOST_MATERIAL;i++){
+					//if(bm_rng.nextBoolean()){
+						//System.out.println(current_m_list.get(type)[i] +"->"+POSSIBLE_MATERIAL[bm_rng.nextInt(POSSIBLE_MATERIAL.length)]);
+						used_material[i] = POSSIBLE_MATERIAL[bm_rng.nextInt(POSSIBLE_MATERIAL.length)];
+					//}
+					//else{
+					//	used_material[i] = current_m_list.get(type)[i];
+					//}
+					
+				}
+				
+				
+				//replacing block
 				int i_end = Math.min(current_list.get(type).getWidth(),i_max);
 				int j_end = Math.min(current_list.get(type).getLength(),j_max);
 				int k_end = current_list.get(type).getHeight();
+				int block_id  = Material.AIR.getId();
+				
+				for(int i=i_start;i<i_end;i++){
+	    			for(int j=j_start;j<j_end;j++){
+		            	for(int k=0;k<k_end;k++){
+		            		block_id = current_list.get(type).getBlock(new Vector(i,k,j)).getId();
+		            		for(int m=0;m<MAX_MOST_MATERIAL;m++){
+		            			if(block_id == current_m_list.get(type)[m]){
+		            				current_list.get(type).setBlock(new Vector(i,k,j),new BaseBlock(used_material[m]));
+		            				break;
+		            			}
+		            		}
+		            		
+		            	}
+	    			}
+            	}
+				//rotating
+				current_list.get(type).rotate2D(angle);
+				i_end = Math.min(current_list.get(type).getWidth(),i_max);
+				j_end = Math.min(current_list.get(type).getLength(),j_max);
+				k_end = current_list.get(type).getHeight();
+				
+				
+
+				
 				
 				boolean[][][] fillingAirIndeces ;
 				
@@ -900,7 +956,7 @@ public class CyberWorldObjectGenerator{
 					fillingAirIndeces = new boolean [i_end][j_end][k_end] ;
 				}
 				
-				int block_id  = Material.AIR.getId();
+				
 	    		for(int i=i_start;i<i_end;i++){
 	    			for(int j=j_start;j<j_end;j++){
 		            	for(int k=0;k<k_end;k++){
@@ -927,12 +983,13 @@ public class CyberWorldObjectGenerator{
 								}
 	    					}
 		    				
-		    				
+		    				//clearing overlapping area
 		    				if(fillingAirIndeces[i][j][k]){
 		    					chunkdata.setBlock(x, y, z,Material.AIR);
 		    				}
-		    				//Bug: finding 3d volumn has bug in getfilledArea
+		    				
 		    				if(block_id!=Material.AIR.getId()){
+		    					
 		    					int fixed_id = fixBannedBlock(block_id);
 		    					if(fixed_id == block_id){
 		    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id, (byte)current_list.get(type).getBlock(new Vector(i,k,j)).getData()));
@@ -945,7 +1002,24 @@ public class CyberWorldObjectGenerator{
 		    		}
 		    	}
 
+	    		
+	    		//rotating back
 				current_list.get(type).rotate2D(360-angle);
+				
+				//replacing back
+				i_end = Math.min(current_list.get(type).getWidth(),i_max);
+				j_end = Math.min(current_list.get(type).getLength(),j_max);
+				k_end = current_list.get(type).getHeight();
+				
+				for(int i=i_start;i<i_end;i++){
+	    			for(int j=j_start;j<j_end;j++){
+		            	for(int k=0;k<k_end;k++){
+		            		block_id = current_b_list.get(type).getBlock(new Vector(i,k,j)).getId();
+            				current_list.get(type).setBlock(new Vector(i,k,j),new BaseBlock(block_id));
+		            	}
+	    			}
+            	}
+				
 			}
 		
 		}
@@ -1089,9 +1163,29 @@ public class CyberWorldObjectGenerator{
 
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
-    			int height = Math.round(hg.generateHeight(chkx*16+x, chkz*16+z))+3;
-    			chunkdata.setRegion(x,3,z,x+1,height,z+1,Material.STONE);
-    			chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
+    			int height = Math.round(hcg.generateHeight(chkx*16+x, chkz*16+z))+3;
+    			if(height>=3){
+        			chunkdata.setRegion(x,3,z,x+1,height,z+1,Material.STONE);
+        			chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
+    			}
+    			else{
+    				double d = rng.nextDouble();
+					int y=2;
+					if ( d<0.2){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
+        			}
+        			else if( d>=0.2  &&  d<0.27){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
+        			}
+        			else if( d>=0.27  &&  d<0.3){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.OBSIDIAN);
+        			}
+        			else if( d>=0.3 ){
+        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
+        			}
+	            	
+    			}
+    			
     		}
     	}
 	    
@@ -1103,24 +1197,16 @@ public class CyberWorldObjectGenerator{
 		int sewer_pipe_width = 5;
 		int sewer_pipe_thick = 2;
 		int sewer_pipe_height= 16;
-		int pillar_width = 3;
-	    for(int y=3;y<33;y++){
+	    for(int y=2;y<33;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			if(y >=2 && y <31){
 	    				double d = rng.nextDouble();
-	        			double r = rng.nextDouble();
 	    				//Building Sewer Pipe, Sewer Ground
 		        		if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){ //ROAD
 		        			//d = (d*Math.abs(z-7)/5);
 		        			//Ground 0 1 2 //sewer road// 13 14 15
-		        			if( y==2  && z>=5 && z<=9){
-		        				if(r>0.5)
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
-		        				else
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-		        			}
-		        			else if(y==2  &&  d<0.2){
+		        			if(y==2  &&  d<0.2){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
 		        			}
 		        			else if(y==2  &&  d>=0.2  &&  d<0.27){
@@ -1136,13 +1222,7 @@ public class CyberWorldObjectGenerator{
 		        		else if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){ //ROAD
 		        			//d = (d*Math.abs(x-7)/5);
 		        			//Ground 0 1 2 //sewer road// 13 14 15
-		        			if(y==2  && x>=5 && x<=9){
-		        				if(r>0.5)
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
-		        				else
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-		        			}
-		        			else if(y==2  &&  d<0.2){
+		        			if(y==2  &&  d<0.2){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
 		        			}
 		        			else if(y==2  &&  d>=0.2  &&  d<0.27){
@@ -1158,13 +1238,7 @@ public class CyberWorldObjectGenerator{
 		        		else if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){ //INTERSECTION
 		        			//Ground 0 1 2 //sewer road// 13 14 15
 		        			d = Math.max((d*Math.abs(z-7)/5),(d*Math.abs(x-7)/5));
-		        			if(y==2  && ((x>=5 && x<=9) || (z>=5 && z<=9))){
-		        				if(r>0.5)
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
-		        				else
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
-		        			}
-		        			else if(y==2  &&  d<0.2){
+		        			if(y==2  &&  d<0.2){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
 		        			}
 		        			else if(y==2  &&  d>=0.2  &&  d<0.27){
@@ -1204,6 +1278,9 @@ public class CyberWorldObjectGenerator{
 			        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STONE);
 			        			}
 		        			}
+		        			else if((-1)*(y-sewer_pipe_height) == sewer_pipe_width-sewer_pipe_thick-1  &&  ((x-7.5)*(x-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
+		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
+		        			}
 		        			else if(y>=3 &&  ((x-7.5)*(x-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);
 		        			}
@@ -1234,10 +1311,14 @@ public class CyberWorldObjectGenerator{
 			        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STONE);
 			        			}
 		        			}
+		        			else if((-1)*(y-sewer_pipe_height) == sewer_pipe_width-sewer_pipe_thick-1  &&  ((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
+		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
+		        			}
 		        			else if(y>=3 &&  ((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);
 		        			}
-
+		        			
+		        			
 
 	    				}
 	    				else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
@@ -1297,6 +1378,14 @@ public class CyberWorldObjectGenerator{
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);		        			
 		        			}
 		        			
+		        			//pipe water
+		        			if((-1)*(y-sewer_pipe_height) == sewer_pipe_width-sewer_pipe_thick-1  &&  ((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
+		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
+		        			}
+		        			if((-1)*(y-sewer_pipe_height) == sewer_pipe_width-sewer_pipe_thick-1  &&  ((x-7.5)*(x-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
+		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.WATER);
+		        			}
+		        			
 		        			//Downward foundation
 		        			if(y<=sewer_pipe_height-sewer_pipe_width  && ((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<sewer_pipe_width*sewer_pipe_width    ){
 		        				
@@ -1349,7 +1438,7 @@ public class CyberWorldObjectGenerator{
 	    return chunkdata;
    	
 	}
-	private Material getMostMaterial(CuboidClipboard cc){
+	private int[] getMostMaterial(CuboidClipboard cc){
 
 		int[] id_times = new int[500];
 		int now_id =0;
@@ -1357,23 +1446,39 @@ public class CyberWorldObjectGenerator{
 			for(int x=0;x<cc.getWidth();x++){
 				for(int z=0;z<cc.getLength();z++){
 					now_id = cc.getBlock(new Vector(x,y,z)).getId();
-					if(now_id<id_times.length  &&  now_id!=Material.AIR.getId()){
+					if(now_id<id_times.length  &&  
+							now_id!=Material.AIR.getId()     &&  
+							now_id!=Material.GLASS.getId()   &&  
+							now_id!=Material.STAINED_GLASS.getId()   &&  
+							now_id!=Material.THIN_GLASS.getId()   && 
+							now_id!=Material.STAINED_GLASS_PANE.getId()   && 
+							now_id!=Material.LAVA.getId()   &&  
+							now_id!=Material.WATER.getId()){
 						id_times[now_id]++;
 					}
 					
 				}
 			}
 		}
+
+	    int large[] = new int[MAX_MOST_MATERIAL];
+	    int max = 0, index;
+		for (int j = 0; j < MAX_MOST_MATERIAL; j++) {
+	        max = id_times[0];
+	        index = 0;
+	        for (int i = 1; i < id_times.length; i++) {
+	            if (max < id_times[i]) {
+	                max = id_times[i];
+	                index = i;
+	            }
+	        }
+	        large[j] = index;
+	        id_times[index] = Integer.MIN_VALUE;
+
+	        //System.out.println("Largest " + index );
+	    }
 		
-		int maxIndex = 0;
-		int max=0;
-		for (int i = 0; i < id_times.length; i++) {
-		    if (id_times[i] > max) {
-		        max = id_times[i];
-		        maxIndex = i;
-		    }
-		}
-		return Material.getMaterial(maxIndex);
+		return large;
 		
 	}
 	private boolean[][][] returnOverlappingIgnoredVoxel(boolean[][][] new_cc,boolean[][][] old_cc){
