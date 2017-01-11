@@ -253,8 +253,6 @@ public class CityStreetGenerator {
 			int y_shift = 0;
 			int x_margin = Math.abs(point1x-point2x+1)-(minBW);
 			int y_margin = Math.abs(point1y-point2y+1)-(minBW);
-			int x_highway_margin = Math.abs(point1x-point2x+1)-(minBW);
-			int y_highway_margin = Math.abs(point1y-point2y+1)-(minBW);
 
 			if(x_margin>0){
 				x_shift = rng.nextInt(x_margin);
@@ -309,8 +307,12 @@ public class CityStreetGenerator {
 
 			}
 
-			if(x_highway_margin>0 && y_highway_margin>0){
-				for(int l=0;l<3;l++){
+			for(int l=0;l<3;l++){
+
+				int x_highway_margin = Math.abs(point1x-point2x+1)-(minBW*(l+1));
+				int y_highway_margin = Math.abs(point1y-point2y+1)-(minBW*(l+1));
+				if(x_highway_margin>0 || y_highway_margin>0){
+					
 					boolean highwayCutout_x = rng.nextDouble()>0.33;
 					boolean highwayCutout_z = rng.nextDouble()>0.33;
 					if(highwayCutout_x){
@@ -374,7 +376,7 @@ public class CityStreetGenerator {
 			}
 			System.out.println("");
 		}
-		
+		*/
 		for(int l=0;l<3;l++){
 
 			System.out.println("HIGHWAY : "+l);
@@ -422,7 +424,7 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		*/
+		
 		/*
 		for(int l=0;l<3;l++){
 
@@ -449,7 +451,7 @@ public class CityStreetGenerator {
 				System.out.println("");
 			}
 		}	
-		*/
+		
 		for(int l=0;l<3;l++){
 
 			System.out.println("building_struct : "+l);
@@ -487,7 +489,7 @@ public class CityStreetGenerator {
 				}
 				System.out.println("");
 			}
-		}	
+		}	*/
 	}
 	public static void main(String[] args) {
 		int w =30;

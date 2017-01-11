@@ -97,8 +97,11 @@ public class TerrainHeightGenerator {
 		    	else if(biome_type>=0){
 		    		System.out.print(" ");
 		    	}
-		    	else{
+		    	else if(biome_type>=-1){
 		    		System.out.print("x");
+		    	}
+		    	else{
+		    		System.out.print("X");
 		    	}
 				
 			}

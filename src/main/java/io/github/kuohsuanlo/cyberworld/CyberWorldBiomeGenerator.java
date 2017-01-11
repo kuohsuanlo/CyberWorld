@@ -9,16 +9,19 @@ public class CyberWorldBiomeGenerator {
     private static final float ROUGHNESS = 0.3f;
  
 
-    private Random random;
+    private Random rng;
+    private long testingSeed= 1205;
+    
     private int seed;
     private int xOffset = 0;
     private int zOffset = 0;
  
-    public CyberWorldBiomeGenerator(Random rng, int biome_types,int oct) {
+    public CyberWorldBiomeGenerator(int biome_types,int oct) {
     	this.OCTAVES = oct;
     	this.AMPLITUDE  = (biome_types-1)*20;
-    	this.random = rng;
-        this.seed = random.nextInt(900000000);
+    	rng = new Random();
+		rng.setSeed(testingSeed);
+        this.seed = rng.nextInt(900000000);
     }
     
  
@@ -38,10 +41,10 @@ public class CyberWorldBiomeGenerator {
     public int generateType(int x, int z) {
     	int height = Math.round(this.generateHeight(x, z));
     	
-    	if(height<=0  &&  -1*height<=AMPLITUDE/6)
-    		height=0;
+    	height = Math.abs(height);
+
     	
-        return Math.round(height/10);
+        return Math.round(height/10)-1;
     }
     private float getInterpolatedNoise(float x, float z){
         int intX = (int) x;
@@ -74,18 +77,16 @@ public class CyberWorldBiomeGenerator {
     }
  
     private float getNoise(int x, int z) {
-        random.setSeed(91205*x + 90722*z  + seed);
+        rng.setSeed(91205*x + 90722*z  + seed);
         //random.setSeed(x * 91205 + z * 90722 + seed);
-        return random.nextFloat() * 2f - 1f;
+        return rng.nextFloat() * 2f - 1f;
     }
 	public static void main(String[] args) {
-		Random rng = new Random(1205);
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(rng,12,5);
 
-		for(int i=-50;i<50;i++){
-			for(int j=-50;j<50;j++){
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(14,5);
 
-				rng.setSeed(1205*i+722*j);
+		for(int i=-100;i<100;i++){
+			for(int j=-100;j<100;j++){
 				int biome_type = h.generateType(i,j);
 				if(biome_type>=5){
 					System.out.print("0");
@@ -105,8 +106,11 @@ public class CyberWorldBiomeGenerator {
 		    	else if(biome_type>=0){
 		    		System.out.print(" ");
 		    	}
-		    	else{
+		    	else if(biome_type>=-1){
 		    		System.out.print("x");
+		    	}
+		    	else{
+		    		System.out.print("X");
 		    	}
 			}
 			System.out.println();

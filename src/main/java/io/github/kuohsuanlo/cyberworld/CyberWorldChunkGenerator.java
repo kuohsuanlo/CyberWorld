@@ -9,9 +9,9 @@ import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
-
 
 
 public class CyberWorldChunkGenerator extends ChunkGenerator
@@ -20,16 +20,14 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     private byte[] layerDataValues;
 
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
-    private final int BIOME_TYPES = 12;
+    private final int BIOME_TYPES = 14;
     private final int BIOME_OCTAVE = 5;
     private final CyberWorldObjectGenerator og;
     private final CyberWorldBiomeGenerator bg;
     
-    private final Random rng;
     public CyberWorldChunkGenerator(){
-    	rng = new Random(1205);
     	og = new CyberWorldObjectGenerator();
-    	bg = new CyberWorldBiomeGenerator(rng,BIOME_TYPES,BIOME_OCTAVE);
+    	bg = new CyberWorldBiomeGenerator(BIOME_TYPES,BIOME_OCTAVE);
     }
 
 
@@ -41,7 +39,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 		if(biome_type>=5){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes, 2);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
@@ -54,7 +52,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 		else if(biome_type>=4){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes, 2);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
@@ -63,7 +61,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 		else if(biome_type>=3){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes, 1);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
@@ -72,7 +70,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	else if(biome_type>=2){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz, biomes, 1);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
@@ -80,21 +78,30 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	}
     	else if(biome_type>=1){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryGround(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes,1);
+        	chunkdata = og.generateFactoryRoad(chunkdata, random, chkx, chkz, biomes,2);
+        	chunkdata = og.generateFactorySewer(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
     	}
     	else if(biome_type>=0){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateRoad(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryGround(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryRoad(chunkdata, random, chkx, chkz, biomes,2);
+        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes,0.95);
         	chunkdata = og.generateFactorySewer(chunkdata, random, chkx, chkz, biomes);
     	}
     	else{
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
-        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryGround(chunkdata, random, chkx, chkz, biomes);
+        	chunkdata = og.generateFactoryRoad(chunkdata, random, chkx, chkz, biomes,2);
+        	chunkdata = og.generateFactoryTerrain(chunkdata, random, chkx, chkz, biomes,0.9);
     	}
+
+
+		
+		
         return chunkdata;
     } 
     @Override
