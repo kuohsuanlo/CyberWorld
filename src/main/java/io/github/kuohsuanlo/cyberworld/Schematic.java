@@ -36,7 +36,7 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 public class Schematic {
 
     public static CuboidClipboard getSchematic(String schematicName, int angle) {
-             File dir = new File(CyberWorldObjectGenerator.WINDOWS_PATH + schematicName);
+             File dir = new File(schematicName);
 
 
             SchematicFormat schematic = SchematicFormat.getFormat(dir);

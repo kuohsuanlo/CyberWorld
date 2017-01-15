@@ -6,10 +6,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,26 +44,29 @@ public class CyberWorldObjectGenerator{
 	private Logger log = Logger.getLogger("Minecraft");
     public CityStreetGenerator cg = null;
     private long testingSeed= 1205;
-    //private final static int schematicBlueprint = 4;
-    private final static int schematicBlueprint = 124;
-	private final static int schematicNumber = schematicBlueprint*1;
+    
+    private long schematicBlueprint = 0;
 	private int sz_deco=1;
 	private int sz_s=2;
-	private int sz_m=3;
-	private int sz_l=4;
+	private int sz_m=4;
+	private int sz_l=6;
 
     private final TerrainHeightGenerator hcg;
     private final int FACTORY_TERRAIN_OCTAVE = 5;
     private final int FACTORY_TERRAIN_HEIGHT = 40;
     
-	public CyberWorldObjectGenerator(){
+    public static final int CITY_X = 1000;
+    public static final int CITY_Z = 1000;
+    
+	public CyberWorldObjectGenerator(CyberWorldBiomeGenerator b){
 		rng = new Random();
 		rng.setSeed(testingSeed);
 		bm_rng = new Random();
 		bm_rng.setSeed(testingSeed);
 		
-		readSchematic();
-		cg = new CityStreetGenerator(500,500,rng,4,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		readSchematic("default");
+		readSchematic("import");
+		cg = new CityStreetGenerator(b,CITY_X,CITY_Z,rng,4,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
 		hcg = new TerrainHeightGenerator(rng,FACTORY_TERRAIN_HEIGHT,FACTORY_TERRAIN_OCTAVE);
 	}
 
@@ -101,7 +108,9 @@ public class CyberWorldObjectGenerator{
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
     
     
-	private CuboidClipboard[] cc_list = new CuboidClipboard[schematicNumber];
+
+	private CuboidClipboard cc_tmp = null;
+	private CuboidClipboard cc_backup = null;
 	private ArrayList<CuboidClipboard> cc_list_deco = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
@@ -113,40 +122,43 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<CuboidClipboard> cc_list_l_b = new ArrayList<CuboidClipboard>();
 
 	
-
-	
-	private void readSchematic(){
+	private void readSchematic(String building_type){
+		try(Stream<Path> paths = Files.walk(Paths.get(CyberWorldObjectGenerator.WINDOWS_PATH+building_type))) {
+		    paths.forEach(filePath -> {
+		        if (Files.isRegularFile(filePath)) {
+		            cc_tmp = Schematic.getSchematic(filePath.toString(),0);
+					cc_backup = Schematic.getSchematic(filePath.toString(),0);
+					if(cc_tmp.getLength()<=sz_deco*16  && cc_tmp.getWidth()<=sz_deco*16){
+						cc_list_deco.add(cc_tmp);
+						cc_list_deco_b.add(cc_backup);
+					}
+					
+					if(cc_tmp.getLength()<=sz_s*16  && cc_tmp.getWidth()<=sz_s*16){
+						cc_list_s.add(cc_tmp);
+						cc_list_s_b.add(cc_backup);
+					}
+					else if(cc_tmp.getLength()<=sz_m*16  && cc_tmp.getWidth()<=sz_m*16){
+						cc_list_m.add(cc_tmp);
+						cc_list_m_b.add(cc_backup);
+					}
+					else if(cc_tmp.getLength()<=sz_l*16  && cc_tmp.getWidth()<=sz_l*16){
+						cc_list_l.add(cc_tmp);
+						cc_list_l_b.add(cc_backup);
+					}
+					else{
+						System.out.print("[CyberWorld] : Error on "+building_type+" schematic = "+filePath.toString()+"/ size too large : "+cc_tmp.getWidth()+","+cc_tmp.getLength());
+					}
+		        }
+		    });
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
 		for(int i =0;i<schematicBlueprint;i++){
-			cc_list[i] = Schematic.getSchematic(i+".schematic",0);
-			CuboidClipboard cc_backup = Schematic.getSchematic(i+".schematic",0);
-			if(cc_list[i].getLength()<=sz_deco*16  && cc_list[i].getWidth()<=sz_deco*16){
-				cc_list_deco.add(cc_list[i]);
-				cc_list_deco_b.add(cc_backup);
-			}
 			
-			if(cc_list[i].getLength()<=sz_s*16  && cc_list[i].getWidth()<=sz_s*16){
-				cc_list_s.add(cc_list[i]);
-				cc_list_s_b.add(cc_backup);
-			}
-			else if(cc_list[i].getLength()<=sz_m*16  && cc_list[i].getWidth()<=sz_m*16){
-				cc_list_m.add(cc_list[i]);
-				cc_list_m_b.add(cc_backup);
-			}
-			else if(cc_list[i].getLength()<=sz_l*16  && cc_list[i].getWidth()<=sz_l*16){
-				cc_list_l.add(cc_list[i]);
-				cc_list_l_b.add(cc_backup);
-			}
-			else{
-				System.out.print("[CyberWorld] : Error on schematic = "+i+"/ size too large : "+cc_list[i].getWidth()+","+cc_list[i].getLength());
-			}
-			
-			//System.out.println("FRAME_AREA : "+i);
-			//printMap(this.getFrameArea(cc_list[i]));
-			//System.out.println("FILLED_AREA : "+i);
-			//printMap(this.getfilledArea(cc_list[i]));
 		}
 		System.out.print("[CyberWorld] : Final numbers of read schematic(Deco/Small/Medium/Large) = "+cc_list_deco.size()+"/"+cc_list_s.size()+"/"+cc_list_m.size()+"/"+cc_list_l.size());
-		cc_list = null;
 		
 	}
 	public ChunkData generateBottom(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
@@ -949,7 +961,7 @@ public class CyberWorldObjectGenerator{
 		int layer_ground=32;
 		int layer_start = layer_ground+1;
 		
-		int[] current_size = {cg.s_size,cg.m_size,cg.l_size};
+		int[] current_size = cg.a_size;
 		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
 		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
 		Object[] all_b_lists = {cc_list_s_b,cc_list_m_b,cc_list_l_b};
@@ -959,8 +971,13 @@ public class CyberWorldObjectGenerator{
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
 
 				int type = cg.getBuildingType(chkx,chkz,layer);
-				int sx = (cg.getBuildingStruct(chkx, chkz, layer)-1)/current_size[layer];
-				int sz = (cg.getBuildingStruct(chkx, chkz, layer)-1)%current_size[layer];
+				int struct_type = cg.getBuildingStruct(chkx, chkz, layer);
+				
+				//fixing biome type
+				
+				
+				int sx = (struct_type-1)/current_size[layer];
+				int sz = (struct_type-1)%current_size[layer];
 				int i_start = sx*16;
 				int i_max = (sx+1)*16;
 				int j_start = sz*16;
@@ -1036,21 +1053,12 @@ public class CyberWorldObjectGenerator{
 		    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
 		    					}
 		    				} 
-		    				
-		    				
-
-		    				
 		    			}
 		    		}
 		    	}
-
-	    		
 	    		//rotating back
 				current_list.get(type).rotate2D(360-angle);
-				
-				
 			}
-		
 		}
 		return chunkdata;	
     }
@@ -1072,72 +1080,120 @@ public class CyberWorldObjectGenerator{
 		int j_start = sz*16;
 		int j_max = (sz+1)*16;
 		
-		
-		int type = rng.nextInt(cc_list_deco.size());
-		CuboidClipboard object = cc_list_deco.get(type);
-		CuboidClipboard object_b = cc_list_deco_b.get(type);
-		int angle = rng.nextInt(4)*90;
-		
-		//replacing rng seed
-		long chunk_seed = cg.getBuildingSeed(chkx, chkz, 0);
-		
-		int block_id  = Material.AIR.getId();
-		byte block_data =0;
+		if(cc_list_deco.size()>0){
 
-		
-
-		
-		//rotating
-		object.rotate2D(angle);
-		int i_end = i_end = Math.min(object.getWidth(),i_max);
-		int j_end = j_end = Math.min(object.getLength(),j_max);
-		int k_end = k_end = object.getHeight();
-		
-		
-		boolean[][][] fillingAirIndeces = this.getfilledArea(object);
-
-		
-		
-		
-		
-		boolean near_road=false;
-		int near_distance;
-		
-
-		
-		
-		if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
-				cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
-			//on road object
+			int type = rng.nextInt(cc_list_deco.size());
+			CuboidClipboard object = cc_list_deco.get(type);
+			CuboidClipboard object_b = cc_list_deco_b.get(type);
+			int angle = rng.nextInt(4)*90;
 			
-		}
-		else{
-			//near road object
+			//replacing rng seed
+			long chunk_seed = cg.getBuildingSeed(chkx, chkz, 0);
 			
-			near_distance =1;
-			for(int cx = chkx-near_distance; cx<=chkx+near_distance;cx++){
-				for(int cz = chkz-near_distance; cz<=chkz+near_distance;cz++){
-					if( cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
-							cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_INTERSECTION  ){
-						
-						near_road =true;
+			int block_id  = Material.AIR.getId();
+			byte block_data =0;
+	
+			
+	
+			
+			//rotating
+			object.rotate2D(angle);
+			int i_end = i_end = Math.min(object.getWidth(),i_max);
+			int j_end = j_end = Math.min(object.getLength(),j_max);
+			int k_end = k_end = object.getHeight();
+			
+			
+			boolean[][][] fillingAirIndeces = this.getfilledArea(object);
+	
+			
+			
+			
+			
+			boolean near_road=false;
+			int near_distance;
+			
+	
+			
+			
+			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
+					cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+				//on road object
+				
+			}
+			else{
+				//near road object
+				
+				near_distance =1;
+				for(int cx = chkx-near_distance; cx<=chkx+near_distance;cx++){
+					for(int cz = chkz-near_distance; cz<=chkz+near_distance;cz++){
+						if( cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
+								cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  cg.getRoadType(cx,cz)==CyberWorldObjectGenerator.DIR_INTERSECTION  ){
+							
+							near_road =true;
+						}
+					}
+				}
+				if(near_road){
+					for(int j=j_start;j<j_end;j++){
+			    		for(int i=i_start;i<i_end;i++){
+			            	for(int k=k_end-1;k>=0;k--){
+			            		int y = k+layer_start;
+			    				int x = i-i_start;
+			    				int z = j-j_start;
+	
+	
+			            		
+			            		if(fillingAirIndeces[i][j][k]){
+			    					chunkdata.setBlock(x, y, z,Material.AIR);
+			    				}
+			            		
+			            		block_id = object.getBlock(new Vector(i,k,j)).getId();
+			            		block_data = (byte) object.getBlock(new Vector(i,k,j)).getData();
+			            		
+			            		if(block_id!=Material.AIR.getId()){
+			    					int fixed_id = fixBannedBlock(block_id);
+			    					if(fixed_id == block_id){
+			    						chunkdata.setBlock(x, y, z, getReplacedMaterial(bm_rng,block_id,block_data,chunk_seed ));
+			    					}
+			    					else{
+			    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
+			    					}
+			    				} 
+			            		
+		            		}
+		            	}
 					}
 				}
 			}
-			if(near_road){
+	
+				
+			boolean less_building_area=false;
+			int[][] less_building_struct = {{4},{6,8,9},{8,11,14,12,15,16}};
+			for(int layer=0;layer<3;layer++){
+				for(int ls_area_idx = 0;ls_area_idx< less_building_struct[layer].length;ls_area_idx++){
+					if(cg.getBuildingStruct(chkx, chkz, layer)==less_building_struct[layer][ls_area_idx]){	
+						less_building_area =true;
+					}
+				}
+			}
+			
+			
+			if(less_building_area){
 				for(int j=j_start;j<j_end;j++){
 		    		for(int i=i_start;i<i_end;i++){
-		            	for(int k=k_end-1;k>=0;k--){
+		            	for(int k=0;k<k_end;k++){
 		            		int y = k+layer_start;
-		    				int x = i-i_start;
 		    				int z = j-j_start;
-
-
+		    				int x = i-i_start;
+	
+	
+		            		
+		            		
 		            		
 		            		if(fillingAirIndeces[i][j][k]){
 		    					chunkdata.setBlock(x, y, z,Material.AIR);
 		    				}
-		            		
+		    				//Bug: finding 3d volumn has bug in getfilledArea
 		            		block_id = object.getBlock(new Vector(i,k,j)).getId();
 		            		block_data = (byte) object.getBlock(new Vector(i,k,j)).getData();
 		            		
@@ -1155,77 +1211,30 @@ public class CyberWorldObjectGenerator{
 	            	}
 				}
 			}
-		}
-
-			
-		boolean less_building_area=false;
-		int[][] less_building_struct = {{4},{6,8,9},{8,11,14,12,15,16}};
-		for(int layer=0;layer<3;layer++){
-			for(int ls_area_idx = 0;ls_area_idx< less_building_struct[layer].length;ls_area_idx++){
-				if(cg.getBuildingStruct(chkx, chkz, layer)==less_building_struct[layer][ls_area_idx]){	
-					less_building_area =true;
-				}
-			}
-		}
-		
-		
-		if(less_building_area){
-			for(int j=j_start;j<j_end;j++){
-	    		for(int i=i_start;i<i_end;i++){
-	            	for(int k=0;k<k_end;k++){
-	            		int y = k+layer_start;
-	    				int z = j-j_start;
-	    				int x = i-i_start;
-
-
-	            		
-	            		
-	            		
-	            		if(fillingAirIndeces[i][j][k]){
-	    					chunkdata.setBlock(x, y, z,Material.AIR);
-	    				}
-	    				//Bug: finding 3d volumn has bug in getfilledArea
-	            		block_id = object.getBlock(new Vector(i,k,j)).getId();
-	            		block_data = (byte) object.getBlock(new Vector(i,k,j)).getData();
-	            		
-	            		if(block_id!=Material.AIR.getId()){
-	    					int fixed_id = fixBannedBlock(block_id);
-	    					if(fixed_id == block_id){
-	    						chunkdata.setBlock(x, y, z, getReplacedMaterial(bm_rng,block_id,block_data,chunk_seed ));
-	    					}
-	    					else{
-	    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
-	    					}
-	    				} 
-	            		
-            		}
-            	}
-			}
-		}
-
-		//rotating back
-		object.rotate2D(360-angle);
-
-
-		//replacing back
-		i_end = object.getWidth();
-		j_end = object.getLength();
-		k_end = object.getHeight();
-		block_id  = Material.AIR.getId();
-		
-		for(int i=0;i<i_end;i++){
-			for(int j=0;j<j_end;j++){
-            	for(int k=0;k<k_end;k++){
-            		block_id = object_b.getBlock(new Vector(i,k,j)).getId();
-            		object.setBlock(new Vector(i,k,j),new BaseBlock(block_id));
-            		
-            	}
-			}
-    	}
-		
 	
+			//rotating back
+			object.rotate2D(360-angle);
+	
+	
+			//replacing back
+			i_end = object.getWidth();
+			j_end = object.getLength();
+			k_end = object.getHeight();
+			block_id  = Material.AIR.getId();
+			
+			for(int i=0;i<i_end;i++){
+				for(int j=0;j<j_end;j++){
+	            	for(int k=0;k<k_end;k++){
+	            		block_id = object_b.getBlock(new Vector(i,k,j)).getId();
+	            		object.setBlock(new Vector(i,k,j),new BaseBlock(block_id));
+	            		
+	            	}
+				}
+	    	}
+			
+		
 
-	    
+		}
         return chunkdata;
     	
     }

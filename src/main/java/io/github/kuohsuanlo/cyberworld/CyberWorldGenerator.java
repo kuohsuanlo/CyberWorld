@@ -34,6 +34,9 @@ public class CyberWorldGenerator extends JavaPlugin{
         if(this.createFolder("./plugins/CyberWorld/schematics/default")){
         	
         }
+        if(this.createFolder("./plugins/CyberWorld/schematics/import")){
+        	
+        }
         
     }
 

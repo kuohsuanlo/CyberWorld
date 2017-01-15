@@ -20,14 +20,14 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     private byte[] layerDataValues;
 
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
-    private final int BIOME_TYPES = 14;
+    private final int BIOME_TYPES = 20;
     private final int BIOME_OCTAVE = 5;
     private final CyberWorldObjectGenerator og;
     private final CyberWorldBiomeGenerator bg;
     
     public CyberWorldChunkGenerator(){
-    	og = new CyberWorldObjectGenerator();
     	bg = new CyberWorldBiomeGenerator(BIOME_TYPES,BIOME_OCTAVE);
+    	og = new CyberWorldObjectGenerator(bg);
     }
 
 
@@ -35,7 +35,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     public ChunkData generateChunkData(World world, Random random, int chkx, int chkz, BiomeGrid biomes){
     	ChunkData chunkdata = createChunkData(world);
     	random.setSeed(world.getSeed()/2+1205*chkx+722*chkz);
-    	int biome_type = bg.generateType(chkx, chkz);
+    	int biome_type = bg.generateType(chkx, chkz,true);
 		if(biome_type>=5){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);

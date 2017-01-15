@@ -25,10 +25,24 @@ public class CyberWorldBiomeGenerator {
     }
     
  
-    public float generateHeight(int x, int z) {
+    public float generateHeight(int x, int z, boolean transform) {
         float total = 0;
-        x = x+10000;
-        z = z+10000;
+        
+        if(transform){
+        	x+=CyberWorldObjectGenerator.CITY_X*0.5;
+    		z+=CyberWorldObjectGenerator.CITY_Z*0.5;
+    		if(x<0){
+    			x*=-1;
+    		}
+    		if(z<0){
+    			z*=-1;
+    		}
+            
+            x%= CyberWorldObjectGenerator.CITY_X;
+            z%= CyberWorldObjectGenerator.CITY_Z;
+        }
+		
+        
         float d = (float) Math.pow(2, OCTAVES-1);
         for(int i=0;i<OCTAVES;i++){
             float freq = (float) (Math.pow(2, i) / d);
@@ -38,8 +52,8 @@ public class CyberWorldBiomeGenerator {
         return total;
     }
 
-    public int generateType(int x, int z) {
-    	int height = Math.round(this.generateHeight(x, z));
+    public int generateType(int x, int z, boolean transform) {
+    	int height = Math.round(this.generateHeight(x, z,transform));
     	
     	height = Math.abs(height);
 
@@ -83,11 +97,11 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(14,5);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(20,5);
 
-		for(int i=-100;i<100;i++){
-			for(int j=-100;j<100;j++){
-				int biome_type = h.generateType(i,j);
+		for(int i=-25;i<25;i++){
+			for(int j=-25;j<25;j++){
+				int biome_type = h.generateType(i,j,true);
 				if(biome_type>=5){
 					System.out.print("0");
 		    	}
