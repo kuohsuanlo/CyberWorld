@@ -29,14 +29,16 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
     	bg = new CyberWorldBiomeGenerator(BIOME_TYPES,BIOME_OCTAVE);
     	og = new CyberWorldObjectGenerator(bg);
     }
-
+    public static final int MIN_LAYER_2_BIOME_TYPE=4;
+    public static final int MIN_LAYER_1_BIOME_TYPE=2;
+    public static final int MIN_LAYER_0_BIOME_TYPE=0;
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int chkx, int chkz, BiomeGrid biomes){
     	ChunkData chunkdata = createChunkData(world);
     	random.setSeed(world.getSeed()/2+1205*chkx+722*chkz);
     	int biome_type = bg.generateType(chkx, chkz,true);
-		if(biome_type>=5){
+		if(biome_type>=MIN_LAYER_2_BIOME_TYPE+1){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
@@ -49,7 +51,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	//chunkdata = og.generateGroundSewer(chunkdata, random, chkx, chkz, biomes);
         	//chunkdata = og.generateCityWall(chunkdata, random, chkx, chkz, biomes);
     	}
-		else if(biome_type>=4){
+		else if(biome_type>=MIN_LAYER_2_BIOME_TYPE){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
@@ -58,7 +60,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
         	//chunkdata = og.generateBuildingDecoration(chunkdata, random, chkx, chkz, biomes);
     	}
-		else if(biome_type>=3){
+		else if(biome_type>=MIN_LAYER_1_BIOME_TYPE+1){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);
@@ -67,7 +69,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz, biomes);
         	//chunkdata = og.generateBuildingDecoration(chunkdata, random, chkx, chkz, biomes);
     	}
-    	else if(biome_type>=2){
+    	else if(biome_type>=MIN_LAYER_1_BIOME_TYPE){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCitySurface(chunkdata, random, chkx, chkz, biomes);
         	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz, biomes);

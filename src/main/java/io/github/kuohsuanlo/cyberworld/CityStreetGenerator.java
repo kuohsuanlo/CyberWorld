@@ -189,18 +189,16 @@ public class CityStreetGenerator {
 								long seed = rng.nextLong();
 								int current_struct = 1;
 								
-								//layer_start = 2, bg = 4,5
-								//layer_start = 1, bg = 2,3
 								int isComplete = 0;
 								for(int s2=j;s2<Math.min(j+a_size[l],point2y);s2++){
 									for(int s1=i;s1<Math.min(i+a_size[l],point2x);s1++){
-										if(l==0 &&  bg.generateType(s1, s2, false)>=2){
+										if(l==0 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_0_BIOME_TYPE){
 											isComplete++;
 										}
-										if(l==1 &&  bg.generateType(s1, s2, false)>=2){
+										if(l==1 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
 											isComplete++;
 										}
-										if(l==2 &&  bg.generateType(s1, s2, false)>=4){
+										if(l==2 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_2_BIOME_TYPE){
 											isComplete++;
 										}
 									}
