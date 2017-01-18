@@ -34,7 +34,7 @@ public class CyberWorldGenerator extends JavaPlugin{
         if(this.createFolder("./plugins/CyberWorld/schematics/default")){
         	
         }
-        if(this.createFolder("./plugins/CyberWorld/schematics/city_surface")){
+        if(this.createFolder("./plugins/CyberWorld/schematics/citysurface")){
         	
         }
         if(this.createFolder("./plugins/CyberWorld/schematics/underground")){
