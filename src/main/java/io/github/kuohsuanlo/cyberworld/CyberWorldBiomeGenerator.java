@@ -11,7 +11,6 @@ public class CyberWorldBiomeGenerator {
 
     private Random rng;
     private long testingSeed= 1205;
-    
     private int seed;
     private int xOffset = 0;
     private int zOffset = 0;
@@ -27,19 +26,11 @@ public class CyberWorldBiomeGenerator {
  
     public float generateHeight(int x, int z, boolean transform) {
         float total = 0;
-        
+        int[] ans;
         if(transform){
-        	x+=CyberWorldObjectGenerator.CITY_X*0.5;
-    		z+=CyberWorldObjectGenerator.CITY_Z*0.5;
-    		if(x<0){
-    			x*=-1;
-    		}
-    		if(z<0){
-    			z*=-1;
-    		}
-            
-            x%= CyberWorldObjectGenerator.CITY_X;
-            z%= CyberWorldObjectGenerator.CITY_Z;
+        	ans = CityStreetGenerator.c2abs_transform(x, z);
+        	x = ans[0];
+        	z = ans[1];
         }
 		
         
@@ -55,7 +46,7 @@ public class CyberWorldBiomeGenerator {
     public int generateType(int x, int z, boolean transform) {
     	int height = Math.round(this.generateHeight(x, z,transform));
     	
-    	height = Math.abs(height);
+    	//height = Math.abs(height);
 
     	
         return Math.round(height/10)-1;
@@ -126,6 +117,24 @@ public class CyberWorldBiomeGenerator {
 		    	else{
 		    		System.out.print("X");
 		    	}
+			}
+			System.out.println();
+		}
+		
+		for(int i=-25;i<25;i++){
+			for(int j=-25;j<25;j++){
+				
+				int biome_type = Math.round(h.generateHeight(i,j,true)/10);
+				if(biome_type>=1){
+					System.out.print(Integer.toHexString(biome_type));
+		    	}
+		    	else if(biome_type>=-1){
+		    		System.out.print("x");
+		    	}
+		    	else{
+		    		System.out.print("X");
+		    	}
+				
 			}
 			System.out.println();
 		}

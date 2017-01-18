@@ -6,6 +6,7 @@ public class TerrainHeightGenerator {
  
     private final float AMPLITUDE;
     private final int OCTAVES ;
+    private final float GROUND;
     private static final float ROUGHNESS = 0.3f;
  
 
@@ -13,26 +14,60 @@ public class TerrainHeightGenerator {
     private int seed;
     private int xOffset = 0;
     private int zOffset = 0;
+    private int xOffset_n = 0;
+    private int zOffset_n = 0;
  
-    public TerrainHeightGenerator(Random rng, int maximum_height,int oct) {
+    
+
+			
+    public TerrainHeightGenerator(Random rng, int maximum_height,int oct,int ground_level) {
     	this.OCTAVES = oct;
     	this.AMPLITUDE  = maximum_height*2;
+    	this.GROUND = ground_level;
     	this.random = rng;
         this.seed = random.nextInt(900000000);
+
+       
     }
-    
- 
-    public float generateHeight(int x, int z) {
-        float total = 0;
-        x = x+160000;
-        z = z+160000;
-        float d = (float) Math.pow(2, OCTAVES-1);
-        for(int i=0;i<OCTAVES;i++){
+    public int generateHeight(int x, int z, boolean transform) {
+    	
+        float ratio = 0;
+        float total=0;
+        
+        int[] ans;
+        if(transform){
+        	ans = CityStreetGenerator.c2abs_transform(x, z);
+        	x = ans[0];
+        	z = ans[1];
+        }
+        
+        int RATIO_OCTAVES = Math.abs(OCTAVES-2);
+        int HEIGHT_OCTAVES = OCTAVES;
+        float d = (float) Math.pow(2, RATIO_OCTAVES-1);
+        for(int i=0;i<RATIO_OCTAVES;i++){
             float freq = (float) (Math.pow(2, i) / d);
             float amp = (float) Math.pow(ROUGHNESS, i) * AMPLITUDE;
-            total += getInterpolatedNoise((x+xOffset)*freq, (z + zOffset)*freq) * amp;
+            ratio += getInterpolatedNoise((x+xOffset)*freq, (z + zOffset)*freq) * amp;
         }
-        return total;
+        
+
+        float d_n = (float) Math.pow(2, HEIGHT_OCTAVES-1);
+        for(int i=0;i<HEIGHT_OCTAVES;i++){
+            float freq = (float) (Math.pow(2, i) / d_n);
+            float amp = (float) Math.pow(ROUGHNESS, i) * AMPLITUDE;
+            total += getInterpolatedNoise((x+xOffset_n)*freq, (z + zOffset_n)*freq) * amp;
+        }
+    	
+		
+        float h_ratio = (AMPLITUDE/2-ratio)/(AMPLITUDE/2);
+		
+		
+        total= total*h_ratio; 
+		
+		if(total<GROUND){
+			total += (GROUND-total)/1.5;
+		}
+        return (int) Math.round(total);
     }
 
     private float getInterpolatedNoise(float x, float z){
@@ -51,7 +86,7 @@ public class TerrainHeightGenerator {
     }
      
     private float interpolate(float a, float b, float blend){
-        double theta = blend * Math.PI;
+        float theta = (float) (blend * Math.PI);
         float f = (float)(1f - Math.cos(theta)) * 0.5f;
         return a * (1f - f) + b * f;
     }
@@ -72,42 +107,19 @@ public class TerrainHeightGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,80,4);
+		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,80,5,60);
 
-		for(int i=-50;i<50;i++){
-			for(int j=-50;j<50;j++){
+		for(int i=-25;i<25;i++){
+			for(int j=-25;j<25;j++){
 
-				rng.setSeed(1205*i+722*j);
-				int biome_type = Math.round(h.generateHeight(i,j)/10);
-				if(biome_type>=5){
-					System.out.print("0");
-		    	}
-				else if(biome_type>=4){
-					System.out.print("O");
-		    	}
-				else if(biome_type>=3){
-					System.out.print("o");
-		    	}
-		    	else if(biome_type>=2){
-					System.out.print("~");
-		    	}
-		    	else if(biome_type>=1){
-					System.out.print("-");
-		    	}
-		    	else if(biome_type>=0){
-		    		System.out.print(" ");
-		    	}
-		    	else if(biome_type>=-1){
-		    		System.out.print("x");
-		    	}
-		    	else{
-		    		System.out.print("X");
-		    	}
+				int height = Math.round(h.generateHeight(i,j,true))/10;
+				
+				System.out.print(Integer.toHexString(height));
 				
 			}
 			System.out.println();
 		}
-		
+		/*
 		for(int i=-10;i<10;i++){
 			for(int j=-10;j<10;j++){
 
@@ -116,7 +128,7 @@ public class TerrainHeightGenerator {
 			}
 			System.out.println();
 		}
-		
+		*/
 		
 		
 	}
