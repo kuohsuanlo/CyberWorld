@@ -6,7 +6,7 @@ CyberWorld is a minecraft spigot plugin project. The goal is
   - Automatically merging buildings into mega-structure
 
 ScreenShot of the output (one of the biome) : 
-![ScreenShot](http://i.imgur.com/ISHYKZI.png)
-![ScreenShot](http://i.imgur.com/tct3UYv.png)
+![ScreenShot](http://i.imgur.com/G6JFNk5.jpg)
+![ScreenShot](http://i.imgur.com/uu8iroR.png)
 A short 1minute demo video : 
 https://www.youtube.com/watch?v=-d-hIOFy1WI
