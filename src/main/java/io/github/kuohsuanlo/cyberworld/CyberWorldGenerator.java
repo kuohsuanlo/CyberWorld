@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class CyberWorldGenerator extends JavaPlugin{
     private Logger log = Logger.getLogger("Minecraft");
     private PluginDescriptionFile pluginDescriptionFile;
-
+    private CyberWorldChunkGenerator c ;
     public void onEnable(){
         pluginDescriptionFile = getDescription();
         log.info("[CyberWorld] " + pluginDescriptionFile.getFullName() + " enabled");
@@ -37,12 +37,16 @@ public class CyberWorldGenerator extends JavaPlugin{
         if(this.createFolder("./plugins/CyberWorld/schematics/citysurface")){
         	
         }
+        if(this.createFolder("./plugins/CyberWorld/schematics/highway")){
+        	
+        }
         if(this.createFolder("./plugins/CyberWorld/schematics/underground")){
         	
         }
         if(this.createFolder("./plugins/CyberWorld/schematics/import")){
         	
         }
+        c = new CyberWorldChunkGenerator();
         
     }
 
@@ -62,6 +66,6 @@ public class CyberWorldGenerator extends JavaPlugin{
     }
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id){
-        return new CyberWorldChunkGenerator();
+        return c;
     }
 }

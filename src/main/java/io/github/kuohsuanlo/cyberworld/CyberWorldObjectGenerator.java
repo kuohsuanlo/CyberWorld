@@ -48,17 +48,18 @@ public class CyberWorldObjectGenerator{
     private long testingSeed= 1205;
     
 	private int sz_deco=1;
-	private int sz_s=3;
-	private int sz_m=6;
+	private int sz_s=2;
+	private int sz_m=4;
 	private int sz_l=8;
+	private int sz_block=17;
 
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 60;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
     private final static int[] underground_building_level = {3,3,3};
     private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
-    private final int TERRAIN_OCTAVE = 6;
-    private final int TERRAIN_HEIGHT = 80;
+    private final int TERRAIN_OCTAVE = 8;
+    private final int TERRAIN_HEIGHT = 100;
     
     public static final int CITY_X = 1000;
     public static final int CITY_Z = 1000;
@@ -73,9 +74,10 @@ public class CyberWorldObjectGenerator{
 
 		readSchematic("default");
 		readSchematic("import");
+		readSchematic("highway");
 		readSchematic("underground");
 		readSchematic("citysurface");
-		cg = new CityStreetGenerator(b,CITY_X,CITY_Z,rng,sz_l,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		cg = new CityStreetGenerator(b,CITY_X,CITY_Z,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
 		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
 	}
 
@@ -119,6 +121,11 @@ public class CyberWorldObjectGenerator{
 
 	private CuboidClipboard cc_tmp = null;
 	private CuboidClipboard cc_backup = null;
+	
+
+	private ArrayList<CuboidClipboard> cc_list_highway = new ArrayList<CuboidClipboard>();
+	private ArrayList<CuboidClipboard> cc_list_highway_b = new ArrayList<CuboidClipboard>();
+	
 	private ArrayList<CuboidClipboard> cc_list_citysurface = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_citysurface_b = new ArrayList<CuboidClipboard>();
 	
@@ -166,6 +173,10 @@ public class CyberWorldObjectGenerator{
 			deco = cc_list_citysurface;
 			decob = cc_list_citysurface_b;
 		}
+		else if(building_type.equals("highway")){
+			deco = cc_list_highway;
+			decob = cc_list_highway_b;
+		}
 		else{
 			deco = cc_list_deco;
 			s = cc_list_s;
@@ -207,7 +218,7 @@ public class CyberWorldObjectGenerator{
 			e.printStackTrace();
 		} 
 		
-		System.out.print("[CyberWorld] : Final numbers of " + building_type + " read schematic(Deco/Small/Medium/Large) = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
+		System.out.print("[CyberWorld] : Final numbers of " + building_type + " read schematic("+sz_deco+"/"+sz_s+"/"+sz_m+"/"+sz_l+") = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
 		
 	}
 	public ChunkData generateBottom(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
@@ -814,21 +825,20 @@ public class CyberWorldObjectGenerator{
     public ChunkData generateHighway(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
     	//Paving High Roads
     	for(int level=2;level>=0;level--){
-    		int road_tube_width = 5;
+    		int road_tube_width = 7;
     		int road_y_middle = LAYER_HEIGHT[level]+road_tube_width/2;
     		int road_tube_thick = 1;
-
     	    HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.STAINED_GLASS.getId(), (byte)(Math.abs(chkx+chkz)%16)  );
-    		for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+road_tube_width*2;y++){
-    			boolean EW_tunnel = false;
-    			boolean NS_tunnel = false;
-    			boolean IT_tunnel = false;
+    	    
+    	    
+			boolean EW_tunnel = false;
+			boolean NS_tunnel = false;
+			boolean IT_tunnel = false;
+    		for(int y=LAYER_HEIGHT[level]-1;y<LAYER_HEIGHT[level]+road_tube_width*2;y++){
     	    	for(int x=0;x<16;x++){
     	    		for(int z=0;z<16;z++){
-
-        				
     	    			//Road & tube checking
-        				if(y >=LAYER_HEIGHT[level] && y<LAYER_HEIGHT[level]+road_tube_width*2){
+        				if(y >=LAYER_HEIGHT[level]-1 && y<LAYER_HEIGHT[level]+road_tube_width*2){
         					if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
               	    			if(chunkdata.getType(x, y, z)!=Material.AIR){
         							if(((z-7.5)*(z-7.5)+(y-road_y_middle)*(y-road_y_middle))<road_tube_width*road_tube_width){
@@ -911,7 +921,9 @@ public class CyberWorldObjectGenerator{
         				}
     	    		}
     	    	}
-    	    	
+    		}
+
+    		for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+road_tube_width*2;y++){
     	    	//tube constructing
     	    	for(int x=0;x<16;x++){
     	    		for(int z=0;z<16;z++){
@@ -1000,10 +1012,93 @@ public class CyberWorldObjectGenerator{
         		}
 				
 			}
-    		
+
+
+    	    //Pasting Struct
+    	    if(cc_list_highway.size()>0){
+    	    	if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH){
+
+    	    		int highway_struct_height = cc_list_highway.get(0).getHeight();
+    	    		int highway_struct_width = cc_list_highway.get(0).getWidth();
+    	    		int highway_struct_length = cc_list_highway.get(0).getLength();
+    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-LAYER_HEIGHT[level];
+    	    			for(int x=0;x<highway_struct_width;x++){
+    	    	    		for(int z=0;z<highway_struct_length;z++){
+    	    	    			int block_id = cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getId();
+    	    				    int block_data = (byte) cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    		}
+        	    		}
+    	    		}
+        		}
+        		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST  ){
+        			//rotating
+        			cc_list_highway.get(0).rotate2D(90);
+
+            		int highway_struct_height = cc_list_highway.get(0).getHeight();
+            		int highway_struct_width = cc_list_highway.get(0).getWidth();
+            		int highway_struct_length = cc_list_highway.get(0).getLength();
+    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-LAYER_HEIGHT[level];
+    	    			for(int x=0;x<highway_struct_width;x++){
+    	    	    		for(int z=0;z<highway_struct_length;z++){
+    	    	    			int block_id = cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getId();
+    	    				    int block_data = (byte) cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    		}
+        	    		}
+    	    		}
+        			cc_list_highway.get(0).rotate2D(270);
+        		}
+        		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
+
+            		int highway_struct_height = cc_list_highway.get(0).getHeight();
+            		int highway_struct_width = cc_list_highway.get(0).getWidth();
+            		int highway_struct_length = cc_list_highway.get(0).getLength();
+    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-LAYER_HEIGHT[level];
+    	    			for(int x=0;x<highway_struct_width;x++){
+    	    	    		for(int z=0;z<highway_struct_length;z++){
+    	    	    			int block_id = cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getId();
+    	    				    int block_data = (byte) cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    		}
+        	    		}
+    	    		}
+        			//rotating
+        			cc_list_highway.get(0).rotate2D(90);
+
+            		highway_struct_height = cc_list_highway.get(0).getHeight();
+            		highway_struct_width = cc_list_highway.get(0).getWidth();
+            		highway_struct_length = cc_list_highway.get(0).getLength();
+            		
+    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-LAYER_HEIGHT[level];
+    	    			for(int x=0;x<highway_struct_width;x++){
+    	    	    		for(int z=0;z<highway_struct_length;z++){
+    	    	    			int block_id = cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getId();
+    	    				    int block_data = (byte) cc_list_highway.get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    		}
+        	    		}
+    	    		}
+        			cc_list_highway.get(0).rotate2D(270);
+    				
+        		}
+        		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
+        			
+        		}
+    	    }
+    	
+    	
     	}
 	      
-         return chunkdata;
+        return chunkdata;
      	
     }
     public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes, int start_of_layer){
@@ -1052,10 +1147,10 @@ public class CyberWorldObjectGenerator{
 					int r_j = (current_list.get(type).getLength()%2);
 					
 					ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, layer)*722);
-					int i_rand = ed_rng.nextInt(current_size[layer]*16/2)+current_size[layer]*16/2;
-					int j_rand = ed_rng.nextInt(current_size[layer]*16/2)+current_size[layer]*16/2;
-					int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), Math.max(current_list.get(type).getWidth()+1,i_rand));
-					int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j),Math.max(current_list.get(type).getLength()+1,j_rand));
+					int i_rand = ed_rng.nextInt(current_size[layer]*16/4)*2+(current_size[layer]*16/4)*2;
+					int j_rand = ed_rng.nextInt(current_size[layer]*16/4)*2+(current_size[layer]*16/4)*2;
+					int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), Math.max(current_list.get(type).getWidth()+1,i_rand+r_i));
+					int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j),Math.max(current_list.get(type).getLength()+1,j_rand+r_j));
 
 
 					int i_end = Math.min(expended_idx_i.length,i_max);
@@ -1565,7 +1660,7 @@ public class CyberWorldObjectGenerator{
         				ground = Material.GRASS;
         			}
         			else if(biomes.getBiome(x, z).equals(Biome.PLAINS)){
-        				ground = Material.DIRT;
+        				ground = Material.GRASS;
         			}
         			else if(biomes.getBiome(x, z).equals(Biome.DESERT)){
         				ground = Material.SAND;

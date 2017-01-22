@@ -436,8 +436,8 @@ public class CityStreetGenerator {
 		for(int l=0;l<3;l++){
 
 			System.out.println("building : "+l);
-			for (int i = -36; i < 50; i++) {
-				for (int j = -22; j < 50; j++) {
+			for (int i = -100; i < 100; i++) {
+				for (int j = -50; j < 50; j++) {
 					int tmp  = this.getBuilding(i,j, l);
 					System.out.print(Integer.toHexString(-1*tmp));
 
@@ -467,7 +467,7 @@ public class CityStreetGenerator {
 		Random rng = new Random();
 		rng.setSeed(1205);
 		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(20,5);
-		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,3,4,3,2,1,2,3,1,1,1);
+		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,8,2,3,4,1,2,3,1,1,1);
 		g.displayGrid();
 		
 	}
