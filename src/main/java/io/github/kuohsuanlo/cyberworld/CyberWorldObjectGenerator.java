@@ -42,11 +42,11 @@ import com.sk89q.worldedit.world.DataException;
 public class CyberWorldObjectGenerator{
 	private final Random rng;
 	private final Random bm_rng;
+	private final Random ed_rng;
 	private Logger log = Logger.getLogger("Minecraft");
     private final CityStreetGenerator cg;
     private long testingSeed= 1205;
     
-    private long schematicBlueprint = 0;
 	private int sz_deco=1;
 	private int sz_s=3;
 	private int sz_m=6;
@@ -68,6 +68,8 @@ public class CyberWorldObjectGenerator{
 		rng.setSeed(testingSeed);
 		bm_rng = new Random();
 		bm_rng.setSeed(testingSeed);
+		ed_rng = new Random();
+		ed_rng.setSeed(testingSeed);
 
 		readSchematic("default");
 		readSchematic("import");
@@ -85,6 +87,7 @@ public class CyberWorldObjectGenerator{
     public final static int DIR_S_BUILDING		=-3;
     public final static int DIR_M_BUILDING		=-4;
     public final static int DIR_L_BUILDING		=-5;
+    public final static int DIR_U_BUILDING		=-6;
     public final static int DIR_NOT_DETERMINED  =0;
 
     public final static int MAX_MOST_MATERIAL =5;
@@ -245,7 +248,7 @@ public class CyberWorldObjectGenerator{
 		
         return chunkdata;
     }
-	public ChunkData generateFactoryRoad(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes, int road_layer){
+	public ChunkData generateFactoryRoad(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
 		//Paving Roads
 		int y;
     	if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
@@ -1047,10 +1050,14 @@ public class CyberWorldObjectGenerator{
 					int[] ori_idx_j = IntStream.range(0, current_list.get(type).getLength()).toArray();
 					int r_i = (current_list.get(type).getWidth()%2);
 					int r_j = (current_list.get(type).getLength()%2);
-					int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), current_size[layer]*16);
-					int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j), current_size[layer]*16);
-
 					
+					ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, layer)*722);
+					int i_rand = ed_rng.nextInt(current_size[layer]*16/2)+current_size[layer]*16/2;
+					int j_rand = ed_rng.nextInt(current_size[layer]*16/2)+current_size[layer]*16/2;
+					int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), Math.max(current_list.get(type).getWidth()+1,i_rand));
+					int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j),Math.max(current_list.get(type).getLength()+1,j_rand));
+
+
 					int i_end = Math.min(expended_idx_i.length,i_max);
 					int j_end = Math.min(expended_idx_j.length,j_max);
 					int k_end = current_list.get(type).getHeight();
@@ -2092,18 +2099,18 @@ public class CyberWorldObjectGenerator{
 		return block_id;
 	}
 	
-	/*
+	
 	public static void main(String[] args) {
 		int[] s = IntStream.range(0,5).toArray(); 
-		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,2, 16);
+		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,2, 7);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
 
 		System.out.print("\n"+ans.length);
 		
-	}*/
-	private int[] generateExpandedSequence(int[] ori, int l, int max_size){
+	}
+	private static int[] generateExpandedSequence(int[] ori, int l, int max_size){
 		int[] ans =null;
 		int middle =0;
 		int t  =0;
@@ -2119,7 +2126,7 @@ public class CyberWorldObjectGenerator{
 			t = (l+1)/2;
 		}
 		
-		if( t==0 ||  l==current_size){
+		if( t==0 ||  l==current_size  ||  current_size+2*t>max_size){
 			return ori;
 		}
 		int ans_bound = current_size;

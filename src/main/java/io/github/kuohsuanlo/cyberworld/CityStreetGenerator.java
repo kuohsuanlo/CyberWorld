@@ -108,7 +108,7 @@ public class CityStreetGenerator {
 		return city[chunk_coor[0]][chunk_coor[1]];
 	}
 	public int getHighwayType(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx+722*(layer+1),rz+1205*(layer+1));
 		return hightway[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public int getBuilding(int rx, int rz,int layer){
@@ -156,10 +156,10 @@ public class CityStreetGenerator {
 										if(l==0 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
 											isComplete++;
 										}
-										if(l==1 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
+										else if(l==1 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
 											isComplete++;
 										}
-										if(l==2 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_2_BIOME_TYPE){
+										else if(l==2 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_2_BIOME_TYPE){
 											isComplete++;
 										}
 									}
