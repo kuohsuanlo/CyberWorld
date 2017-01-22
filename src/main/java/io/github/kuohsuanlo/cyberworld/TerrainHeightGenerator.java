@@ -40,8 +40,12 @@ public class TerrainHeightGenerator {
         	x = ans[0];
         	z = ans[1];
         }
+        else{
+        	x +=16000;
+        	z +=16000;
+        }
         
-        int RATIO_OCTAVES = Math.abs(OCTAVES-2);
+        int RATIO_OCTAVES = Math.abs(OCTAVES-1);
         int HEIGHT_OCTAVES = OCTAVES;
         float d = (float) Math.pow(2, RATIO_OCTAVES-1);
         for(int i=0;i<RATIO_OCTAVES;i++){

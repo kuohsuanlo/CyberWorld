@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.bukkit.Location;
@@ -47,17 +48,17 @@ public class CyberWorldObjectGenerator{
     
     private long schematicBlueprint = 0;
 	private int sz_deco=1;
-	private int sz_s=2;
-	private int sz_m=4;
-	private int sz_l=6;
+	private int sz_s=3;
+	private int sz_m=6;
+	private int sz_l=8;
 
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 60;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
     private final static int[] underground_building_level = {3,3,3};
     private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
-    private final int FACTORY_TERRAIN_OCTAVE = 6;
-    private final int FACTORY_TERRAIN_HEIGHT = 80;
+    private final int TERRAIN_OCTAVE = 6;
+    private final int TERRAIN_HEIGHT = 80;
     
     public static final int CITY_X = 1000;
     public static final int CITY_Z = 1000;
@@ -73,7 +74,7 @@ public class CyberWorldObjectGenerator{
 		readSchematic("underground");
 		readSchematic("citysurface");
 		cg = new CityStreetGenerator(b,CITY_X,CITY_Z,rng,sz_l,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
-		hcg = new TerrainHeightGenerator(rng,FACTORY_TERRAIN_HEIGHT,FACTORY_TERRAIN_OCTAVE,GROUND_LEVEL);
+		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
 	}
 
     public final static int DIR_EAST_WEST 		=1;
@@ -87,7 +88,6 @@ public class CyberWorldObjectGenerator{
     public final static int DIR_NOT_DETERMINED  =0;
 
     public final static int MAX_MOST_MATERIAL =5;
-    private final static int[] POSSIBLE_MATERIAL = {1,2,3,4,17,20,24,35,43,95,98,159,179,201};
     
 	//Paving Roads
     private static Material ROAD_SIDEWALK_MATERIAL_1 = Material.STEP;
@@ -1033,6 +1033,123 @@ public class CyberWorldObjectGenerator{
 					
 					ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
 					ArrayList<CuboidClipboard> current_b_list =  (ArrayList<CuboidClipboard>) all_b_lists[layer] ;
+
+					long chunk_seed = cg.getBuildingSeed(chkx, chkz, layer);
+					int block_id  = Material.AIR.getId();
+					byte block_data  = 0;
+					
+					boolean[][][] fillingAirIndeces ;
+
+					//rotating
+					current_list.get(type).rotate2D(angle);
+
+					int[] ori_idx_i = IntStream.range(0, current_list.get(type).getWidth()).toArray(); 
+					int[] ori_idx_j = IntStream.range(0, current_list.get(type).getLength()).toArray();
+					int r_i = (current_list.get(type).getWidth()%2);
+					int r_j = (current_list.get(type).getLength()%2);
+					int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), current_size[layer]*16);
+					int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j), current_size[layer]*16);
+
+					
+					int i_end = Math.min(expended_idx_i.length,i_max);
+					int j_end = Math.min(expended_idx_j.length,j_max);
+					int k_end = current_list.get(type).getHeight();
+					
+					if(layer!=s_layer_nubmer){
+						fillingAirIndeces = this.getfilledArea(current_list.get(type));
+						//printMap(fillingAirIndeces);
+					}
+					else{
+						fillingAirIndeces = new boolean [i_max][j_max][k_end] ;
+					}
+					
+					
+	            	for(int k=0;k<k_end;k++){
+	    				int y = k+layer_start;
+	    				for(int i=i_start;i<i_end;i++){
+	    					for(int j=j_start;j<j_end;j++){
+	    						int x = j-j_start;
+	    						int z = i-i_start;
+			    				
+			    				block_id = current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getId();
+			            		block_data = (byte) current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getData();
+		    					//replacing illegal block, and light blocks
+			            		boolean isLightSource=false;
+			    				if(block_id!=Material.AIR.getId()){
+		    						if((x%8==4  &&  z%8==4)  &&  y%8 ==0){
+			    						switch(layer){
+		    							case 0: 
+		    								block_id = Material.JACK_O_LANTERN.getId();
+		    								isLightSource=true;
+		    								break;
+		    							case 1: 
+		    								block_id = Material.GLOWSTONE.getId();
+		    								isLightSource=true;
+		    								break;
+		    							case 2: 
+		    								block_id = Material.SEA_LANTERN.getId();
+		    								isLightSource=true;
+		    								break;
+		    							}
+									}
+		    					}
+			    				
+			    				//clearing overlapping area
+			    				if(fillingAirIndeces[expended_idx_i[i]][expended_idx_j[j]][k]){
+			    					chunkdata.setBlock(x, y, z,Material.AIR);
+			    				}
+			    				if(block_id!=Material.AIR.getId()){
+			    					int fixed_id = fixBannedBlock(block_id);
+			    					if(fixed_id == block_id  &&  isLightSource==false){
+			    						chunkdata.setBlock(x, y, z, getReplacedMaterial(bm_rng,block_id,block_data,chunk_seed ));
+			    					}
+			    					else{
+			    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
+			    					}
+			    				} 
+			    			}
+			    		}
+			    	}
+		    		//rotating back
+					current_list.get(type).rotate2D(360-angle);
+
+				}
+
+			}
+		}
+		return chunkdata;	
+    }
+    /*
+    public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes, int start_of_layer){
+    	//Building Generation
+		int layer;
+		int[] current_size = cg.a_size;
+		
+		int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
+		Object[] all_lists = {cc_list_s,cc_list_m,cc_list_l};
+		Object[] all_b_lists = {cc_list_s_b,cc_list_m_b,cc_list_l_b};
+		
+		int s_layer_nubmer=start_of_layer;
+		for(layer=s_layer_nubmer;layer>=0;layer--){
+			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
+				int layer_start = all_building_level[layer];
+				int type = cg.getBuildingType(chkx,chkz,layer);
+				int struct_type = cg.getBuildingStruct(chkx, chkz, layer);
+				
+				//fixing biome type
+				if(struct_type>=1){
+					int sx = (struct_type-1)/current_size[layer];
+					int sz = (struct_type-1)%current_size[layer];
+					int i_start = sx*16;
+					int i_max = (sx+1)*16;
+					int j_start = sz*16;
+					int j_max = (sz+1)*16;
+
+					int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
+					//int angle = 0;
+					
+					ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
+					ArrayList<CuboidClipboard> current_b_list =  (ArrayList<CuboidClipboard>) all_b_lists[layer] ;
 					
 					long chunk_seed = cg.getBuildingSeed(chkx, chkz, layer);
 					int block_id  = Material.AIR.getId();
@@ -1109,6 +1226,7 @@ public class CyberWorldObjectGenerator{
 		}
 		return chunkdata;	
     }
+    */
 	
 	public ChunkData generateUnderGroundBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes, int start_of_layer){
     	//Building Generation
@@ -1426,12 +1544,46 @@ public class CyberWorldObjectGenerator{
         return chunkdata;
     }
 	public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz, BiomeGrid biomes){
+		Material ground = null;
+
+		
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
-    			int height = Math.round(hcg.generateHeight(chkx*16+x, chkz*16+z,true))+3;
+    			
+    			int height = Math.round(hcg.generateHeight(chkx*16+x, chkz*16+z,false))+3;
     			if(height>=3){
-        			chunkdata.setRegion(x,3,z,x+1,height,z+1,Material.STONE);
-        			chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
+        			chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
+        			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
+        			if(biomes.getBiome(x, z).equals(Biome.FOREST)){
+        				ground = Material.GRASS;
+        			}
+        			else if(biomes.getBiome(x, z).equals(Biome.PLAINS)){
+        				ground = Material.DIRT;
+        			}
+        			else if(biomes.getBiome(x, z).equals(Biome.DESERT)){
+        				ground = Material.SAND;
+        			}
+        			else if(biomes.getBiome(x, z).equals(Biome.SWAMPLAND)){
+        				ground = Material.WATER;
+        			}
+        			else if(biomes.getBiome(x, z).equals(Biome.RIVER)){
+        				ground = Material.WATER;
+        			}
+        			else {
+        				ground = Material.CLAY;
+        			}
+        			switch(random.nextInt(3)){
+	        			case 0:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
+	        				break;
+	        			case 1:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.GRAVEL);
+	        				break;
+	        			case 2:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,ground);
+	        				break;
+        			}
+        			
     			}
     		}
     	}
@@ -1939,6 +2091,85 @@ public class CyberWorldObjectGenerator{
 		}
 		return block_id;
 	}
+	
+	/*
+	public static void main(String[] args) {
+		int[] s = IntStream.range(0,5).toArray(); 
+		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,2, 16);
+		for(int i=0;i<ans.length;i++){
+			System.out.print(ans[i]+",");
+		}
+
+		System.out.print("\n"+ans.length);
+		
+	}*/
+	private int[] generateExpandedSequence(int[] ori, int l, int max_size){
+		int[] ans =null;
+		int middle =0;
+		int t  =0;
+		int new_end  =0;
+		int new_middle  =0;
+		int current_size = ori.length;
+		
+		middle = ori.length/2;
+		if(l%2==0){
+			t = (l)/2;
+		}
+		else{
+			t = (l+1)/2;
+		}
+		
+		if( t==0 ||  l==current_size){
+			return ori;
+		}
+		int ans_bound = current_size;
+		while(ans_bound+2*t<=max_size){
+			ans_bound+=2*t;
+		}
+		ans  = new int[ans_bound];
+		while(current_size+2*t<=max_size){
+			new_end = (ori.length+2*t);
+			new_middle = (current_size+2*t)/2;
+			//left
+			for(int i=0;i<middle;i++){
+				ans[i]=ori[i];
+			}
+			//left dup
+			for(int i=0;i<t;i++){
+				ans[middle+i]=ori[middle-t+i+1];
+			}
+			if(ori.length%2==1){
+				//right
+				for(int i=middle+1;i<ori.length;i++){
+					ans[2*t+i]=ori[i];
+				}
+				//middle
+				ans[new_middle] = ori[middle];
+				//right dup
+				for(int i=1;i<=t;i++){
+					ans[new_middle+i]=ori[middle-t+i];
+				}
+			}
+			else{
+				//right
+				for(int i=middle;i<ori.length;i++){
+					ans[2*t+i]=ori[i];
+				}
+				//right dup
+				for(int i=0;i<t;i++){
+					ans[new_middle+i]=ori[middle-t+i];
+				}
+			}
+			current_size+=2*t;
+			ori = new int[current_size];
+			for(int i=0;i<current_size;i++){
+				ori[i]=ans[i];
+			}
+		}
+		
+		return ans;
+	}
+	
 	private void printMap(boolean[][][] fillingAirIndeces){
 		String buffer ="";
 		System.out.println("-------------------------------------");
