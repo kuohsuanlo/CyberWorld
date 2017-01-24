@@ -36,7 +36,7 @@ public class TerrainHeightGenerator {
         
         int[] ans;
         if(transform){
-        	ans = CityStreetGenerator.c2abs_transform(x, z);
+        	ans = CityStreetGenerator.c2abs_transform(x, z,500,500);
         	x = ans[0];
         	z = ans[1];
         }

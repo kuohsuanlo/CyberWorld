@@ -61,8 +61,8 @@ public class CyberWorldObjectGenerator{
     private final int TERRAIN_OCTAVE = 8;
     private final int TERRAIN_HEIGHT = 100;
     
-    public static final int CITY_X = 1000;
-    public static final int CITY_Z = 1000;
+    //public static final int CITY_X = 1000;
+    //public static final int CITY_Z = 1000;
     
 	public CyberWorldObjectGenerator(CyberWorldBiomeGenerator b){
 		rng = new Random();
@@ -77,7 +77,7 @@ public class CyberWorldObjectGenerator{
 		readSchematic("highway");
 		readSchematic("underground");
 		readSchematic("citysurface");
-		cg = new CityStreetGenerator(b,CITY_X,CITY_Z,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		cg = new CityStreetGenerator(b,500,500,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
 		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
 	}
 
@@ -148,6 +148,17 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<CuboidClipboard> cc_list_u_s_b = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_u_m_b = new ArrayList<CuboidClipboard>();
 	private ArrayList<CuboidClipboard> cc_list_u_l_b = new ArrayList<CuboidClipboard>();
+	
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_deco = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_s = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_m = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_l = new ArrayList<ArrayList<CuboidClipboard>>();
+
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_deco_b = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_s_b = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_m_b = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_l_b = new ArrayList<ArrayList<CuboidClipboard>>();
+	
 
 	private ArrayList<CuboidClipboard> deco =null;
 	private ArrayList<CuboidClipboard> s =null;
@@ -828,7 +839,8 @@ public class CyberWorldObjectGenerator{
     		int road_tube_width = 7;
     		int road_y_middle = LAYER_HEIGHT[level]+road_tube_width/2;
     		int road_tube_thick = 1;
-    	    HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.STAINED_GLASS.getId(), (byte)(Math.abs(chkx+chkz)%16)  );
+    	    //HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.STAINED_GLASS.getId(), (byte)(Math.abs(chkx+chkz)%16)  );
+    	    HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.GLASS.getId()  );
     	    
     	    
 			boolean EW_tunnel = false;

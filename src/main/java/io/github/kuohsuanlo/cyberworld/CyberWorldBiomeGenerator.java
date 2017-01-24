@@ -4,20 +4,21 @@ import java.util.Random;
 
 public class CyberWorldBiomeGenerator {
  
-    private final float AMPLITUDE;
+    private final float AMPLITUDE = 10;
+    private final int BIOME_TYPES;
     private final int OCTAVES ;
     private static final float ROUGHNESS = 0.3f;
  
 
     private Random rng;
-    private long testingSeed= 1205;
+    private long testingSeed= 791205;
     private int seed;
     private int xOffset = 0;
     private int zOffset = 0;
  
     public CyberWorldBiomeGenerator(int biome_types,int oct) {
+    	this.BIOME_TYPES = biome_types;
     	this.OCTAVES = oct;
-    	this.AMPLITUDE  = (biome_types-1)*20;
     	rng = new Random();
 		rng.setSeed(testingSeed);
         this.seed = rng.nextInt(900000000);
@@ -28,7 +29,7 @@ public class CyberWorldBiomeGenerator {
         float total = 0;
         int[] ans;
         if(transform){
-        	ans = CityStreetGenerator.c2abs_transform(x, z);
+        	ans = CityStreetGenerator.c2abs_transform(x, z,500,500);
         	x = ans[0];
         	z = ans[1];
         }
@@ -44,12 +45,18 @@ public class CyberWorldBiomeGenerator {
     }
 
     public int generateType(int x, int z, boolean transform) {
-    	int height = Math.round(this.generateHeight(x, z,transform));
+    	int current_type=0;
+    	int current_x=x;
+    	int current_z=z;
+    	for(int i=0;i<this.BIOME_TYPES;i++){
+    		if(this.generateHeight(current_x, current_z,transform)>0){
+    			current_type+=Math.pow(2, i);
+    		}
+    		current_x+=79;
+    		current_z+=80;
+    	}
     	
-    	//height = Math.abs(height);
-
-    	
-        return Math.round(height/10)-1;
+        return current_type;
     }
     private float getInterpolatedNoise(float x, float z){
         int intX = (int) x;
@@ -88,56 +95,18 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(20,5);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(3,5);
 
-		for(int i=-25;i<25;i++){
-			for(int j=-25;j<25;j++){
+		for(int i=-100;i<25;i++){
+			for(int j=-100;j<25;j++){
 				int biome_type = h.generateType(i,j,true);
-				if(biome_type>=5){
-					System.out.print("0");
-		    	}
-				else if(biome_type>=4){
-					System.out.print("O");
-		    	}
-				else if(biome_type>=3){
-					System.out.print("o");
-		    	}
-		    	else if(biome_type>=2){
-					System.out.print("~");
-		    	}
-		    	else if(biome_type>=1){
-					System.out.print("-");
-		    	}
-		    	else if(biome_type>=0){
-		    		System.out.print(" ");
-		    	}
-		    	else if(biome_type>=-1){
-		    		System.out.print("x");
-		    	}
-		    	else{
-		    		System.out.print("X");
-		    	}
+				
+				System.out.print(Integer.toHexString(biome_type)+",");
+		    	
 			}
 			System.out.println();
 		}
 		
-		for(int i=-25;i<25;i++){
-			for(int j=-25;j<25;j++){
-				
-				int biome_type = Math.round(h.generateHeight(i,j,true)/10);
-				if(biome_type>=1){
-					System.out.print(Integer.toHexString(biome_type));
-		    	}
-		    	else if(biome_type>=-1){
-		    		System.out.print("x");
-		    	}
-		    	else{
-		    		System.out.print("X");
-		    	}
-				
-			}
-			System.out.println();
-		}
 		
 	}
  

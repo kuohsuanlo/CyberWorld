@@ -49,8 +49,9 @@ public class Schematic {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			clipboard.rotate2D(angle);
-			
+			if(angle!=0){
+				clipboard.rotate2D(angle);
+			}
             return clipboard;
 
     }

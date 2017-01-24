@@ -77,16 +77,16 @@ public class CityStreetGenerator {
 		recursiveSplitting(0,0,x-1,y-1,1);
 		fillNotDeterminedRoad();
 	}
-	public static int[] c2abs_transform(int rx, int rz){
-		rx+=CyberWorldObjectGenerator.CITY_X*0.5;
-		rz+=CyberWorldObjectGenerator.CITY_Z*0.5;
+	public static int[] c2abs_transform(int rx, int rz,int bound_x, int bound_z){
+		rx+=bound_x*0.5;
+		rz+=bound_z*0.5;
 		if(rx<0){
 			rx*=-1;
 		}
 		if(rz<0){
 			rz*=-1;
 		}
-		int[] ans =  {rx%(CyberWorldObjectGenerator.CITY_X),rz%(CyberWorldObjectGenerator.CITY_Z)};
+		int[] ans =  {rx%(bound_x),rz%(bound_z)};
 		return ans;
 	}
 	private void fillNotDeterminedRoad(){
@@ -104,31 +104,31 @@ public class CityStreetGenerator {
 		}
 	}
 	public int getRoadType(int rx, int rz){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return city[chunk_coor[0]][chunk_coor[1]];
 	}
 	public int getHighwayType(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx+722*(layer+1),rz+1205*(layer+1));
+		int[] chunk_coor = c2abs_transform(rx+722*(layer+1),rz+1205*(layer+1),this.x,this.y);
 		return hightway[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public int getBuilding(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return building[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public int getBuildingType(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return building_type[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public int getBuildingRotation(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return building_rotation[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public long getBuildingSeed(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return building_rng_seeds[chunk_coor[0]][chunk_coor[1]][layer];
 	}	
 	public int getBuildingStruct(int rx, int rz,int layer){
-		int[] chunk_coor = c2abs_transform(rx,rz);
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return building_struct[chunk_coor[0]][chunk_coor[1]][layer];
 	}	
     void recursiveSplitting(int point1x, int point1y, int point2x, int point2y, int recursiveTimes){
@@ -153,13 +153,13 @@ public class CityStreetGenerator {
 								int isComplete = 0;
 								for(int s2=j;s2<Math.min(j+a_size[l],point2y);s2++){
 									for(int s1=i;s1<Math.min(i+a_size[l],point2x);s1++){
-										if(l==0 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
+										if(l==0 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_3_AREA){
 											isComplete++;
 										}
-										else if(l==1 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_1_BIOME_TYPE){
+										else if(l==1 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_3_AREA){
 											isComplete++;
 										}
-										else if(l==2 &&  bg.generateType(s1, s2, false)>=CyberWorldChunkGenerator.MIN_LAYER_2_BIOME_TYPE){
+										else if(l==2 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_1_AREA){
 											isComplete++;
 										}
 									}
@@ -462,11 +462,11 @@ public class CityStreetGenerator {
 	
 	}
 	public static void main(String[] args) {
-		int w =1000;
-		int h =1000;
+		int w =500;
+		int h =500;
 		Random rng = new Random();
 		rng.setSeed(1205);
-		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(20,5);
+		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(4,5);
 		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,8,2,3,4,1,2,3,1,1,1);
 		g.displayGrid();
 		
