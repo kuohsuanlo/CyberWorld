@@ -1982,8 +1982,8 @@ public class CyberWorldObjectGenerator{
 	private static final int[] STAIRS_LIST = {67,108,109,114,128,134,135,136,156,163,164,180,203};
 	private static final int[] SLABS_LIST = {44,126,205};
 	private static final int[] FENCE_LIST = {85,113,188,189,190,191,192};
-	private static final int[] BLOCKS_LIST = {1,4,5,17,24,43,45,82,87,88,98,121,125,155,162,168,179,181,201,202,204,206};
-	private static final int[] BLOCKS_DMAX = {7,1,6, 4, 3, 8, 1, 1, 1, 1, 4,  1,  6,  3,  2,  3,  3,  1,  1,  1,  1,  1};
+	private static final int[] BLOCKS_LIST = {1,4,5,17,24,43,45,82,87,88,98,121,125,155,162,168,172,179,181,201,202,204,206};
+	private static final int[] BLOCKS_DMAX = {7,1,6, 4, 3, 8, 1, 1, 1, 1, 4,  1,  6,  3,  2,  3,  1,  3,  1,  1,  1,  1,  1};
 	private MaterialData getReplacedMaterial(Random replace_rng, int id,byte original_data,long seeds){
 		if(id==Material.GLASS.getId()  ||   
 				id==Material.THIN_GLASS.getId() ||  
@@ -1992,15 +1992,6 @@ public class CyberWorldObjectGenerator{
 		}
 		else if(id==Material.STAINED_GLASS.getId()  || 
 				id==Material.STAINED_GLASS_PANE.getId()){
-			replace_rng.setSeed(seeds+id*17);
-			return new MaterialData(id,(byte)replace_rng.nextInt(16));
-		}
-		else if(id==Material.STAINED_CLAY.getId()  || 
-				id==Material.HARD_CLAY.getId()){
-			replace_rng.setSeed(seeds+id*17);
-			return new MaterialData(id,(byte)replace_rng.nextInt(16));
-		}
-		else if(id==Material.WOOL.getId()){
 			replace_rng.setSeed(seeds+id*17);
 			return new MaterialData(id,(byte)replace_rng.nextInt(16));
 		}
@@ -2020,11 +2011,27 @@ public class CyberWorldObjectGenerator{
 			return new MaterialData(FENCE_LIST[replace_rng.nextInt(FENCE_LIST.length)],original_data);
 		}
 		//Blocks
-		else if(this.contains(BLOCKS_LIST, id)){
+		else if(this.contains(BLOCKS_LIST, id)  ||  id==Material.STAINED_CLAY.getId()  ||  id==Material.WOOL.getId() ){
 			replace_rng.setSeed(seeds+id*17);
-			int new_block_idx = replace_rng.nextInt(BLOCKS_LIST.length);
-			return new MaterialData(BLOCKS_LIST[new_block_idx],(byte)replace_rng.nextInt( BLOCKS_DMAX[new_block_idx]));
+			int all_block_idx = replace_rng.nextInt(BLOCKS_LIST.length+32);
+			
+			if(all_block_idx<16  &&  all_block_idx>=0){
+				replace_rng.setSeed(seeds+id*17);
+				return new MaterialData(Material.WOOL.getId(),(byte)replace_rng.nextInt(16));
+			}
+			else if(all_block_idx<32  &&  all_block_idx>=16){
+				replace_rng.setSeed(seeds+id*17);
+				return new MaterialData(Material.STAINED_CLAY.getId(),(byte)replace_rng.nextInt(16));
+			}
+			else{
+				int new_block_idx = all_block_idx-32;
+				return new MaterialData(BLOCKS_LIST[new_block_idx],(byte)replace_rng.nextInt( BLOCKS_DMAX[new_block_idx]));
+			}
+			
 		}
+			
+		
+		
 		return new MaterialData(id);
 		
 	}
