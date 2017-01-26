@@ -21,6 +21,8 @@ public class CyberWorldGenerator extends JavaPlugin{
     private Logger log = Logger.getLogger("Minecraft");
     private PluginDescriptionFile pluginDescriptionFile;
     private CyberWorldChunkGenerator c ;
+    private final int BIOME_TYPES = 3;
+    private final int BIOME_NUMBERS = (int) Math.round( Math.pow(2, BIOME_TYPES));
     public void onEnable(){
         pluginDescriptionFile = getDescription();
         log.info("[CyberWorld] " + pluginDescriptionFile.getFullName() + " enabled");
@@ -31,22 +33,22 @@ public class CyberWorldGenerator extends JavaPlugin{
         if(this.createFolder("./plugins/CyberWorld/schematics")){
         	
         }
-        if(this.createFolder("./plugins/CyberWorld/schematics/default")){
-        	
+        for(int i=0;i< BIOME_NUMBERS;i++){
+            if(this.createFolder("./plugins/CyberWorld/schematics/"+i+"/citysurface")){
+            	
+            }
+            if(this.createFolder("./plugins/CyberWorld/schematics/"+i+"/highway")){
+            	
+            }
+            if(this.createFolder("./plugins/CyberWorld/schematics/"+i+"/underground")){
+            	
+            }
+            if(this.createFolder("./plugins/CyberWorld/schematics/"+i+"/import")){
+            	
+            }
         }
-        if(this.createFolder("./plugins/CyberWorld/schematics/citysurface")){
-        	
-        }
-        if(this.createFolder("./plugins/CyberWorld/schematics/highway")){
-        	
-        }
-        if(this.createFolder("./plugins/CyberWorld/schematics/underground")){
-        	
-        }
-        if(this.createFolder("./plugins/CyberWorld/schematics/import")){
-        	
-        }
-        c = new CyberWorldChunkGenerator();
+        
+        c = new CyberWorldChunkGenerator(3);
         
     }
 

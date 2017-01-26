@@ -48,6 +48,9 @@ public class CyberWorldBiomeGenerator {
     	int current_type=0;
     	int current_x=x;
     	int current_z=z;
+    	
+    	//No-hotspot
+    	
     	for(int i=0;i<this.BIOME_TYPES;i++){
     		if(this.generateHeight(current_x, current_z,transform)>0){
     			current_type+=Math.pow(2, i);
@@ -55,6 +58,16 @@ public class CyberWorldBiomeGenerator {
     		current_x+=79;
     		current_z+=80;
     	}
+    	
+    	//hotspot version.
+    	/*
+    	for(int i=0;i<Math.pow(2,this.BIOME_TYPES);i++){
+    		if(this.generateHeight(current_x, current_z,transform)>0){
+    			current_type++;
+    		}
+    		current_x+=79;
+    		current_z+=80;
+    	}*/
     	
         return current_type;
     }
