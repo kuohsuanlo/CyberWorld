@@ -24,6 +24,7 @@ public class CyberWorldGenerator extends JavaPlugin{
     private final int BIOME_TYPES = 3;
     private final int BIOME_NUMBERS = (int) Math.round( Math.pow(2, BIOME_TYPES));
     public void onEnable(){
+    	
         pluginDescriptionFile = getDescription();
         log.info("[CyberWorld] " + pluginDescriptionFile.getFullName() + " enabled");
         

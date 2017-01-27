@@ -56,7 +56,7 @@ public class CyberWorldBiomeGenerator {
     			current_type+=Math.pow(2, i);
     		}
     		current_x+=79;
-    		current_z+=80;
+    		current_z+=125;
     	}
     	
     	//hotspot version.

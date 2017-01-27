@@ -13,6 +13,9 @@ import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
+import ru.beykerykt.lightapi.LightAPI;
+import ru.beykerykt.lightapi.chunks.ChunkInfo;
+
 
 public class CyberWorldChunkGenerator extends ChunkGenerator
 {
@@ -110,6 +113,15 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 
 
 		
+		//update light
+		/*
+		for(int yi=0;yi<16;yi++){
+			List<ChunkInfo> chkinfo = LightAPI.collectChunks(world,chkx*16+7,yi*16+7,chkz*16+7);
+			for(int i=0;i<chkinfo.size();i++){
+				LightAPI.updateChunk(chkinfo.get(i));
+			}
+		
+		}*/
 		
         return chunkdata;
     } 

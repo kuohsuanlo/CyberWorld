@@ -151,6 +151,8 @@ public class CityStreetGenerator {
 								int current_struct = 1;
 								
 								int isComplete = 0;
+								
+								//Still have cut structures..
 								for(int s2=j;s2<Math.min(j+a_size[l],point2y);s2++){
 									for(int s1=i;s1<Math.min(i+a_size[l],point2x);s1++){
 										if(l==0 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_3_AREA){
