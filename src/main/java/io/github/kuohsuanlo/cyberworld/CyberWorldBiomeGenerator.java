@@ -29,7 +29,7 @@ public class CyberWorldBiomeGenerator {
         float total = 0;
         int[] ans;
         if(transform){
-        	ans = CityStreetGenerator.c2abs_transform(x, z,500,500);
+        	ans = CityStreetGenerator.c2abs_transform(x, z,1000,1000);
         	x = ans[0];
         	z = ans[1];
         }

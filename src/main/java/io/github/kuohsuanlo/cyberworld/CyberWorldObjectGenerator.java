@@ -51,7 +51,7 @@ public class CyberWorldObjectGenerator{
 	private int sz_deco=1;
 	private int sz_s=2;
 	private int sz_m=4;
-	private int sz_l=8;
+	private int sz_l=12;
 	private int sz_block=17;
 
     private final TerrainHeightGenerator hcg;
@@ -75,7 +75,7 @@ public class CyberWorldObjectGenerator{
 		ed_rng.setSeed(testingSeed);
 
 		readSchematic();
-		cg = new CityStreetGenerator(b,500,500,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		cg = new CityStreetGenerator(b,1000,1000,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
 		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
 	}
 
@@ -398,19 +398,7 @@ public class CyberWorldObjectGenerator{
 					biome_cc_list_s_b.add( (ArrayList<CuboidClipboard>) sb);
 					biome_cc_list_m_b.add( (ArrayList<CuboidClipboard>) mb);
 					biome_cc_list_l_b.add( (ArrayList<CuboidClipboard>) lb);
-					
-					
 				}
-				
-				
-				
-				/*
-				
-
-				
-				
-				
-				*/
 			}
 				
 			

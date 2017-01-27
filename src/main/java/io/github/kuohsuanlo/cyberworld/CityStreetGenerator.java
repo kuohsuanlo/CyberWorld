@@ -78,13 +78,15 @@ public class CityStreetGenerator {
 		fillNotDeterminedRoad();
 	}
 	public static int[] c2abs_transform(int rx, int rz,int bound_x, int bound_z){
-		rx+=bound_x*10000;
-		rz+=bound_z*10000;
+		rx+=bound_x*0.5;
+		rz+=bound_z*0.5;
 		if(rx<0){
 			rx*=-1;
+			//rx--;
 		}
 		if(rz<0){
 			rz*=-1;
+			//rz--;
 		}
 		int[] ans =  {rx%(bound_x),rz%(bound_z)};
 		return ans;
@@ -431,16 +433,6 @@ public class CityStreetGenerator {
 		System.out.println("----------------------------------------");
 		for(int l=0;l<3;l++){
 
-			System.out.println("building : "+l);
-			for (int i = -100; i < 100; i++) {
-				for (int j = -50; j < 50; j++) {
-					int tmp  = this.getBuilding(i,j, l);
-					System.out.print(Integer.toHexString(-1*tmp));
-
-				}
-				System.out.println("");
-			}
-			System.out.println("----------");
 			System.out.println("building_struct : "+l);
 			for (int i = -100; i < 100; i++) {
 				for (int j = -50; j < 50; j++) {
@@ -458,12 +450,12 @@ public class CityStreetGenerator {
 	
 	}
 	public static void main(String[] args) {
-		int w =500;
-		int h =500;
+		int w =200;
+		int h =200;
 		Random rng = new Random();
 		rng.setSeed(1205);
-		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(4,5);
-		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,8,2,3,4,1,2,3,1,1,1);
+		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(3,5);
+		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,17,3,3,3,2,4,12,1,1,1);
 		g.displayGrid();
 		
 	}
