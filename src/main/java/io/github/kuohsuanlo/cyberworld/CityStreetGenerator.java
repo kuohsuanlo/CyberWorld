@@ -78,8 +78,8 @@ public class CityStreetGenerator {
 		fillNotDeterminedRoad();
 	}
 	public static int[] c2abs_transform(int rx, int rz,int bound_x, int bound_z){
-		rx+=bound_x*0.5;
-		rz+=bound_z*0.5;
+		rx+=bound_x*10000;
+		rz+=bound_z*10000;
 		if(rx<0){
 			rx*=-1;
 		}
@@ -151,17 +151,11 @@ public class CityStreetGenerator {
 								int current_struct = 1;
 								
 								int isComplete = 0;
-								
+								int last_type =bg.generateType(i, j, false);
 								//Still have cut structures..
 								for(int s2=j;s2<Math.min(j+a_size[l],point2y);s2++){
 									for(int s1=i;s1<Math.min(i+a_size[l],point2x);s1++){
-										if(l==0 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_3_AREA){
-											isComplete++;
-										}
-										else if(l==1 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_3_AREA){
-											isComplete++;
-										}
-										else if(l==2 &&  bg.generateType(s1, s2, false)<=CyberWorldChunkGenerator.CLASS_1_AREA){
+										if(bg.generateType(s1, s2, false)==last_type){
 											isComplete++;
 										}
 									}

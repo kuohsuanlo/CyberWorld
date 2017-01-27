@@ -50,7 +50,6 @@ public class CyberWorldBiomeGenerator {
     	int current_z=z;
     	
     	//No-hotspot
-    	
     	for(int i=0;i<this.BIOME_TYPES;i++){
     		if(this.generateHeight(current_x, current_z,transform)>0){
     			current_type+=Math.pow(2, i);
@@ -108,7 +107,7 @@ public class CyberWorldBiomeGenerator {
     }
 	public static void main(String[] args) {
 
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(3,5);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(3,3);
 
 		for(int i=-100;i<25;i++){
 			for(int j=-100;j<25;j++){

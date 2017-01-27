@@ -371,33 +371,33 @@ public class CyberWorldObjectGenerator{
 				
 				//copy 
 				if(n==0){
-					biome_cc_list_u_deco.add( (ArrayList<CuboidClipboard>) deco.clone());
-					biome_cc_list_u_s.add( (ArrayList<CuboidClipboard>) s.clone());
-					biome_cc_list_u_m.add( (ArrayList<CuboidClipboard>) m.clone());
-					biome_cc_list_u_l.add( (ArrayList<CuboidClipboard>) l.clone());
-					biome_cc_list_u_deco_b.add( (ArrayList<CuboidClipboard>) decob.clone());
-					biome_cc_list_u_s_b.add( (ArrayList<CuboidClipboard>) sb.clone());
-					biome_cc_list_u_m_b.add( (ArrayList<CuboidClipboard>) mb.clone());
-					biome_cc_list_u_l_b.add( (ArrayList<CuboidClipboard>) lb.clone());
+					biome_cc_list_u_deco.add( (ArrayList<CuboidClipboard>) deco);
+					biome_cc_list_u_s.add( (ArrayList<CuboidClipboard>) s);
+					biome_cc_list_u_m.add( (ArrayList<CuboidClipboard>) m);
+					biome_cc_list_u_l.add( (ArrayList<CuboidClipboard>) l);
+					biome_cc_list_u_deco_b.add( (ArrayList<CuboidClipboard>) decob);
+					biome_cc_list_u_s_b.add( (ArrayList<CuboidClipboard>) sb);
+					biome_cc_list_u_m_b.add( (ArrayList<CuboidClipboard>) mb);
+					biome_cc_list_u_l_b.add( (ArrayList<CuboidClipboard>) lb);
 					
 				}
 				else if(n==1){
-					biome_cc_list_citysurface.add( (ArrayList<CuboidClipboard>) deco.clone());
-					biome_cc_list_citysurface_b.add( (ArrayList<CuboidClipboard>) decob.clone());
+					biome_cc_list_citysurface.add( (ArrayList<CuboidClipboard>) deco);
+					biome_cc_list_citysurface_b.add( (ArrayList<CuboidClipboard>) decob);
 				}
 				else if(n==2){
-					biome_cc_list_highway.add( (ArrayList<CuboidClipboard>) deco.clone());
-					biome_cc_list_highway_b.add( (ArrayList<CuboidClipboard>) decob.clone());
+					biome_cc_list_highway.add( (ArrayList<CuboidClipboard>) deco);
+					biome_cc_list_highway_b.add( (ArrayList<CuboidClipboard>) decob);
 				}
 				else if(n==3){
-					biome_cc_list_deco.add( (ArrayList<CuboidClipboard>) deco.clone());
-					biome_cc_list_s.add( (ArrayList<CuboidClipboard>) s.clone());
-					biome_cc_list_m.add( (ArrayList<CuboidClipboard>) m.clone());
-					biome_cc_list_l.add( (ArrayList<CuboidClipboard>) l.clone());
-					biome_cc_list_deco_b.add( (ArrayList<CuboidClipboard>) decob.clone());
-					biome_cc_list_s_b.add( (ArrayList<CuboidClipboard>) sb.clone());
-					biome_cc_list_m_b.add( (ArrayList<CuboidClipboard>) mb.clone());
-					biome_cc_list_l_b.add( (ArrayList<CuboidClipboard>) lb.clone());
+					biome_cc_list_deco.add( (ArrayList<CuboidClipboard>) deco);
+					biome_cc_list_s.add( (ArrayList<CuboidClipboard>) s);
+					biome_cc_list_m.add( (ArrayList<CuboidClipboard>) m);
+					biome_cc_list_l.add( (ArrayList<CuboidClipboard>) l);
+					biome_cc_list_deco_b.add( (ArrayList<CuboidClipboard>) decob);
+					biome_cc_list_s_b.add( (ArrayList<CuboidClipboard>) sb);
+					biome_cc_list_m_b.add( (ArrayList<CuboidClipboard>) mb);
+					biome_cc_list_l_b.add( (ArrayList<CuboidClipboard>) lb);
 					
 					
 				}

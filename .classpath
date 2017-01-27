@@ -33,6 +33,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="D:/workspace/CyberWorld/lib/worldedit-bukkit-6.1.5.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/CyberWorld/lib/LightAPI.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

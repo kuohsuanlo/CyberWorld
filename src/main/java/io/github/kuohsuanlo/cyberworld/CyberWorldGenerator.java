@@ -34,6 +34,19 @@ public class CyberWorldGenerator extends JavaPlugin{
         if(this.createFolder("./plugins/CyberWorld/schematics")){
         	
         }
+        
+        if(this.createFolder("./plugins/CyberWorld/schematics/"+"/citysurface")){
+        	
+        }
+        if(this.createFolder("./plugins/CyberWorld/schematics/"+"/highway")){
+        	
+        }
+        if(this.createFolder("./plugins/CyberWorld/schematics/"+"/underground")){
+        	
+        }
+        if(this.createFolder("./plugins/CyberWorld/schematics/"+"/import")){
+        	
+        }
         for(int i=0;i< BIOME_NUMBERS;i++){
             if(this.createFolder("./plugins/CyberWorld/schematics/"+i+"/citysurface")){
             	
