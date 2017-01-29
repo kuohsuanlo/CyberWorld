@@ -74,8 +74,10 @@ public class CityStreetGenerator {
 		a_build_code[1]=CyberWorldObjectGenerator.DIR_M_BUILDING;
 		a_build_code[2]=CyberWorldObjectGenerator.DIR_L_BUILDING;
 		
+		System.out.print("[CyberWorld] : Generating City Map... Please wait.");
 		recursiveSplitting(0,0,x-1,y-1,1);
 		fillNotDeterminedRoad();
+		System.out.print("[CyberWorld] : City Map generation done.");
 	}
 	public static int[] c2abs_transform(int rx, int rz,int bound_x, int bound_z){
 		rx+=bound_x*0.5;
