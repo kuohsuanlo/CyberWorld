@@ -1,5 +1,12 @@
 package io.github.kuohsuanlo.cyberworld;
 
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.Random;
@@ -23,7 +30,11 @@ import java.util.Random;
  *
  *  struct
  */
-public class CityStreetGenerator {
+public class CityStreetGenerator implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final int x;
 	private final int y;
 	private final int[][] city;
@@ -74,10 +85,13 @@ public class CityStreetGenerator {
 		a_build_code[1]=CyberWorldObjectGenerator.DIR_M_BUILDING;
 		a_build_code[2]=CyberWorldObjectGenerator.DIR_L_BUILDING;
 		
-		System.out.print("[CyberWorld] : Generating City Map... Please wait.");
-		recursiveSplitting(0,0,x-1,y-1,1);
-		fillNotDeterminedRoad();
-		System.out.print("[CyberWorld] : City Map generation done.");
+		
+   		recursiveSplitting(0,0,x-1,y-1,1);
+   		fillNotDeterminedRoad();
+
+
+		
+		
 	}
 	public static int[] c2abs_transform(int rx, int rz,int bound_x, int bound_z){
 		rx+=bound_x*0.5;

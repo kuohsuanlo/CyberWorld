@@ -3,7 +3,12 @@ package io.github.kuohsuanlo.cyberworld;
 import static java.lang.System.arraycopy;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -45,8 +50,11 @@ public class CyberWorldObjectGenerator{
 	private final Random ed_rng;
 	private final int BIOME_NUMBERS;
 	private Logger log = Logger.getLogger("Minecraft");
-    private final CityStreetGenerator cg;
-    private long testingSeed= 1205;
+    private CityStreetGenerator cg;
+    public CityStreetGenerator getCg() {
+		return cg;
+	}
+	private long testingSeed= 1205;
     
 	private int sz_deco=1;
 	private int sz_s=2;
@@ -55,18 +63,18 @@ public class CyberWorldObjectGenerator{
 	private int sz_block=17;
 
     private final TerrainHeightGenerator hcg;
-    private final static int GROUND_LEVEL = 60;
+    private final static int GROUND_LEVEL = 50;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
     private final static int[] underground_building_level = {3,3,3};
     private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
     private final int TERRAIN_OCTAVE = 8;
     private final int TERRAIN_HEIGHT = 100;
-    private final int SEA_LEVEL = 60;
+    private final int SEA_LEVEL = 45;
     
     //public static final int CITY_X = 1000;
     //public static final int CITY_Z = 1000;
     
-	public CyberWorldObjectGenerator(int biome_numbers, CyberWorldBiomeGenerator b){
+	public CyberWorldObjectGenerator(int biome_numbers, CyberWorldBiomeGenerator b, CityStreetGenerator c){
 		BIOME_NUMBERS = biome_numbers;
 		rng = new Random();
 		rng.setSeed(testingSeed);
@@ -76,8 +84,16 @@ public class CyberWorldObjectGenerator{
 		ed_rng.setSeed(testingSeed);
 
 		readSchematic();
-		cg = new CityStreetGenerator(b,1000,1000,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+		if(c==null){
+			System.out.print("[CyberWorld] : Generating City Map... Please wait.");
+  	   		cg = new CityStreetGenerator(b,1000,1000,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+  	   		System.out.print("[CyberWorld] : City Map generation done.");
+		}
+		else{
+			cg = c;
+		}
 		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
+
 	}
 
     public final static int DIR_EAST_WEST 		=1;
@@ -1293,7 +1309,7 @@ public class CyberWorldObjectGenerator{
         return chunkdata;
      	
     }
-    public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes, int start_of_layer){
+    public ChunkData generateBuilding(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes, int start_of_layer, boolean only_shell){
     	//Building Generation
 		int layer;
 		int[] current_size = cg.a_size;
@@ -1331,7 +1347,7 @@ public class CyberWorldObjectGenerator{
 						byte block_data  = 0;
 						
 						boolean[][][] fillingAirIndeces ;
-
+						boolean[][][] frameIndeces = null;
 						//rotating
 						current_list.get(type).rotate2D(angle);
 
@@ -1359,7 +1375,12 @@ public class CyberWorldObjectGenerator{
 							fillingAirIndeces = new boolean [i_max][j_max][k_end] ;
 						}
 						
-						
+						if(only_shell){
+							frameIndeces = this.getFrameArea(current_list.get(type));
+						}
+						else{
+							frameIndeces = new boolean [i_max][j_max][k_end] ;
+						}
 		            	for(int k=0;k<k_end;k++){
 		    				int y = k+layer_start;
 		    				for(int i=i_start;i<i_end;i++){
@@ -1394,7 +1415,7 @@ public class CyberWorldObjectGenerator{
 				    				if(fillingAirIndeces[expended_idx_i[i]][expended_idx_j[j]][k]){
 				    					chunkdata.setBlock(x, y, z,Material.AIR);
 				    				}
-				    				if(block_id!=Material.AIR.getId()){
+				    				if(block_id!=Material.AIR.getId()  &&  ( !only_shell || frameIndeces[expended_idx_i[i]][expended_idx_j[j]][k]  )){
 				    					int fixed_id = fixBannedBlock(block_id);
 				    					if(fixed_id == block_id  &&  isLightSource==false){
 				    						chunkdata.setBlock(x, y, z, getReplacedMaterial(bm_rng,block_id,block_data,chunk_seed ));
@@ -1736,7 +1757,8 @@ public class CyberWorldObjectGenerator{
     }
 	public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
 		Material ground = null;
-
+		int heightRevisedRatio = 5;
+		
 		
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
@@ -1744,45 +1766,16 @@ public class CyberWorldObjectGenerator{
     			int height = Math.round(hcg.generateHeight(chkx*16+x, chkz*16+z,false))+3;
     			if(height>=3){
 
-        			if(biomes.getBiome(x, z).equals(Biome.FOREST)){
-        				ground = Material.GRASS;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.PLAINS)){
-        				ground = Material.GRASS;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.DESERT)){
-        				ground = Material.SAND;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.SWAMPLAND)){
-        				ground = Material.WATER;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.RIVER)){
-        				ground = Material.WATER;
-        				chunkdata.setRegion(x,(int) Math.round(height*0.95),z,x+1,height+1,z+1,Material.WATER);
-        				height*=0.95;
-        			}
-        			//BEACHES
-        			else if(biomes.getBiome(x, z).equals(Biome.BEACHES)){
-        				ground = Material.SAND;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.COLD_BEACH)){
-        				ground = Material.SNOW_BLOCK;
-        			}
-        			else if(biomes.getBiome(x, z).equals(Biome.STONE_BEACH)){
-        				ground = Material.STONE;
-        			}
-        			//MESA
-        			else if(biomes.getBiome(x, z).equals(Biome.MESA)){
-        				ground = Material.RED_SANDSTONE;
-        			}
-        			else {
+    				
+        			//SEA
+        			if(biomes.getBiome(x, z).equals(Biome.OCEAN) ||
+    					biomes.getBiome(x, z).equals(Biome.FROZEN_OCEAN)  ||
+    					biomes.getBiome(x, z).equals(Biome.DEEP_OCEAN)){
+        				
         				ground = Material.CLAY;
-        			}
-        			
-        			
-        			chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
-        			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
-        			switch(random.nextInt(3)){
+        				height = (int) ((SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio)*0.5);
+        				/*
+        				switch(random.nextInt(3)){
 	        			case 0:
 	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
 	        				break;
@@ -1792,8 +1785,164 @@ public class CyberWorldObjectGenerator{
 	        			case 2:
 	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,ground);
 	        				break;
+        				}*/
+        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,ground);
+        				
+	    				chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
+	        			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
+	        			
+		        		chunkdata.setRegion(x,height,z,x+1,SEA_LEVEL+1,z+1,Material.WATER);
+		        		
+	        			
         			}
-        			
+        			else{
+        				if(biomes.getBiome(x, z).equals(Biome.FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_BIRCH_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.ROOFED_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.JUNGLE)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			//Hills
+            			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.DESERT_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.FOREST_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.JUNGLE_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.MUTATED_BIRCH_FOREST_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.MUTATED_REDWOOD_TAIGA_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.REDWOOD_TAIGA_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.TAIGA_COLD_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.TAIGA_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST_HILLS) ){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(Math.round((height-SEA_LEVEL)*1.15)));
+            			}
+            			//Exterme hills
+            			else if(biomes.getBiome(x, z).equals(Biome.EXTREME_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.EXTREME_HILLS_WITH_TREES) ||
+            					biomes.getBiome(x, z).equals(Biome.MUTATED_EXTREME_HILLS) ||
+            					biomes.getBiome(x, z).equals(Biome.MUTATED_EXTREME_HILLS_WITH_TREES) ||
+            					biomes.getBiome(x, z).equals(Biome.SMALLER_EXTREME_HILLS) ){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(Math.round((height-SEA_LEVEL)*1.25)));
+            			}
+            			//
+            			
+            			//Forest
+            			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_BIRCH_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.ROOFED_FOREST)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			//Plain
+            			else if(biomes.getBiome(x, z).equals(Biome.PLAINS)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_PLAINS)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.SAVANNA)){
+            				ground = Material.GRASS;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			//Desert
+            			else if(biomes.getBiome(x, z).equals(Biome.DESERT)){
+            				ground = Material.SAND;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_DESERT)){
+            				ground = Material.SAND;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			
+            			//Swamp
+            			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_SWAMPLAND)){
+            				ground = Material.WATER;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.SWAMPLAND)){
+            				ground = Material.WATER;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			
+            			else if(biomes.getBiome(x, z).equals(Biome.RIVER)){
+            				ground = Material.WATER;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				chunkdata.setRegion(x,(int) Math.round(height*0.95),z,x+1,height+1,z+1,Material.WATER);
+            				height*=0.95;
+            			}
+            			
+            			//BEACHES
+            			else if(biomes.getBiome(x, z).equals(Biome.BEACHES)){
+            				ground = Material.SAND;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.COLD_BEACH)){
+            				ground = Material.SNOW_BLOCK;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			else if(biomes.getBiome(x, z).equals(Biome.STONE_BEACH)){
+            				ground = Material.STONE;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			
+            			//MESA
+            			else if(biomes.getBiome(x, z).equals(Biome.MESA)){
+            				ground = Material.RED_SANDSTONE;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+            			
+            			
+            			else {
+            				ground = Material.CLAY;
+            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            			}
+        				chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
+            			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
+            			/*
+        				switch(random.nextInt(3)){
+	        			case 0:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.DIRT);
+	        				break;
+	        			case 1:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,Material.GRAVEL);
+	        				break;
+	        			case 2:
+	        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,ground);
+	        				break;
+        				}*/
+        				chunkdata.setRegion(x,height,z,x+1,height+1,z+1,ground);
+        			}
     			}
     			
     		}
@@ -2173,39 +2322,175 @@ public class CyberWorldObjectGenerator{
 		int max_y_old = cc.getHeight();
 		
 
-		boolean[][][] filled = this.getfilledArea(cc);
+		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
+
+		for(int y=0;y<max_y_old;y++){
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						area[x][z][y]=true;
+					}
+				}
+			}
+		}
 		boolean[][][] frame = new boolean[max_x_old][max_z_old][max_y_old];
-		
+		boolean[][][] frame_x = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] frame_y = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] frame_z = new boolean[max_x_old][max_z_old][max_y_old];
+
+		int current_thickness;
+		int thickness_max=1;
+		int last_index = -1;
 		for(int y=0;y<max_y_old;y++){
 			//bindind z
 			for(int x=0;x<max_x_old;x++){
-
+				current_thickness =thickness_max;
 				for(int z=0;z<max_z_old;z++){
-					if(filled[x][z][y]){
-						frame[x][z][y]=true;
-						break;
+					if(area[x][z][y] ){
+						frame_y[x][z][y]=true;
+						current_thickness--;
+						last_index = z;
+						if(current_thickness<=0){
+							break;
+						}
 					}
 				}
+				current_thickness =thickness_max;
 				for(int z=max_z_old-1;z>=0;z--){
-					if(filled[x][z][y]){
-						frame[x][z][y]=true;
-						break;
+					if(area[x][z][y] ){
+						frame_y[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
 					}
 				}
 			}
 			
 			//bindind x
-			for(int z=0;z<max_z_old;z++){	
+			for(int z=0;z<max_z_old;z++){
+				current_thickness =thickness_max;
 				for(int x=0;x<max_x_old;x++){
-					if(filled[x][z][y]){
-						frame[x][z][y]=true;
-						break;
+					if(area[x][z][y]){
+						frame_y[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
 					}
 				}
+				current_thickness =thickness_max;
 				for(int x=max_x_old-1;x>=0;x--){
-					if(filled[x][z][y]){
-						frame[x][z][y]=true;
-						break;
+					if(area[x][z][y] ){
+						frame_y[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+			}
+			
+		}
+		
+		for(int x=0;x<max_x_old;x++){
+			//bindind y
+			for(int y=0;y<max_y_old;y++){
+
+				current_thickness =thickness_max;
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						frame_x[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+				current_thickness =thickness_max;
+				for(int z=max_z_old-1;z>=0;z--){
+					if(area[x][z][y]){
+						frame_x[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+			}
+			
+			//bindind z
+			for(int z=0;z<max_z_old;z++){	
+				current_thickness =thickness_max;
+				for(int y=0;y<max_y_old;y++){
+					if(area[x][z][y]){
+						frame_x[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+				current_thickness =thickness_max;
+				for(int y=max_y_old-1;y>=0;y--){
+					if(area[x][z][y]){
+						frame_x[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+			}
+			
+		}
+		
+		for(int z=0;z<max_z_old;z++){
+			//bindind z
+			for(int y=0;y<max_y_old;y++){
+
+				current_thickness =thickness_max;
+				for(int x=0;x<max_x_old;x++){
+					if(area[x][z][y]){
+						frame_z[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+				current_thickness =thickness_max;
+				for(int x=max_x_old-1;x>=0;x--){
+					if(area[x][z][y]){
+						frame_z[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+			}
+			
+			//bindind x
+			for(int x=0;x<max_x_old;x++){	
+				current_thickness =thickness_max;
+				for(int y=0;y<max_y_old;y++){
+					if(area[x][z][y]){
+						frame_z[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
+					}
+				}
+				current_thickness =thickness_max;
+				for(int y=max_y_old-1;y>=0;y--){
+					if(area[x][z][y]){
+						frame_z[x][z][y]=true;
+						current_thickness--;
+						if(current_thickness<=0){
+							break;
+						}
 					}
 				}
 			}
@@ -2213,12 +2498,22 @@ public class CyberWorldObjectGenerator{
 		}
 		
 		
+		for(int x=0;x<max_x_old;x++){	
+			for(int y=0;y<max_y_old;y++){
+				for(int z=0;z<max_z_old;z++){	
+					if(frame_x[x][z][y] || frame_y[x][z][y] || frame_z[x][z][y]){
+						frame[x][z][y]=true;
+					}
+				}
+			}
+		}
 		return frame;
 		
 		
 	}
 	private boolean[][][] getfilledArea(CuboidClipboard cc){
 		boolean[][] dia_tmp_x =null;
+		boolean[][] dia_tmp_y =null;
 		boolean[][] dia_tmp_z =null;
 		
 		int max_x_old = cc.getWidth();
@@ -2228,6 +2523,9 @@ public class CyberWorldObjectGenerator{
 
 		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
 		boolean[][][] filled = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] filled_x = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] filled_y = new boolean[max_x_old][max_z_old][max_y_old];
+		boolean[][][] filled_z = new boolean[max_x_old][max_z_old][max_y_old];
 		
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
@@ -2295,7 +2593,7 @@ public class CyberWorldObjectGenerator{
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
 					if(dia_tmp_x[x][z]  &&  dia_tmp_z[x][z]){
-						filled[x][z][y]=true;
+						filled_y[x][z][y]=true;
 					}
 				}
 			}
@@ -2303,6 +2601,143 @@ public class CyberWorldObjectGenerator{
 			
 		}
 		
+		
+		
+		for(int x=0;x<max_x_old;x++){
+
+			dia_tmp_y = new boolean[max_y_old][max_z_old];
+			dia_tmp_z = new boolean[max_y_old][max_z_old];
+			int z_s = 0;
+			int z_e = 0;
+			int x_s = 0;
+			int x_e = 0;
+			int y_s = 0;
+			int y_e = 0;
+			
+			//bindind z
+			for(int y=0;y<max_y_old;y++){
+				
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						z_s=z;
+						break;
+					}
+				}
+				for(int z=max_z_old-1;z>=0;z--){
+					if(area[x][z][y]){
+						z_e = z;
+						break;
+					}
+				}
+				for(int z =z_s;z<=z_e;z++){
+					dia_tmp_z[y][z]=true;
+				}
+			}
+			
+
+			//bindind y
+			for(int z=0;z<max_z_old;z++){	
+				for(int y=0;y<max_y_old;y++){
+					if(area[x][z][y]){
+						y_s = y;
+						break;
+					}
+				}
+				for(int y=max_y_old-1;y>=0;y--){
+					if(area[x][z][y]){
+						y_e = y;
+						break;
+					}
+				}
+				for(int y =y_s;y<=y_e;y++){
+					dia_tmp_y[y][z]=true;
+				}
+			}
+			
+			
+			for(int y=0;y<max_y_old;y++){
+				for(int z=0;z<max_z_old;z++){
+					if(dia_tmp_y[y][z]  &&  dia_tmp_z[y][z]){
+						filled_x[x][z][y]=true;
+					}
+				}
+			}
+				
+			
+		}
+		
+		for(int z=0;z<max_z_old;z++){
+
+			dia_tmp_x = new boolean[max_x_old][max_y_old];
+			dia_tmp_y = new boolean[max_x_old][max_y_old];
+			int z_s = 0;
+			int z_e = 0;
+			int x_s = 0;
+			int x_e = 0;
+			int y_s = 0;
+			int y_e = 0;
+			
+			//bindind x
+			for(int y=0;y<max_y_old;y++){
+				
+				for(int x=0;x<max_x_old;x++){
+					if(area[x][z][y]){
+						x_s=x;
+						break;
+					}
+				}
+				for(int x=max_x_old-1;x>=0;x--){
+					if(area[x][z][y]){
+						x_e = x;
+						break;
+					}
+				}
+				for(int x =x_s;x<=x_e;x++){
+					dia_tmp_x[x][y]=true;
+				}
+			}
+			
+
+			//bindind y
+			for(int x=0;x<max_x_old;x++){	
+				for(int y=0;y<max_y_old;y++){
+					if(area[x][z][y]){
+						y_s = y;
+						break;
+					}
+				}
+				for(int y=max_y_old-1;y>=0;y--){
+					if(area[x][z][y]){
+						y_e = y;
+						break;
+					}
+				}
+				for(int y =y_s;y<=y_e;y++){
+					dia_tmp_y[x][y]=true;
+				}
+			}
+			
+			
+			for(int y=0;y<max_y_old;y++){
+				for(int x=0;x<max_x_old;x++){
+					if(dia_tmp_x[x][y]  &&  dia_tmp_y[x][y]){
+						filled_z[x][z][y]=true;
+					}
+				}
+			}
+				
+			
+		}
+		
+		for(int x=0;x<max_x_old;x++){
+			for(int y=0;y<max_y_old;y++){
+				for(int z=0;z<max_z_old;z++){
+					if(filled_x[x][z][y]  ||  filled_y[x][z][y]  ||  filled_z[x][z][y]){
+						filled[x][z][y]=true;
+					}
+				}
+			}
+		}
 		
 		return filled;
 		
@@ -2345,8 +2780,8 @@ public class CyberWorldObjectGenerator{
 	
 	
 	public static void main(String[] args) {
-		int[] s = IntStream.range(0,5).toArray(); 
-		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,2, 7);
+		int[] s = IntStream.range(0,31).toArray(); 
+		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,10, 80);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
@@ -2357,12 +2792,16 @@ public class CyberWorldObjectGenerator{
 	private static int[] generateExpandedSequence(int[] ori, int l, int max_size){
 		int[] ans =null;
 		int middle =0;
+		int end = 0;
 		int t  =0;
 		int new_end  =0;
 		int new_middle  =0;
 		int current_size = ori.length;
+		int size_inc = 0;
+		
 		
 		middle = ori.length/2;
+		end = ori.length;
 		if(l%2==0){
 			t = (l)/2;
 		}
@@ -2370,35 +2809,89 @@ public class CyberWorldObjectGenerator{
 			t = (l+1)/2;
 		}
 		
-		if( t==0 ||  l==current_size  ||  current_size+2*t>max_size){
+		if( t==0 ||  l==current_size  ||  current_size+4*t>max_size){
 			return ori;
 		}
 		int ans_bound = current_size;
-		while(ans_bound+2*t<=max_size){
-			ans_bound+=2*t;
+		while(ans_bound+4*t<=max_size){
+			ans_bound+=4*t;
 		}
 		ans  = new int[ans_bound];
-		while(current_size+2*t<=max_size){
-			new_end = (ori.length+2*t);
-			new_middle = (current_size+2*t)/2;
+		
+		while(current_size+4*t<=max_size){
+			middle = ori.length/2;
+			end = ori.length;
+			new_end = (ori.length+4*t);
+			new_middle = (new_end)/2;
+			
 			//left
 			for(int i=0;i<middle;i++){
-				ans[i]=ori[i];
+				ans[size_inc]=ori[i]; // 0 ~ middle -1
+				//System.out.print(ans[i]+",");
+				size_inc++;
 			}
-			//left dup
+			//System.out.print(" / ");
+			//left dup decend
 			for(int i=0;i<t;i++){
-				ans[middle+i]=ori[middle-t+i+1];
+				ans[size_inc]=ori[middle-i];// middle ~  middle + t-1
+				//System.out.print(ans[middle+i]+",");
+				size_inc++;
 			}
+			//System.out.print(" / ");
+
+			//left dup ascend
+			for(int i=0;i<t;i++){
+				ans[size_inc]=ori[middle+i-t];// middle + t ~ middle +2*t-1
+				//System.out.print(ans[middle+i+t]+",");
+				size_inc++;
+			}
+			//System.out.print(" / ");
+			
+			ans[size_inc] = ori[middle]; // middle + 2*t
+			size_inc++;
+			//System.out.print(ans[new_middle]);
+			
+			//System.out.print(" / ");
+			////System.out.println(middle + 2*t+"/"+new_middle);
+			
+			//right dup decend
+			for(int i=0;i<t;i++){
+				ans[size_inc]=ori[middle+i];// middle +2*t  ~ middle + 3*t -1
+				//System.out.print(ans[new_middle+i]+",");
+				size_inc++;
+			}
+			//System.out.print(" / ");
+
+			//right dup ascend
+			for(int i=0;i<t;i++){
+				ans[size_inc]=ori[middle-i+t];// middle + 3*t ~ middle + 4*t -1  
+				//System.out.print(ans[new_middle+t+i]+",");
+				size_inc++;
+			}
+
+			//System.out.print(" / ");
+			//right
+			for(int i=middle+1;i<end;i++){
+				ans[size_inc]=ori[i]; // middle + 1 ~ end  
+				//System.out.print(ans[i+4*t]+",");
+				size_inc++;
+			}
+			
+			//System.out.println();
+			
+			/*
 			if(ori.length%2==1){
 				//right
 				for(int i=middle+1;i<ori.length;i++){
-					ans[2*t+i]=ori[i];
+					ans[2*t+i]=ori[i];  // middle + 1+ 2t ~ middle + 1 + <ori.right>
 				}
 				//middle
-				ans[new_middle] = ori[middle];
+				//System.out.println(new_middle);
+				ans[new_middle] = ori[middle]; // middle + 2*t
 				//right dup
 				for(int i=1;i<=t;i++){
 					ans[new_middle+i]=ori[middle-t+i];
+					ans[new_middle+i]=ori[middle+i];
 				}
 			}
 			else{
@@ -2410,12 +2903,17 @@ public class CyberWorldObjectGenerator{
 				for(int i=0;i<t;i++){
 					ans[new_middle+i]=ori[middle-t+i];
 				}
-			}
-			current_size+=2*t;
+			}*/
+			
+			
+			current_size += 4*t;
+			//System.out.println(size_inc+"/"+current_size+"/"+ans_bound);
 			ori = new int[current_size];
 			for(int i=0;i<current_size;i++){
 				ori[i]=ans[i];
 			}
+			size_inc=0;
+			
 		}
 		
 		return ans;

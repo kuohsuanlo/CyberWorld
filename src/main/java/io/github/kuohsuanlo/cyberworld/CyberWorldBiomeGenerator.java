@@ -1,10 +1,15 @@
 package io.github.kuohsuanlo.cyberworld;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class CyberWorldBiomeGenerator {
+public class CyberWorldBiomeGenerator implements Serializable{
  
-    private final float AMPLITUDE = 10;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final float AMPLITUDE = 10;
     private final int BIOME_TYPES;
     private final int OCTAVES ;
     private static final float ROUGHNESS = 0.3f;
