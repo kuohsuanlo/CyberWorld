@@ -90,6 +90,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2, false);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateUnderGroundBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2);
+        	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz,biome_type, biomes);
     	}
 		else if(biome_type==CLASS_4_AREA){
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz,biome_type, biomes);
@@ -101,6 +102,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2, false);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateUnderGroundBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2);
+        	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz,biome_type, biomes);
     	}
     	else{
         	chunkdata = og.generateBottom(chunkdata, random, chkx, chkz,biome_type, biomes);

@@ -59,7 +59,7 @@ public class CyberWorldObjectGenerator{
 	private int sz_deco=1;
 	private int sz_s=2;
 	private int sz_m=4;
-	private int sz_l=12;
+	private int sz_l=14;
 	private int sz_block=17;
 
     private final TerrainHeightGenerator hcg;
