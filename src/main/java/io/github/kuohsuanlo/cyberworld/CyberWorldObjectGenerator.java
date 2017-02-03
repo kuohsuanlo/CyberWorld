@@ -59,8 +59,8 @@ public class CyberWorldObjectGenerator{
 	private int sz_deco=1;
 	private int sz_s=2;
 	private int sz_m=4;
-	private int sz_l=14;
-	private int sz_block=17;
+	private int sz_l=18;
+	private int sz_block=20;
 
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 50;
@@ -71,8 +71,6 @@ public class CyberWorldObjectGenerator{
     private final int TERRAIN_HEIGHT = 100;
     private final int SEA_LEVEL = 45;
     
-    //public static final int CITY_X = 1000;
-    //public static final int CITY_Z = 1000;
     
 	public CyberWorldObjectGenerator(int biome_numbers, CyberWorldBiomeGenerator b, CityStreetGenerator c){
 		BIOME_NUMBERS = biome_numbers;
@@ -362,24 +360,59 @@ public class CyberWorldObjectGenerator{
 					}
 				}
 				else if(folder_name[n].equals("import")){
+					
 					if(deco.size()==0){
-						deco = cc_list_deco;
-						decob = cc_list_deco_b;
+
+						for(int i=0;i<cc_list_deco.size();i++){
+							if(biome_number==0){
+								deco = cc_list_deco;
+								decob = cc_list_deco_b;
+							}
+							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
+								deco.add(cc_list_deco.get(i));
+								decob.add(cc_list_deco_b.get(i));
+							}
+						}
 						System.out.print("[CyberWorld] : no imported schematic for import deco on biome "+biome_number+", replaced with default schematics");
 					}
 					if(s.size()==0){
-						s = cc_list_s;
-						sb = cc_list_s_b;
+						for(int i=0;i<cc_list_s.size();i++){
+							if(biome_number==0){
+								s = cc_list_s;
+								sb = cc_list_s_b;
+							}
+							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
+								s.add(cc_list_s.get(i));
+								sb.add(cc_list_s_b.get(i));
+							}
+						}
 						System.out.print("[CyberWorld] : no imported schematic for import s on biome "+biome_number+", replaced with default schematics");
 					}
 					if(m.size()==0){
-						m = cc_list_m;
-						mb = cc_list_m_b;
+						for(int i=0;i<cc_list_m.size();i++){
+							if(biome_number==0){
+								m = cc_list_m;
+								mb = cc_list_m_b;
+							}
+							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0 ){
+								m.add(cc_list_m.get(i));
+								mb.add(cc_list_m_b.get(i));
+							}
+						}
 						System.out.print("[CyberWorld] : no imported schematic for import m on biome "+biome_number+", replaced with default schematics");
 					}
 					if(l.size()==0){
-						l = cc_list_l;
-						lb = cc_list_l_b;
+						for(int i=0;i<cc_list_l.size();i++){
+							if(biome_number==0){
+								l = cc_list_l;
+								lb = cc_list_l_b;
+							}
+							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
+								
+								l.add(cc_list_l.get(i));
+								lb.add(cc_list_l_b.get(i));
+							}
+						}
 						System.out.print("[CyberWorld] : no imported schematic for import l on biome "+biome_number+", replaced with default schematics");
 					}
 				}
@@ -1234,7 +1267,7 @@ public class CyberWorldObjectGenerator{
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data = (byte) biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    int block_data = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
     	    				    if(block_id!=Material.AIR.getId())
     	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
     	    	    		}
@@ -1253,7 +1286,7 @@ public class CyberWorldObjectGenerator{
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data = (byte) biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
     	    				    if(block_id!=Material.AIR.getId())
     	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
     	    	    		}
@@ -1271,7 +1304,7 @@ public class CyberWorldObjectGenerator{
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data = (byte) biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
     	    				    if(block_id!=Material.AIR.getId())
     	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
     	    	    		}
@@ -1289,7 +1322,7 @@ public class CyberWorldObjectGenerator{
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data = (byte) biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
     	    				    if(block_id!=Material.AIR.getId())
     	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
     	    	    		}
@@ -1344,7 +1377,7 @@ public class CyberWorldObjectGenerator{
 						
 						long chunk_seed = cg.getBuildingSeed(chkx, chkz, layer);
 						int block_id  = Material.AIR.getId();
-						byte block_data  = 0;
+						int block_data  = 0;
 						
 						boolean[][][] fillingAirIndeces ;
 						boolean[][][] frameIndeces = null;
@@ -1389,7 +1422,8 @@ public class CyberWorldObjectGenerator{
 		    						int z = i-i_start;
 				    				
 				    				block_id = current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getId();
-				            		block_data = (byte) current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getData();
+				            		block_data = current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getData();
+				            		
 			    					//replacing illegal block, and light blocks
 				            		boolean isLightSource=false;
 				    				if(block_id!=Material.AIR.getId()){
@@ -1476,7 +1510,7 @@ public class CyberWorldObjectGenerator{
 						
 						long chunk_seed = cg.getBuildingSeed(chkx, chkz, layer);
 						int block_id  = Material.AIR.getId();
-						byte block_data  = 0;
+						int block_data  = 0;
 						
 						boolean[][][] fillingAirIndeces ;
 
@@ -1503,7 +1537,8 @@ public class CyberWorldObjectGenerator{
 					    				int x = j-j_start;
 					    				int z = i-i_start;
 				            			block_id = current_list.get(type).getBlock(new Vector(i,k,j)).getId();
-					            		block_data = (byte) current_list.get(type).getBlock(new Vector(i,k,j)).getData();
+					            		block_data =  current_list.get(type).getBlock(new Vector(i,k,j)).getData();
+					            		
 				    					//replacing illegal block, and light blocks
 					            		boolean isLightSource=false;
 					    				if(block_id!=Material.AIR.getId()){
@@ -1581,7 +1616,7 @@ public class CyberWorldObjectGenerator{
 			long chunk_seed = cg.getBuildingSeed(chkx, chkz, 0);
 			
 			int block_id  = Material.AIR.getId();
-			byte block_data =0;
+			int block_data =0;
 	
 			
 	
@@ -1638,7 +1673,8 @@ public class CyberWorldObjectGenerator{
 			    				}
 			            		
 			            		block_id = object.getBlock(new Vector(i,k,j)).getId();
-			            		block_data = (byte) object.getBlock(new Vector(i,k,j)).getData();
+			            		block_data =  object.getBlock(new Vector(i,k,j)).getData();
+			            		
 			            		
 			            		if(block_id!=Material.AIR.getId()){
 			    					int fixed_id = fixBannedBlock(block_id);
@@ -1685,7 +1721,8 @@ public class CyberWorldObjectGenerator{
 		    				}
 		    				//Bug: finding 3d volumn has bug in getfilledArea
 		            		block_id = object.getBlock(new Vector(i,k,j)).getId();
-		            		block_data = (byte) object.getBlock(new Vector(i,k,j)).getData();
+		            		block_data =  (object.getBlock(new Vector(i,k,j)).getData()%128);
+		            		
 		            		
 		            		if(block_id!=Material.AIR.getId()){
 		    					int fixed_id = fixBannedBlock(block_id);
@@ -2231,7 +2268,8 @@ public class CyberWorldObjectGenerator{
 	private static final int[] FENCE_LIST = {85,113,188,189,190,191,192};
 	private static final int[] BLOCKS_LIST = {1,4,5,17,24,43,45,82,87,88,98,121,125,155,162,168,172,179,181,201,202,204,206};
 	private static final int[] BLOCKS_DMAX = {7,1,6, 4, 3, 8, 1, 1, 1, 1, 4,  1,  6,  3,  2,  3,  1,  3,  1,  1,  1,  1,  1};
-	private MaterialData getReplacedMaterial(Random replace_rng, int id,byte original_data,long seeds){
+	private MaterialData getReplacedMaterial(Random replace_rng, int id,int original_data_int,long seeds){
+		byte original_data = (byte) original_data_int;
 		if(id==Material.GLASS.getId()  ||   
 				id==Material.THIN_GLASS.getId() ||  
 				id==Material.AIR.getId()){

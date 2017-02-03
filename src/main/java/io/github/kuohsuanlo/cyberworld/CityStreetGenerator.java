@@ -120,6 +120,28 @@ public class CityStreetGenerator implements Serializable{
 				}
 			}
 		}
+		
+		/*
+		for(int i=0+1;i<x-1;i++){
+			for(int j=0+1;j<y-1;j++){
+				if(city[i][j]!=CyberWorldObjectGenerator.DIR_BUILDING){
+					city[i][j]=0;
+					if(	city[i+1][j]!=CyberWorldObjectGenerator.DIR_BUILDING){
+						city[i][j] +=1;
+					}
+					if(	city[i-1][j]!=CyberWorldObjectGenerator.DIR_BUILDING){
+						city[i][j] +=2;
+					}
+					if(	city[i][j+1]!=CyberWorldObjectGenerator.DIR_BUILDING){
+						city[i][j] +=4;
+					}
+					if(	city[i][j-1]!=CyberWorldObjectGenerator.DIR_BUILDING){
+						city[i][j] +=8;
+					}
+				}
+			}
+		}
+		*/
 	}
 	public int getRoadType(int rx, int rz){
 		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
@@ -219,6 +241,7 @@ public class CityStreetGenerator implements Serializable{
 			int intersectionY = point1y+minBW+y_shift;
 			
 			if(x_margin>0 && y_margin>0){
+				
 				for(int i=point1x;i<=point2x;i++){
 					if(city[i][intersectionY] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 						city[i][intersectionY]=CyberWorldObjectGenerator.DIR_EAST_WEST;
@@ -229,7 +252,6 @@ public class CityStreetGenerator implements Serializable{
 						city[intersectionX][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
 					}
 				}
-				
 
 				
 				//starting point & end point
@@ -448,11 +470,11 @@ public class CityStreetGenerator implements Serializable{
 
 		System.out.println("----------------------------------------");
 		for(int l=0;l<3;l++){
-
-			System.out.println("building_struct : "+l);
 			for (int i = -100; i < 100; i++) {
-				for (int j = -50; j < 50; j++) {
-					int tmp  = this.getBuildingStruct(i,j, l);
+				for (int j = -100; j < 100; j++) {
+					//int tmp  = this.getBuildingStruct(i,j, l);
+
+					int tmp  = this.getBuildingType(i,j,l);
 					if(tmp>0){
 						System.out.print(Integer.toHexString(tmp));
 					}
@@ -470,8 +492,8 @@ public class CityStreetGenerator implements Serializable{
 		int h =200;
 		Random rng = new Random();
 		rng.setSeed(1205);
-		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(3,5);
-		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,17,3,3,3,2,4,12,1,1,1);
+		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(3,6);
+		CityStreetGenerator g = new CityStreetGenerator(b,w, h,rng,20,3,3,3,2,4,18,1,1,1);
 		g.displayGrid();
 		
 	}

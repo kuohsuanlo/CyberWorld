@@ -112,7 +112,7 @@ public class CyberWorldBiomeGenerator implements Serializable{
     }
 	public static void main(String[] args) {
 
-		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(3,3);
+		CyberWorldBiomeGenerator h = new CyberWorldBiomeGenerator(3,6);
 
 		for(int i=-100;i<25;i++){
 			for(int j=-100;j<25;j++){
