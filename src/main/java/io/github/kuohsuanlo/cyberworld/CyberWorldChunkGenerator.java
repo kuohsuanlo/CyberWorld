@@ -21,7 +21,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
     public static final int BIOME_NUMBER_WITH_BUILDING =5;
-    private final int BIOME_OCTAVE = 6;
+    private final int BIOME_OCTAVE = 5;
     private final int BIOME_TYPES;
     private final int BIOME_NUMBERS;
     private final CyberWorldObjectGenerator og;
