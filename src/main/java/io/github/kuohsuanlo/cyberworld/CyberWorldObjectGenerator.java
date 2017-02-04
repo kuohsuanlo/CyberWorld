@@ -1386,6 +1386,7 @@ public class CyberWorldObjectGenerator{
 
 						int[] ori_idx_i = IntStream.range(0, current_list.get(type).getWidth()).toArray(); 
 						int[] ori_idx_j = IntStream.range(0, current_list.get(type).getLength()).toArray();
+						int[] ori_idx_k = IntStream.range(0, current_list.get(type).getHeight()).toArray();
 						int r_i = (current_list.get(type).getWidth()%2);
 						int r_j = (current_list.get(type).getLength()%2);
 						
@@ -1394,11 +1395,18 @@ public class CyberWorldObjectGenerator{
 						int j_rand = ed_rng.nextInt(current_size[layer]*16/4)*2+(current_size[layer]*16/4)*2;
 						int[] expended_idx_i = this.generateExpandedSequence(ori_idx_i, Math.min(4+4*layer+r_i,current_list.get(type).getWidth()/2+r_i), Math.max(current_list.get(type).getWidth()+1,i_rand+r_i));
 						int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j),Math.max(current_list.get(type).getLength()+1,j_rand+r_j));
+						
+						
+						int new_height = Math.max(current_list.get(type).getHeight(),  ed_rng.nextInt((int)(current_list.get(type).getHeight()*2)));
+						if(new_height>this.MAX_SPACE_HEIGHT-this.SEA_LEVEL){
+							new_height = current_list.get(type).getHeight();
+						}
+						int[] expended_idx_k = this.generateExpandedHeightSequence(ori_idx_k,new_height);
 
 
 						int i_end = Math.min(expended_idx_i.length,i_max);
 						int j_end = Math.min(expended_idx_j.length,j_max);
-						int k_end = current_list.get(type).getHeight();
+						int k_end = expended_idx_k.length;
 						
 						if(layer!=s_layer_nubmer){
 							fillingAirIndeces = this.getfilledArea(current_list.get(type));
@@ -1421,8 +1429,8 @@ public class CyberWorldObjectGenerator{
 		    						int x = j-j_start;
 		    						int z = i-i_start;
 				    				
-				    				block_id = current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getId();
-				            		block_data = current_list.get(type).getBlock(new Vector(expended_idx_i[i],k,expended_idx_j[j])).getData();
+				    				block_id = current_list.get(type).getBlock(new Vector(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j])).getId();
+				            		block_data = current_list.get(type).getBlock(new Vector(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j])).getData();
 				            		
 			    					//replacing illegal block, and light blocks
 				            		boolean isLightSource=false;
@@ -1446,10 +1454,10 @@ public class CyberWorldObjectGenerator{
 			    					}
 				    				
 				    				//clearing overlapping area
-				    				if(fillingAirIndeces[expended_idx_i[i]][expended_idx_j[j]][k]){
+				    				if(fillingAirIndeces[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]]){
 				    					chunkdata.setBlock(x, y, z,Material.AIR);
 				    				}
-				    				if(block_id!=Material.AIR.getId()  &&  ( !only_shell || frameIndeces[expended_idx_i[i]][expended_idx_j[j]][k]  )){
+				    				if(block_id!=Material.AIR.getId()  &&  ( !only_shell || frameIndeces[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]]  )){
 				    					int fixed_id = fixBannedBlock(block_id);
 				    					if(fixed_id == block_id  &&  isLightSource==false){
 				    						chunkdata.setBlock(x, y, z, getReplacedMaterial(bm_rng,block_id,block_data,chunk_seed ));
@@ -1603,7 +1611,7 @@ public class CyberWorldObjectGenerator{
 		int j_start = sz*16;
 		int j_max = (sz+1)*16;
 		
-		if(cc_list_deco.size()>0){
+		if(biome_cc_list_deco.get(biome_type).size()>0){
 
 			
 			
@@ -2818,13 +2826,45 @@ public class CyberWorldObjectGenerator{
 	
 	
 	public static void main(String[] args) {
-		int[] s = IntStream.range(0,31).toArray(); 
-		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,10, 80);
+		int size = 34;
+		int[] s = IntStream.range(0,size).toArray(); 
+		
+		int[] ans = generateExpandedHeightSequence(s,size*2);
+		//int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,10, 80);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
 
 		System.out.print("\n"+ans.length);
+		
+	}
+	private static int[] generateExpandedHeightSequence(int[] ori, int max_size){
+
+		int ori_size = ori.length;
+		
+		if(max_size>ori_size){
+			int ro_number = max_size - ori_size;
+			int[] repeated_idx = new int[(int) Math.ceil(ro_number)];
+			int[] ans = new int[max_size];
+			
+			for(int i=0;i<ro_number;i++){
+				double new_idx = i*((double)ori_size/ro_number);
+				if(new_idx<ori_size){
+					repeated_idx[i] = (int) Math.floor(new_idx);
+				}
+			}
+			
+			System.arraycopy(ori, 0, ans, 0, ori.length);
+			System.arraycopy(repeated_idx, 0, ans, ori.length, repeated_idx.length);
+			Arrays.sort(ans);
+			return ans;
+		}
+		else{
+			return ori;
+		}
+
+		
+		
 		
 	}
 	private static int[] generateExpandedSequence(int[] ori, int l, int max_size){
@@ -2865,32 +2905,23 @@ public class CyberWorldObjectGenerator{
 			//left
 			for(int i=0;i<middle;i++){
 				ans[size_inc]=ori[i]; // 0 ~ middle -1
-				//System.out.print(ans[i]+",");
 				size_inc++;
 			}
-			//System.out.print(" / ");
 			//left dup decend
 			for(int i=0;i<t;i++){
 				ans[size_inc]=ori[middle-i];// middle ~  middle + t-1
 				//System.out.print(ans[middle+i]+",");
 				size_inc++;
 			}
-			//System.out.print(" / ");
-
 			//left dup ascend
 			for(int i=0;i<t;i++){
 				ans[size_inc]=ori[middle+i-t];// middle + t ~ middle +2*t-1
 				//System.out.print(ans[middle+i+t]+",");
 				size_inc++;
 			}
-			//System.out.print(" / ");
 			
 			ans[size_inc] = ori[middle]; // middle + 2*t
 			size_inc++;
-			//System.out.print(ans[new_middle]);
-			
-			//System.out.print(" / ");
-			////System.out.println(middle + 2*t+"/"+new_middle);
 			
 			//right dup decend
 			for(int i=0;i<t;i++){
@@ -2898,16 +2929,12 @@ public class CyberWorldObjectGenerator{
 				//System.out.print(ans[new_middle+i]+",");
 				size_inc++;
 			}
-			//System.out.print(" / ");
-
 			//right dup ascend
 			for(int i=0;i<t;i++){
-				ans[size_inc]=ori[middle-i+t];// middle + 3*t ~ middle + 4*t -1  
+				ans[size_inc]=ori[middle-i+t+1];// middle + 3*t ~ middle + 4*t -1  
 				//System.out.print(ans[new_middle+t+i]+",");
 				size_inc++;
 			}
-
-			//System.out.print(" / ");
 			//right
 			for(int i=middle+1;i<end;i++){
 				ans[size_inc]=ori[i]; // middle + 1 ~ end  
@@ -2915,37 +2942,8 @@ public class CyberWorldObjectGenerator{
 				size_inc++;
 			}
 			
-			//System.out.println();
-			
-			/*
-			if(ori.length%2==1){
-				//right
-				for(int i=middle+1;i<ori.length;i++){
-					ans[2*t+i]=ori[i];  // middle + 1+ 2t ~ middle + 1 + <ori.right>
-				}
-				//middle
-				//System.out.println(new_middle);
-				ans[new_middle] = ori[middle]; // middle + 2*t
-				//right dup
-				for(int i=1;i<=t;i++){
-					ans[new_middle+i]=ori[middle-t+i];
-					ans[new_middle+i]=ori[middle+i];
-				}
-			}
-			else{
-				//right
-				for(int i=middle;i<ori.length;i++){
-					ans[2*t+i]=ori[i];
-				}
-				//right dup
-				for(int i=0;i<t;i++){
-					ans[new_middle+i]=ori[middle-t+i];
-				}
-			}*/
-			
 			
 			current_size += 4*t;
-			//System.out.println(size_inc+"/"+current_size+"/"+ans_bound);
 			ori = new int[current_size];
 			for(int i=0;i<current_size;i++){
 				ori[i]=ans[i];

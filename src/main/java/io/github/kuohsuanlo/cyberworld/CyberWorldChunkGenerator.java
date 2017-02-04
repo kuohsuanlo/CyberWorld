@@ -19,6 +19,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 
     private byte[] layerDataValues;
 
+    private CyberWorld plugin;
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
     public static final int BIOME_NUMBER_WITH_BUILDING =5;
     private final int BIOME_OCTAVE = 5;
@@ -29,7 +30,8 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 		return og;
 	}
 	private final CyberWorldBiomeGenerator bg;
-    public CyberWorldChunkGenerator(int biome_types, CityStreetGenerator c){
+    public CyberWorldChunkGenerator(CyberWorld p, int biome_types, CityStreetGenerator c){
+    	plugin = p;
     	BIOME_TYPES = biome_types;
     	BIOME_NUMBERS = (int) Math.round(Math.pow(2, BIOME_TYPES));
     	bg = new CyberWorldBiomeGenerator(BIOME_TYPES,BIOME_OCTAVE);

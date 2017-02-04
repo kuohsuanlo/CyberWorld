@@ -23,19 +23,51 @@ import java.util.logging.Logger;
  * 
  * 
  */
-public class CyberWorldGenerator extends JavaPlugin{
+public class CyberWorld extends JavaPlugin{
     private Logger log = Logger.getLogger("Minecraft");
-    private PluginDescriptionFile pluginDescriptionFile;
     private CyberWorldChunkGenerator c;
     private CityStreetGenerator cityg;
     private final int BIOME_TYPES = 3;
     private final int BIOME_NUMBERS = (int) Math.round( Math.pow(2, BIOME_TYPES));
+    public CyberWorld(){
+
+        createBiomeFolder();
+        readCityStreetGenerator();
+        
+        c = new CyberWorldChunkGenerator(this,3,cityg);
+    } 
     public void onEnable(){
     	
-        pluginDescriptionFile = getDescription();
-        log.info("[CyberWorld] " + pluginDescriptionFile.getFullName() + " enabled");
+        reportMessage(" enabled");
         
-        if(createFolder("./plugins/CyberWorld")){
+    }
+    public void onDisable(){
+    	saveCityStreetGenerator();
+    }
+
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id){
+        return c;
+    }
+    
+    
+    public String getPluginName() {
+		return getDescription().getName();
+	}
+	private String getQuotedPluginName() {
+		return "[" + getPluginName() + "]";
+	}
+	public void reportMessage(String message) {
+		if (!message.startsWith("["))
+			message = " " + message;
+		log.info(getQuotedPluginName() + message);
+	}
+	public void reportMessage(String message1, String message2) {
+		reportMessage(message1);
+		log.info(" \\__" + message2);
+	}
+    private void createBiomeFolder(){
+    	if(createFolder("./plugins/CyberWorld")){
         	
         }
         if(createFolder("./plugins/CyberWorld/citymap_pregen")){
@@ -72,7 +104,34 @@ public class CyberWorldGenerator extends JavaPlugin{
             }
         }
         
-		//Creating
+		
+        
+    }
+    private static boolean createFolder(String path){
+    	 
+  	   	File file = new File(path);
+  	   	if(!file.exists()){
+  	   		new File(path).mkdirs();
+  	   		return true;
+  	   	}
+  	   	return false;
+
+    }    
+    private void saveCityStreetGenerator(){
+    	try {
+        	FileOutputStream fos;
+			fos = new FileOutputStream("./plugins/CyberWorld/citymap_pregen/"+"test.cityobj");
+        	ObjectOutputStream oos = new ObjectOutputStream(fos);
+        	oos.writeObject(c.getOg().getCg());
+        	oos.close();
+		} catch (Exception e  ) {
+			// TODO Auto-generated catch block
+			System.out.print("[CyberWorld] : City Map saving error. It will regenerate next time.");
+			e.printStackTrace();
+		} 
+    }
+    private void readCityStreetGenerator(){
+    	//Creating
 		try {
 	  	   	String path = "./plugins/CyberWorld/citymap_pregen/"+"test.cityobj";
 	  	   	File file = new File(path);
@@ -97,39 +156,8 @@ public class CyberWorldGenerator extends JavaPlugin{
   	   		System.out.print("[CyberWorld] : City Map loading error, regenerating...");
 			e.printStackTrace();
 		}
-		
-        
-        c = new CyberWorldChunkGenerator(3,cityg);
-        
+    			
     }
 
-    public void onDisable(){
-		
-    	try {
-        	FileOutputStream fos;
-			fos = new FileOutputStream("./plugins/CyberWorld/citymap_pregen/"+"test.cityobj");
-        	ObjectOutputStream oos = new ObjectOutputStream(fos);
-        	oos.writeObject(c.getOg().getCg());
-        	oos.close();
-		} catch (Exception e  ) {
-			// TODO Auto-generated catch block
-			System.out.print("[CyberWorld] : City Map saving error. It will regenerate next time.");
-			e.printStackTrace();
-		} 
-    }
 
-    public static boolean createFolder(String path){
- 
-  	   	File file = new File(path);
-  	   	if(!file.exists()){
-  	   		new File(path).mkdirs();
-  	   		return true;
-  	   	}
-  	   	return false;
-
-    }
-    @Override
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id){
-        return c;
-    }
 }
