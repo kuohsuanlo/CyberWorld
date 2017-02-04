@@ -64,6 +64,8 @@ public class CyberWorldObjectGenerator{
 
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 50;
+    private final static double HEIGHT_RAND_ODDS = 0.5;
+    private final static double HEIGHT_RAND_RATIO = 1.5;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
     private final static int[] underground_building_level = {3,3,3};
     private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
@@ -94,6 +96,10 @@ public class CyberWorldObjectGenerator{
 
 	}
 
+    public final static int SIGN_LEFT 		=4;
+    public final static int SIGN_RIGHT		=5;
+    public final static int SIGN_UP 		=6;
+    public final static int SIGN_DOWN		=7;
     public final static int DIR_EAST_WEST 		=1;
     public final static int DIR_NORTH_SOUTH		=2;
     public final static int DIR_INTERSECTION	=3;
@@ -808,7 +814,7 @@ public class CyberWorldObjectGenerator{
 		        					((x-7.5)*(x-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))>=(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
 		        				
 		        				if(z==0  || z==15){
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.IRON_FENCE);
+		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
 		        				}
 		        				else if( d<0.02){
 			        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COAL_ORE);
@@ -843,7 +849,7 @@ public class CyberWorldObjectGenerator{
 		        					((z-7.5)*(z-7.5)+(y-sewer_pipe_height)*(y-sewer_pipe_height))>=(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
 		        				
 		        				if(x==0  || x==15){
-		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.IRON_FENCE);
+		        					chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
 		        				}
 		        				else if( d<0.02){
 			        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COAL_ORE);
@@ -1049,7 +1055,7 @@ public class CyberWorldObjectGenerator{
 	    			if(d>=0.5){
 	    				for(int y=0;y<GROUND_LEVEL+1;y++){
 	    					if((y>=5  &&  y<GROUND_LEVEL+1)  &&  ( (x<=0  ||  x>=15)  ||  (z<=0  ||  z>=15) )){
-	    						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.IRON_FENCE);
+	    						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
 	    					}
 	    				}
     				}
@@ -1230,16 +1236,16 @@ public class CyberWorldObjectGenerator{
 				has_thing_underneath = true;
 			}
 			*/
-			if((chkx+chkz)%4==0  &&  (!has_thing_underneath) ){
+			if((chkx+chkz)%2==0  &&  (!has_thing_underneath) ){
 				for(int x=0;x<16;x++){
     	    		for(int z=0;z<16;z++){
     	    			if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
-    	    				if((z == 7  ||  z==8)  &&  (x==7  ||  x==8) ){
+    	    				if((z >= 6  &&  z<=9)  &&  (x==7  ||  x==8) ){
     	    					chunkdata.setRegion(x,GROUND_LEVEL+3,z,x+1,LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
     	        			}
     	  	    		}
     	  	    		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
-    	  	    			if((z == 7  ||  z==8)  &&  (x==7  ||  x==8) ){
+    	  	    			if((x >= 6  &&  x<=9)  &&  (z==7  ||  z==8) ){
     	    					chunkdata.setRegion(x,GROUND_LEVEL+3,z,x+1,LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
     	        			}
     	  	    		}
@@ -1397,7 +1403,12 @@ public class CyberWorldObjectGenerator{
 						int[] expended_idx_j = this.generateExpandedSequence(ori_idx_j, Math.min(4+4*layer+r_j,current_list.get(type).getLength()/2+r_j),Math.max(current_list.get(type).getLength()+1,j_rand+r_j));
 						
 						
-						int new_height = Math.max(current_list.get(type).getHeight(),  ed_rng.nextInt((int)(current_list.get(type).getHeight()*2)));
+						int new_height = current_list.get(type).getHeight();
+						if(ed_rng.nextDouble()<HEIGHT_RAND_ODDS){
+							new_height+= ed_rng.nextInt((int)(current_list.get(type).getHeight()*(HEIGHT_RAND_RATIO-1)));
+							
+						}
+						
 						if(new_height>this.MAX_SPACE_HEIGHT-this.SEA_LEVEL){
 							new_height = current_list.get(type).getHeight();
 						}
@@ -2826,11 +2837,11 @@ public class CyberWorldObjectGenerator{
 	
 	
 	public static void main(String[] args) {
-		int size = 34;
+		int size = 17;
 		int[] s = IntStream.range(0,size).toArray(); 
 		
-		int[] ans = generateExpandedHeightSequence(s,size*2);
-		//int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,10, 80);
+		//int[] ans = generateExpandedHeightSequence(s,size*2);
+		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,5, 34);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
@@ -2876,7 +2887,7 @@ public class CyberWorldObjectGenerator{
 		int new_middle  =0;
 		int current_size = ori.length;
 		int size_inc = 0;
-		
+		int offset = 0;
 		
 		middle = ori.length/2;
 		end = ori.length;
@@ -2891,12 +2902,12 @@ public class CyberWorldObjectGenerator{
 			return ori;
 		}
 		int ans_bound = current_size;
-		while(ans_bound+4*t<=max_size){
-			ans_bound+=4*t;
+		while(ans_bound+4*t-offset<=max_size){
+			ans_bound+=4*t-offset;
 		}
 		ans  = new int[ans_bound];
 		
-		while(current_size+4*t<=max_size){
+		while(current_size+4*t-offset<=max_size){
 			middle = ori.length/2;
 			end = ori.length;
 			new_end = (ori.length+4*t);
@@ -2925,7 +2936,7 @@ public class CyberWorldObjectGenerator{
 			
 			//right dup decend
 			for(int i=0;i<t;i++){
-				ans[size_inc]=ori[middle+i];// middle +2*t  ~ middle + 3*t -1
+				ans[size_inc]=ori[middle+i+1];// middle +2*t  ~ middle + 3*t -1
 				//System.out.print(ans[new_middle+i]+",");
 				size_inc++;
 			}
@@ -2943,7 +2954,7 @@ public class CyberWorldObjectGenerator{
 			}
 			
 			
-			current_size += 4*t;
+			current_size += 4*t-offset;
 			ori = new int[current_size];
 			for(int i=0;i<current_size;i++){
 				ori[i]=ans[i];

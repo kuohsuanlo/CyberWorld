@@ -38,6 +38,7 @@ public class CityStreetGenerator implements Serializable{
 	private final int x;
 	private final int y;
 	private final int[][] city;
+	private final int[][] sign;
 	private final int[][][] building;
 	private final int[][][] building_type;
 	private final int[][][] building_rotation;
@@ -59,6 +60,7 @@ public class CityStreetGenerator implements Serializable{
 		this.x = x;
 		this.y = y;
 		city = new int[this.x][this.y];
+		sign = new int[this.x][this.y];
 		hightway = new int[this.x][this.y][3];
 		building = new int[this.x][this.y][3];
 		building_type= new int[this.x][this.y][3];
@@ -113,6 +115,10 @@ public class CityStreetGenerator implements Serializable{
 				if(city[i][j]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 					city[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
 				}
+
+				if(sign[i][j]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+					sign[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
+				}
 				for(int l=0;l<3;l++){
 					if(hightway[i][j][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 						hightway[i][j][l] = CyberWorldObjectGenerator.DIR_BUILDING;
@@ -146,6 +152,10 @@ public class CityStreetGenerator implements Serializable{
 	public int getRoadType(int rx, int rz){
 		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
 		return city[chunk_coor[0]][chunk_coor[1]];
+	}
+	public int getSignType(int rx, int rz){
+		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
+		return sign[chunk_coor[0]][chunk_coor[1]];
 	}
 	public int getHighwayType(int rx, int rz,int layer){
 		int[] chunk_coor = c2abs_transform(rx+722*(layer+1),rz+1205*(layer+1),this.x,this.y);
@@ -246,10 +256,27 @@ public class CityStreetGenerator implements Serializable{
 					if(city[i][intersectionY] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
 						city[i][intersectionY]=CyberWorldObjectGenerator.DIR_EAST_WEST;
 					}
+
+					if(sign[i][intersectionY] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						if(i>1 && i< x-1){
+							sign[i][intersectionY-1]=CyberWorldObjectGenerator.SIGN_LEFT;
+							sign[i][intersectionY]=CyberWorldObjectGenerator.DIR_EAST_WEST;
+							sign[i][intersectionY+1]=CyberWorldObjectGenerator.SIGN_RIGHT;
+						}
+					}
+					
 				}
 				for(int i=point1y;i<=point2y;i++){
 					if(city[intersectionX][i] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-						city[intersectionX][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
+						city[intersectionX][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;	
+					}
+
+					if(sign[intersectionX][i] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						if(i>1 && i< y-1){
+							sign[intersectionX-1][i]=CyberWorldObjectGenerator.SIGN_UP;
+							sign[intersectionX][i]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
+							sign[intersectionX+1][i]=CyberWorldObjectGenerator.SIGN_DOWN;
+						}
 					}
 				}
 
@@ -334,147 +361,14 @@ public class CityStreetGenerator implements Serializable{
 		}
 	}
 	private void displayGrid() {
-		/*System.out.println("STREET");
-		for (int i = 0; i < y; i++) {
-			for (int j = 0; j < x; j++) {
-				if(city[j][i]==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  city[j][i]==CyberWorldObjectGenerator.DIR_EAST_WEST  ||  city[j][i]==CyberWorldObjectGenerator.DIR_INTERSECTION){
-					System.out.print("x");
-				}
-				else if(city[j][i]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED ){
-					System.out.print("*");
-				}
-				else  if(city[j][i]==CyberWorldObjectGenerator.DIR_BUILDING ){
-					System.out.print(" ");
-				}
-				else{
-					System.out.print("U");
-				}
-			}
-			System.out.println("");
-		}
-		
-		for(int l=0;l<3;l++){
-
-			System.out.println("HIGHWAY : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_NORTH_SOUTH  ||  hightway[j][i][l]==CyberWorldObjectGenerator.DIR_EAST_WEST  || hightway[j][i][l]==CyberWorldObjectGenerator.DIR_INTERSECTION){
-						System.out.print("x");
-					}
-					else if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED ){
-						System.out.print("*");
-					}
-					else  if(hightway[j][i][l]==CyberWorldObjectGenerator.DIR_BUILDING ){
-						System.out.print(" ");
-					}
-					else{
-						System.out.print("U");
-					}
-				}
-				System.out.println("");
-			}
-		}	
-		
-		for(int l=0;l<3;l++){
-
-			System.out.println("building : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					if(building[j][i][l]>0){
-						System.out.print(building[j][i][l]%10);
-						//System.out.print("x");
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_S_BUILDING){
-						System.out.print(-1*building[j][i][l]);
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_M_BUILDING){
-						System.out.print(-1*building[j][i][l]);
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_L_BUILDING){
-						System.out.print(-1*building[j][i][l]);
-					}
-					else{
-						System.out.print(" ");
-					}
-				}
-				System.out.println("");
-			}
-		}	
-		
-
-		
-		for(int l=0;l<3;l++){
-
-			System.out.println("building_type : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					if(building[j][i][l]>0){
-						System.out.print(building_type[j][i][l]%10);
-						//System.out.print("x");
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_S_BUILDING){
-						System.out.print(building_type[j][i][l]);
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_M_BUILDING){
-						System.out.print(building_type[j][i][l]);
-					}
-					else if(building[j][i][l]==CyberWorldObjectGenerator.DIR_L_BUILDING){
-						System.out.print(building_type[j][i][l]);
-					}
-					else{
-						System.out.print(" ");
-					}
-				}
-				System.out.println("");
-			}
-		}	
-		
-		for(int l=0;l<3;l++){
-
-			System.out.println("building_struct : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					if(building_struct[j][i][l]>0){
-						System.out.print(building_struct[j][i][l]%10);
-						//System.out.print("x");
-					}
-					else{
-						System.out.print(" ");
-					}
-				}
-				System.out.println("");
-			}
-		}	
-		
-
-		for(int l=0;l<3;l++){
-
-			System.out.println("building_rotation : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					System.out.print(building_rotation[j][i][l]);
-				}
-				System.out.println("");
-			}
-		}	
-		for(int l=0;l<3;l++){
-
-			System.out.println("building_rng_seeds : "+l);
-			for (int i = 0; i < y; i++) {
-				for (int j = 0; j < x; j++) {
-					System.out.print(building_rng_seeds[j][i][l]+",");
-				}
-				System.out.println("");
-			}
-		}	*/
-
 		System.out.println("----------------------------------------");
 		for(int l=0;l<3;l++){
 			for (int i = -100; i < 100; i++) {
 				for (int j = -100; j < 100; j++) {
 					//int tmp  = this.getBuildingStruct(i,j, l);
-
-					int tmp  = this.getBuildingType(i,j,l);
+					
+					//int tmp  = this.getBuildingType(i,j,l);
+					int tmp  = this.getSignType(i,j);
 					if(tmp>0){
 						System.out.print(Integer.toHexString(tmp));
 					}
