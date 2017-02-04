@@ -2837,11 +2837,11 @@ public class CyberWorldObjectGenerator{
 	
 	
 	public static void main(String[] args) {
-		int size = 17;
+		int size = 19;
 		int[] s = IntStream.range(0,size).toArray(); 
 		
 		//int[] ans = generateExpandedHeightSequence(s,size*2);
-		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,5, 34);
+		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,5, 57);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
@@ -2891,12 +2891,8 @@ public class CyberWorldObjectGenerator{
 		
 		middle = ori.length/2;
 		end = ori.length;
-		if(l%2==0){
-			t = (l)/2;
-		}
-		else{
-			t = (l+1)/2;
-		}
+
+		t = (l+1)/2;
 		
 		if( t==0 ||  l==current_size  ||  current_size+4*t>max_size){
 			return ori;
@@ -2908,7 +2904,7 @@ public class CyberWorldObjectGenerator{
 		ans  = new int[ans_bound];
 		
 		while(current_size+4*t-offset<=max_size){
-			middle = ori.length/2;
+			middle = (ori.length-1)/2;
 			end = ori.length;
 			new_end = (ori.length+4*t);
 			new_middle = (new_end)/2;
@@ -2918,38 +2914,34 @@ public class CyberWorldObjectGenerator{
 				ans[size_inc]=ori[i]; // 0 ~ middle -1
 				size_inc++;
 			}
+
 			//left dup decend
 			for(int i=0;i<t;i++){
 				ans[size_inc]=ori[middle-i];// middle ~  middle + t-1
-				//System.out.print(ans[middle+i]+",");
 				size_inc++;
 			}
 			//left dup ascend
 			for(int i=0;i<t;i++){
 				ans[size_inc]=ori[middle+i-t];// middle + t ~ middle +2*t-1
-				//System.out.print(ans[middle+i+t]+",");
 				size_inc++;
 			}
 			
 			ans[size_inc] = ori[middle]; // middle + 2*t
 			size_inc++;
-			
+
 			//right dup decend
 			for(int i=0;i<t;i++){
 				ans[size_inc]=ori[middle+i+1];// middle +2*t  ~ middle + 3*t -1
-				//System.out.print(ans[new_middle+i]+",");
 				size_inc++;
 			}
 			//right dup ascend
 			for(int i=0;i<t;i++){
-				ans[size_inc]=ori[middle-i+t+1];// middle + 3*t ~ middle + 4*t -1  
-				//System.out.print(ans[new_middle+t+i]+",");
+				ans[size_inc]=ori[middle-i+t+1];// middle + 3*t ~ middle + 4*t -1 
 				size_inc++;
 			}
 			//right
 			for(int i=middle+1;i<end;i++){
 				ans[size_inc]=ori[i]; // middle + 1 ~ end  
-				//System.out.print(ans[i+4*t]+",");
 				size_inc++;
 			}
 			
