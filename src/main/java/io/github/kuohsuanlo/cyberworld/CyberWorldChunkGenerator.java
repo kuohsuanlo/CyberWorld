@@ -21,7 +21,7 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
 
     private CyberWorld plugin;
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
-    public static final int BIOME_NUMBER_WITH_BUILDING =5;
+    public static final int BIOME_NUMBER_WITH_BUILDING =4;
     private final int BIOME_OCTAVE = 5;
     private final int BIOME_TYPES;
     private final int BIOME_NUMBERS;
@@ -51,7 +51,6 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateCityRoad(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateCitySewer(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2, false);
-        	chunkdata = og.generateSign(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateUnderGroundBuilding(chunkdata, random, chkx, chkz,biome_type, biomes, 2);
         	chunkdata = og.generateGroundDecoration(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateHighway(chunkdata, random, chkx, chkz,biome_type, biomes);

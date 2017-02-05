@@ -3,6 +3,8 @@ package io.github.kuohsuanlo.cyberworld;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.Random;
+
+import org.bukkit.Material;
  
 /*
  * recursive backtracking algorithm
@@ -28,32 +30,22 @@ public class SignGenerator {
 	private final int y;
 	private final int[][] city;
 	private final int[][][] merged;
-	private final int[][][] building;
-	private final int[][][] building_type;
-	private final int[][][] building_rotation;
-	private final long[][][] building_rng_seeds;
 	private final int[][][] building_struct;
     private final Random rng;
     private final int minBW;
-    private final int sign_interval =1;
-    private final CyberWorldBiomeGenerator bg;
+    private final int sign_interval =2;
 
 
     public final int[] a_size ;
     public final int[] a_build_num ;
     private final int[] a_build_code;
 	
-	public SignGenerator(CyberWorldBiomeGenerator b,int total_num, int x, int y, Random r, int mmbw,int s,int m,int l, int ss, int ms, int ls) {
-		bg =b;
+	public SignGenerator(int total_num, int x, int y, Random r, int mmbw,int s,int m,int l, int ss, int ms, int ls) {
 		this.x = x;
 		this.y = y;
 		merged = new int[this.x][this.y][total_num];
+		building_struct = new int[this.x][this.y][3];
 		city = new int[this.x][this.y];
-		building = new int[this.x][this.y][3];
-		building_type= new int[this.x][this.y][3];
-		building_rotation= new int[this.x][this.y][3];
-		building_rng_seeds= new long[this.x][this.y][3];
-		building_struct=new int[this.x][this.y][3];
 		rng = r;
 		minBW = mmbw;
 		
@@ -70,12 +62,11 @@ public class SignGenerator {
 		a_build_code[1]=CyberWorldObjectGenerator.DIR_M_BUILDING;
 		a_build_code[2]=CyberWorldObjectGenerator.DIR_L_BUILDING;
 		
-		System.out.println("[CyberWorld] : Generating City Map... Please wait.");
+		
 		for(int i=0;i<total_num;i++){
 			recursiveSplitting(0,0,x-1,y-1,1,i);
 		}
 		fillNotDeterminedRoad();
-		System.out.println("[CyberWorld] : City Map generation done.");
 	}
 	private void fillNotDeterminedRoad(){
 		for(int i=0;i<x;i++){
@@ -94,26 +85,6 @@ public class SignGenerator {
 		int[] chunk_coor = {rx,rz};
 		return merged[chunk_coor[0]][chunk_coor[1]][l];
 	}
-	public int getBuilding(int rx, int rz,int layer){
-		int[] chunk_coor = {rx,rz};
-		return building[chunk_coor[0]][chunk_coor[1]][layer];
-	}
-	public int getBuildingType(int rx, int rz,int layer){
-		int[] chunk_coor = {rx,rz};
-		return building_type[chunk_coor[0]][chunk_coor[1]][layer];
-	}
-	public int getBuildingRotation(int rx, int rz,int layer){
-		int[] chunk_coor = {rx,rz};
-		return building_rotation[chunk_coor[0]][chunk_coor[1]][layer];
-	}
-	public long getBuildingSeed(int rx, int rz,int layer){
-		int[] chunk_coor = {rx,rz};
-		return building_rng_seeds[chunk_coor[0]][chunk_coor[1]][layer];
-	}	
-	public int getBuildingStruct(int rx, int rz,int layer){
-		int[] chunk_coor = {rx,rz};
-		return building_struct[chunk_coor[0]][chunk_coor[1]][layer];
-	}	
     void recursiveSplitting(int point1x, int point1y, int point2x, int point2y, int recursiveTimes, int set_number){
 		if(Math.abs(point1x-point2x+1)<=minBW+2*sign_interval  ||  Math.abs(point1y-point2y+1)<=minBW+2*2*sign_interval){
 			
@@ -131,9 +102,6 @@ public class SignGenerator {
 							
 							if((Math.min(i+width,point2x) - i)>=width  &&  (Math.min(j+height,point2y) - j)>=height){
 								hasPasted=true;
-								int s_type = rng.nextInt(a_build_num[l]);
-								int angle = rng.nextInt(4);
-								long seed = rng.nextLong();
 								int current_struct = 2;
 							
 								
@@ -144,18 +112,14 @@ public class SignGenerator {
 									for(int s2=j;s2<height_max;s2++){
 										if((s2==j  ||  s2==height_max-1)  ||  (s1==i  ||  s1==width_max-1) ){
 											building_struct[s1][s2][l]=1;
-											merged[s1][s2][set_number]=1;
+											merged[s1][s2][set_number]=Material.IRON_FENCE.getId();
 										}
 										else{
 											building_struct[s1][s2][l]=current_struct;
-											merged[s1][s2][set_number]=current_struct;
+											merged[s1][s2][set_number]=Material.WOOL.getId();
 											current_struct++;
 										}
 										city[s1][s2] = CyberWorldObjectGenerator.DIR_BUILDING;
-										building[s1][s2][l]=a_build_code[l];
-										building_type[s1][s2][l]=s_type;
-										building_rotation[s1][s2][l]=angle;
-										building_rng_seeds[s1][s2][l]=seed;
 										
 									}
 								}
@@ -214,7 +178,7 @@ public class SignGenerator {
 					if(point1x-1>=0){
 						city[point1x-1][intersectionY] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
-					if(point2x+1<y){
+					if(point2x+1<x){
 						city[point2x+1][intersectionY] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 				}
@@ -257,13 +221,12 @@ public class SignGenerator {
 	
 	}
 	public static void main(String[] args) {
-		int w =40;
+		int w =50;
 		int h =40;
-		int set_number =10;
+		int set_number =1;
 		Random rng = new Random();
 		rng.setSeed(1205);
-		CyberWorldBiomeGenerator b = new CyberWorldBiomeGenerator(3,5);
-		SignGenerator g = new SignGenerator(b,set_number,h, w,rng,12,1,1,1,6,8,10);
+		SignGenerator g = new SignGenerator(set_number, w,h,rng,20,1,1,1,50,54,54);
 		g.displayGrid(w,h,set_number);
 		
 	}

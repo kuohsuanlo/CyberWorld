@@ -338,7 +338,7 @@ public class CityStreetGenerator implements Serializable{
 							if(point1x-1>=0){
 								hightway[point1x-1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
-							if(point2x+1<y){
+							if(point2x+1<x){
 								hightway[point2x+1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 						}
