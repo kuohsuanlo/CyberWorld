@@ -1491,7 +1491,12 @@ public class CyberWorldObjectGenerator{
 		}
 		return chunkdata;	
     }
-	public ChunkData generateUnderGroundBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, int biome_number,BiomeGrid biomes, int start_of_layer){
+    public ChunkData generateSign(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
+
+        return chunkdata;
+    	
+    }
+    public ChunkData generateUnderGroundBuilding(ChunkData chunkdata, Random random, int chkx, int chkz, int biome_number,BiomeGrid biomes, int start_of_layer){
     	//Building Generation
 		int layer;
 		int[] current_size = cg.a_size;
@@ -2568,6 +2573,177 @@ public class CyberWorldObjectGenerator{
 		
 		
 	}
+	private static void getSignArea(CuboidClipboard cc){
+		int max_x_old = cc.getWidth();
+		int max_z_old = cc.getLength();
+		int max_y_old = cc.getHeight();
+	
+
+		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
+		
+		for(int y=0;y<max_y_old;y++){
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+						area[x][z][y]=true;
+					}
+				}
+			}
+		}
+		
+		
+		
+		int current_x_max=-1;
+		int current_x_min=max_x_old+1;
+		int current_z_max=-1;
+		int current_z_min=max_z_old+1;
+		int current_y_max=0;
+		int current_y_min=0;
+		/*
+		 *  ----------------- max_y
+		 * 
+		 *  ----------------- min_y
+		 */
+		outerloop:{
+		for(int y=0;y<max_y_old;y++){
+			//bindind y
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						current_y_min = y;
+						break outerloop;
+					}
+				}
+			}
+		}
+		}
+		
+
+		outerloop:{
+		for(int y=max_y_old-1;y>=0;y--){
+			//bindind y
+			for(int x=0;x<max_x_old;x++){
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						current_y_max = y;
+						x=max_x_old;
+						y=max_y_old;
+						z=max_z_old;
+						break outerloop;
+					}
+				}
+			}
+		}
+		}
+
+		/* 0,0
+		 *   --------- z_min
+		 *  
+		 *  | x min            | x_max
+		 * 
+		 *   --------- z_max
+		 *                      N,M
+		 * */
+		for(int y=current_y_min;y<=current_y_max;y++){
+
+			int z_s = 0;
+			int z_e = 0;
+			int x_s = 0;
+			int x_e = 0;
+			
+			//bindind z
+			for(int x=0;x<max_x_old;x++){
+				
+				for(int z=0;z<max_z_old;z++){
+					if(area[x][z][y]){
+						z_s=z;
+						if(z<current_z_min){
+							current_z_min = z;
+						}
+						break;
+					}
+				}
+				for(int z=max_z_old-1;z>=0;z--){
+					if(area[x][z][y]){
+						z_e = z;
+						if(z>current_z_max){
+							current_z_max = z;
+						}
+						break;
+					}
+				}
+			}
+			
+
+			//bindind x
+			for(int z=0;z<max_z_old;z++){	
+				for(int x=0;x<max_x_old;x++){
+					if(area[x][z][y]){
+						x_s = x;
+						if(x<current_x_min){
+							current_x_min = x;
+						}
+						break;
+					}
+				}
+				for(int x=max_x_old-1;x>=0;x--){
+					if(area[x][z][y]){
+						x_e = x;
+						if(x>current_x_max){
+							current_x_max = x;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
+		System.out.println(current_x_min+"/"+current_x_max+"/"+max_x_old);
+		System.out.println(current_z_min+"/"+current_z_max+"/"+max_z_old);
+		System.out.println(current_y_min+"/"+current_y_max+"/"+max_y_old);
+		
+		/*	     2
+		 *      ----
+		 *   0 |    | 1
+		 *     | 	|
+ 		 * 		----
+		 *		 3
+		 */      
+		
+		//1
+		int [] num_wall_blocks= new int[4];
+		int [] num_wall_max_blocks= new int[4];
+		
+		for(int y=current_y_min;y<=current_y_max;y++){
+			for(int x=current_x_min;x<=current_x_max;x++){
+				if(area[x][current_z_min][y]){
+					num_wall_blocks[0]++;
+				}
+				if(area[x][current_z_max][y]){
+					num_wall_blocks[1]++;
+				}
+				num_wall_max_blocks[0]++;
+				num_wall_max_blocks[1]++;
+			}
+			
+			for(int z=current_z_min;z<=current_z_max;z++){
+				if(area[current_x_min][z][y]){
+					num_wall_blocks[2]++;
+				}
+				if(area[current_x_min][z][y]){
+					num_wall_blocks[3]++;
+				}
+				num_wall_max_blocks[2]++;
+				num_wall_max_blocks[3]++;
+			}
+		}
+		
+		for(int i=0;i<4;i++){
+			System.out.println(num_wall_blocks[i]);
+			System.out.println(num_wall_max_blocks[i]);
+		}
+		
+	}
 	private boolean[][][] getfilledArea(CuboidClipboard cc){
 		boolean[][] dia_tmp_x =null;
 		boolean[][] dia_tmp_y =null;
@@ -2837,17 +3013,19 @@ public class CyberWorldObjectGenerator{
 	
 	
 	public static void main(String[] args) {
+		/*
 		int size = 19;
 		int[] s = IntStream.range(0,size).toArray(); 
 		
-		//int[] ans = generateExpandedHeightSequence(s,size*2);
 		int[] ans = CyberWorldObjectGenerator.generateExpandedSequence(s,5, 57);
 		for(int i=0;i<ans.length;i++){
 			System.out.print(ans[i]+",");
 		}
 
 		System.out.print("\n"+ans.length);
-		
+		*/
+		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"city07_mid_78.schematic",0);
+		getSignArea(cc_tmp);
 	}
 	private static int[] generateExpandedHeightSequence(int[] ori, int max_size){
 
