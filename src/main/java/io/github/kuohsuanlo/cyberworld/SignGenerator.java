@@ -228,13 +228,13 @@ public class SignGenerator {
 	
 	}
 	public static void main(String[] args) {
-		int w =50;
-		int h =40;
+		int ht =100;
+		int wd =40;
 		int set_number =1;
 		Random rng = new Random();
 		rng.setSeed(1599205);
-		SignGenerator g = new SignGenerator(set_number, w,h,rng,w/2,1,1,1,50,54,54);
-		g.displayGrid(w,h,set_number);
+		SignGenerator g = new SignGenerator(set_number, ht,wd,rng,20,1,1,1,20,20,20);
+		g.displayGrid(ht,wd,set_number);
 		
 	}
  

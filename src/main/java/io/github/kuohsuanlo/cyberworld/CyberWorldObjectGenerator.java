@@ -65,7 +65,7 @@ public class CyberWorldObjectGenerator{
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 50;
     private final static double SIGN_WALL_BLOCK_RATIO = 0.4;
-    private final static double SIGN_WALL_MINIMAL_WIDTH = 24;
+    private final static double SIGN_WALL_MINIMAL_WIDTH = 12;
     private final static double HEIGHT_RAND_ODDS = 0.5;
     private final static double HEIGHT_RAND_RATIO = 1.5;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
@@ -1489,7 +1489,7 @@ public class CyberWorldObjectGenerator{
 					    				if(sign_block==Material.WOOL.getId()){
 					    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block, (byte)ed_rng.nextInt(16) ));
 					    				}
-					    				else{
+					    				else if(sign_block!=Material.AIR.getId()){
 					    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block ));
 					    				}
 				    				} 
@@ -2766,7 +2766,7 @@ public class CyberWorldObjectGenerator{
 					}
 					w = current_x_max - current_x_min +1;
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,w,h,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
+						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
 						
 						for(int y=current_y_min;y<=current_y_max;y++){
 							for(int x=current_x_min;x<=current_x_max;x++){
@@ -2789,7 +2789,7 @@ public class CyberWorldObjectGenerator{
 					w = current_z_max - current_z_min +1;
 					
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,w,h,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
+						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
 						for(int y=current_y_min;y<=current_y_max;y++){
 							for(int z=current_z_min;z<=current_z_max;z++){
 								 ans[x][z][y]=g.getMerged(z-current_z_min, y-current_y_min, 0);
