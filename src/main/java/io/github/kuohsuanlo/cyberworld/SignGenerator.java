@@ -33,7 +33,7 @@ public class SignGenerator {
 	private final int[][][] building_struct;
     private final Random rng;
     private final int minBW;
-    private final int sign_interval =2;
+    private final int sign_interval =1;
 
 
     public final int[] a_size ;
@@ -107,12 +107,19 @@ public class SignGenerator {
 								
 								int height_max = Math.min(j+height,point2y);
 								int width_max = Math.min(i+width,point2x);
-								
+								int frame_type = 0;
+								if(rng.nextDouble()>0.5){
+									frame_type=Material.SEA_LANTERN.getId();
+								}
+								else{
+									frame_type=Material.GLOWSTONE.getId();
+								}
 								for(int s1=i;s1<width_max;s1++){
 									for(int s2=j;s2<height_max;s2++){
 										if((s2==j  ||  s2==height_max-1)  ||  (s1==i  ||  s1==width_max-1) ){
 											building_struct[s1][s2][l]=1;
-											merged[s1][s2][set_number]=Material.IRON_FENCE.getId();
+											merged[s1][s2][set_number]=frame_type;
+											
 										}
 										else{
 											building_struct[s1][s2][l]=current_struct;
@@ -225,8 +232,8 @@ public class SignGenerator {
 		int h =40;
 		int set_number =1;
 		Random rng = new Random();
-		rng.setSeed(1205);
-		SignGenerator g = new SignGenerator(set_number, w,h,rng,20,1,1,1,50,54,54);
+		rng.setSeed(1599205);
+		SignGenerator g = new SignGenerator(set_number, w,h,rng,w/2,1,1,1,50,54,54);
 		g.displayGrid(w,h,set_number);
 		
 	}
