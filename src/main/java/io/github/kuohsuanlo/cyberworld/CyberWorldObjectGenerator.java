@@ -64,6 +64,7 @@ public class CyberWorldObjectGenerator{
 
     private final TerrainHeightGenerator hcg;
     private final static int GROUND_LEVEL = 50;
+    private final static double SIGN_WALL_BLOCK_RATIO = 0.0;
     private final static double HEIGHT_RAND_ODDS = 0.5;
     private final static double HEIGHT_RAND_RATIO = 1.5;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
@@ -1390,6 +1391,7 @@ public class CyberWorldObjectGenerator{
 						//rotating
 						current_list.get(type).rotate2D(angle);
 
+						int[][][] sign_area = getSignArea(current_list.get(type));
 						int[] ori_idx_i = IntStream.range(0, current_list.get(type).getWidth()).toArray(); 
 						int[] ori_idx_j = IntStream.range(0, current_list.get(type).getLength()).toArray();
 						int[] ori_idx_k = IntStream.range(0, current_list.get(type).getHeight()).toArray();
@@ -1468,6 +1470,8 @@ public class CyberWorldObjectGenerator{
 				    				if(fillingAirIndeces[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]]){
 				    					chunkdata.setBlock(x, y, z,Material.AIR);
 				    				}
+				    				
+				    				//pasting blocks
 				    				if(block_id!=Material.AIR.getId()  &&  ( !only_shell || frameIndeces[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]]  )){
 				    					int fixed_id = fixBannedBlock(block_id);
 				    					if(fixed_id == block_id  &&  isLightSource==false){
@@ -1477,6 +1481,12 @@ public class CyberWorldObjectGenerator{
 				    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
 				    					}
 				    				} 
+				    				
+				    				//add signs
+				    				if(sign_area[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]]>0){
+				    					chunkdata.setBlock(x, y, z,new MaterialData(Material.WOOL.getId()));
+				    				}
+				    				
 				    			}
 				    		}
 				    	}
@@ -2573,12 +2583,12 @@ public class CyberWorldObjectGenerator{
 		
 		
 	}
-	private static void getSignArea(CuboidClipboard cc){
+	private static int[][][] getSignArea(CuboidClipboard cc){
 		int max_x_old = cc.getWidth();
 		int max_z_old = cc.getLength();
 		int max_y_old = cc.getHeight();
 	
-
+		int[][][] ans = new int[max_x_old][max_z_old][max_y_old];
 		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
 		
 		for(int y=0;y<max_y_old;y++){
@@ -2697,11 +2707,11 @@ public class CyberWorldObjectGenerator{
 				}
 			}
 		}
-		
+		/*
 		System.out.println(current_x_min+"/"+current_x_max+"/"+max_x_old);
 		System.out.println(current_z_min+"/"+current_z_max+"/"+max_z_old);
 		System.out.println(current_y_min+"/"+current_y_max+"/"+max_y_old);
-		
+		*/
 		/*	     2
 		 *      ----
 		 *   0 |    | 1
@@ -2739,9 +2749,42 @@ public class CyberWorldObjectGenerator{
 		}
 		
 		for(int i=0;i<4;i++){
-			System.out.println(num_wall_blocks[i]);
-			System.out.println(num_wall_max_blocks[i]);
+			if( (double)(num_wall_blocks[i])/num_wall_max_blocks[i] >SIGN_WALL_BLOCK_RATIO  ){
+				if(i==0  ||  i==1){
+					int z=-1;
+					if(i==0){
+						z=current_z_min;
+					}
+					if(i==1){
+						z=current_z_max;
+					}
+					for(int y=current_y_min;y<=current_y_max;y++){
+						for(int x=current_x_min;x<=current_x_max;x++){
+							 ans[x][z][y]=1;
+						}
+					}
+				}
+				
+				if(i==2  ||  i==3){
+					int x=-1;
+					if(i==2){
+						x=current_x_min;
+					}
+					if(i==3){
+						x=current_x_max;
+					}
+					for(int y=current_y_min;y<=current_y_max;y++){
+						for(int z=current_z_min;z<=current_z_max;z++){
+							 ans[x][z][y]=1;
+						}
+					}
+				}
+				
+			}
+			//System.out.println(num_wall_blocks[i]);
+			//System.out.println(num_wall_max_blocks[i]);
 		}
+		return ans;
 		
 	}
 	private boolean[][][] getfilledArea(CuboidClipboard cc){
@@ -3024,8 +3067,14 @@ public class CyberWorldObjectGenerator{
 
 		System.out.print("\n"+ans.length);
 		*/
-		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"city07_mid_78.schematic",0);
-		getSignArea(cc_tmp);
+		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_1.schematic",0);
+		int[][][] tmp = getSignArea(cc_tmp);
+		for(int i=0;i<tmp.length;i++){
+			for(int j=0;j<tmp[0].length;j++){
+				System.out.print(tmp[i][j][0]);
+			}
+			System.out.println();
+		}
 	}
 	private static int[] generateExpandedHeightSequence(int[] ori, int max_size){
 
