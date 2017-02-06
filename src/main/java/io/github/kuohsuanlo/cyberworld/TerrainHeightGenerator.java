@@ -111,14 +111,15 @@ public class TerrainHeightGenerator {
     }
 	public static void main(String[] args) {
 		Random rng = new Random(1205);
-		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,80,5,60);
+		TerrainHeightGenerator h = new TerrainHeightGenerator(rng,80,5,0);
 
 		for(int i=-25;i<25;i++){
 			for(int j=-25;j<25;j++){
 
-				int height = Math.round(h.generateHeight(i,j,true))/10;
+				int height = Math.round(h.generateHeight(i,j,true));
 				
-				System.out.print(Integer.toHexString(height));
+				//System.out.print(Integer.toHexString(height));
+				System.out.println(height);
 				
 			}
 			System.out.println();
