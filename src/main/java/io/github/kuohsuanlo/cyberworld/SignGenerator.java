@@ -34,13 +34,13 @@ public class SignGenerator {
     private final Random rng;
     private final int minBW;
     private final int sign_interval =1;
-
+    public final double SIGN_COVERAGE;
 
     public final int[] a_size ;
     public final int[] a_build_num ;
     private final int[] a_build_code;
-	
-	public SignGenerator(int total_num, int x, int y, Random r, int mmbw,int s,int m,int l, int ss, int ms, int ls) {
+    
+	public SignGenerator(int total_num, int x, int y, Random r, int mmbw,int ss, int ms, int ls, double cover) {
 		this.x = x;
 		this.y = y;
 		merged = new int[this.x][this.y][total_num];
@@ -48,6 +48,7 @@ public class SignGenerator {
 		city = new int[this.x][this.y];
 		rng = r;
 		minBW = mmbw;
+
 		
 		a_size = new int[3];
 		a_build_num = new int[3];
@@ -55,13 +56,14 @@ public class SignGenerator {
 		a_size[0]=Math.min(mmbw,ss);
 		a_size[1]=Math.min(mmbw,ms);
 		a_size[2]=Math.min(mmbw,ls);
-		a_build_num[0] = s;
-		a_build_num[1] = m;
-		a_build_num[2] = l;
+		a_build_num[0] = 1;
+		a_build_num[1] = 1;
+		a_build_num[2] = 1;
 		a_build_code[0]=CyberWorldObjectGenerator.DIR_S_BUILDING;
 		a_build_code[1]=CyberWorldObjectGenerator.DIR_M_BUILDING;
 		a_build_code[2]=CyberWorldObjectGenerator.DIR_L_BUILDING;
-		
+
+		SIGN_COVERAGE = cover;
 		
 		for(int i=0;i<total_num;i++){
 			recursiveSplitting(0,0,x-1,y-1,1,i);
@@ -85,6 +87,8 @@ public class SignGenerator {
 		int[] chunk_coor = {rx,rz};
 		return merged[chunk_coor[0]][chunk_coor[1]][l];
 	}
+	
+	
     void recursiveSplitting(int point1x, int point1y, int point2x, int point2y, int recursiveTimes, int set_number){
 		if(Math.abs(point1x-point2x+1)<=minBW+2*sign_interval  ||  Math.abs(point1y-point2y+1)<=minBW+2*2*sign_interval){
 			
@@ -96,27 +100,41 @@ public class SignGenerator {
 				int height = a_size[l]/2 +rng.nextInt(a_size[l]/2);
 				
 				if(a_build_num[l]>0){
-				boolean hasPasted = false;
+					boolean hasPasted = false;
 					for(int i=point1x;i<=point2x;i+=width+sign_interval){
 						for(int j=point1y;j<=point2y;j+=height+sign_interval){
 							
-							if((Math.min(i+width,point2x) - i)>=width  &&  (Math.min(j+height,point2y) - j)>=height){
+							if((Math.min(i+width,point2x) - i)>=width  &&  (Math.min(j+height,point2y) - j)>=height  &&  rng.nextDouble()<SIGN_COVERAGE){
 								hasPasted=true;
 								int current_struct = 2;
 							
 								
 								int height_max = Math.min(j+height,point2y);
 								int width_max = Math.min(i+width,point2x);
-								int frame_type = 0;
-								if(rng.nextDouble()>0.5){
-									frame_type=Material.SEA_LANTERN.getId();
+								
+								int frame_type = Material.GLOWSTONE.getId();
+								switch(rng.nextInt(4)){
+									case 0:
+										frame_type=Material.SEA_LANTERN.getId();
+										break;
+									case 1:
+										frame_type=Material.GLOWSTONE.getId();
+										break;
+									case 2:
+										frame_type=Material.IRON_FENCE.getId();
+										break;
+									case 3:
+										frame_type=Material.FENCE.getId();
+										break;
 								}
-								else{
-									frame_type=Material.GLOWSTONE.getId();
-								}
-								for(int s1=i;s1<width_max;s1++){
-									for(int s2=j;s2<height_max;s2++){
-										if((s2==j  ||  s2==height_max-1)  ||  (s1==i  ||  s1==width_max-1) ){
+
+								int start_shift_x = rng.nextInt(width/2);
+								int start_shift_y = rng.nextInt(height/2);
+								int i_start = i+start_shift_x;
+								int j_start = j+start_shift_y;
+								for(int s1=i_start;s1<width_max;s1++){
+									for(int s2=j_start;s2<height_max;s2++){
+										if((s2==j_start  ||  s2==height_max-1)  ||  (s1==i_start  ||  s1==width_max-1) ){
 											building_struct[s1][s2][l]=1;
 											merged[s1][s2][set_number]=frame_type;
 											
@@ -196,10 +214,15 @@ public class SignGenerator {
 				
 				
 				// left-up, left-down, right-up, right-down
+				
 				recursiveSplitting( point1x,  point1y,  intersectionX-1-sign_interval,  intersectionY-1-sign_interval,recursiveTimes+1,set_number);
 				recursiveSplitting( point1x,  intersectionY+1+sign_interval,  intersectionX-1-sign_interval,  point2y,recursiveTimes+1,set_number);
 				recursiveSplitting( intersectionX+1+sign_interval,  point1y,  point2x,  intersectionY-1-sign_interval,recursiveTimes+1,set_number);
 				recursiveSplitting( intersectionX+1+sign_interval,  intersectionY+1+sign_interval,  point2x,  point2y,recursiveTimes+1,set_number);
+				
+				
+				
+				
 
 			}
 		}
@@ -229,11 +252,11 @@ public class SignGenerator {
 	}
 	public static void main(String[] args) {
 		int ht =100;
-		int wd =40;
+		int wd =20;
 		int set_number =1;
 		Random rng = new Random();
-		rng.setSeed(1599205);
-		SignGenerator g = new SignGenerator(set_number, ht,wd,rng,20,1,1,1,20,20,20);
+		rng.setSeed(15992505);
+		SignGenerator g = new SignGenerator(set_number, ht,wd,rng,wd,wd,wd,wd,0.2);
 		g.displayGrid(ht,wd,set_number);
 		
 	}

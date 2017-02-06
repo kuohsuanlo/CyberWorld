@@ -66,6 +66,7 @@ public class CyberWorldObjectGenerator{
     private final static int GROUND_LEVEL = 50;
     private final static double SIGN_WALL_BLOCK_RATIO = 0.4;
     private final static double SIGN_WALL_MINIMAL_WIDTH = 12;
+    private final static double SIGN_WALL_COVERAGE_RATIO = 0.1;
     private final static double HEIGHT_RAND_ODDS = 0.5;
     private final static double HEIGHT_RAND_RATIO = 1.5;
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
@@ -1484,17 +1485,17 @@ public class CyberWorldObjectGenerator{
 				    						chunkdata.setBlock(x, y, z,new MaterialData(fixed_id));
 				    					}
 				    					
-				    					//add signs
-					    				int sign_block = sign_area[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]];
-					    				if(sign_block==Material.WOOL.getId()){
-					    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block, (byte)ed_rng.nextInt(16) ));
-					    				}
-					    				else if(sign_block!=Material.AIR.getId()){
-					    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block ));
-					    				}
+
 				    				} 
 				    				
-				    				
+			    					//add signs
+				    				int sign_block = sign_area[expended_idx_i[i]][expended_idx_j[j]][expended_idx_k[k]];
+				    				if(sign_block==Material.WOOL.getId()){
+				    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block, (byte)ed_rng.nextInt(16) ));
+				    				}
+				    				else if(sign_block!=Material.AIR.getId()){
+				    					chunkdata.setBlock(x, y, z,new MaterialData(sign_block ));
+				    				}
 				    				
 				    			}
 				    		}
@@ -2593,8 +2594,10 @@ public class CyberWorldObjectGenerator{
 		int max_y_old = cc.getHeight();
 	
 		int[][][] ans = new int[max_x_old][max_z_old][max_y_old];
-		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
 		
+
+		boolean[][][] area = new boolean[max_x_old][max_z_old][max_y_old];
+
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
@@ -2606,6 +2609,7 @@ public class CyberWorldObjectGenerator{
 		}
 		
 		
+
 		
 		int current_x_max=-1;
 		int current_x_min=max_x_old+1;
@@ -2613,6 +2617,8 @@ public class CyberWorldObjectGenerator{
 		int current_z_min=max_z_old+1;
 		int current_y_max=0;
 		int current_y_min=0;
+		int current_y_min_wall[]= {max_y_old+1,max_y_old+1,max_y_old+1,max_y_old+1};
+		int current_y_max_wall[]= {-1,-1,-1,-1};
 		/*
 		 *  ----------------- max_y
 		 * 
@@ -2711,6 +2717,117 @@ public class CyberWorldObjectGenerator{
 				}
 			}
 		}
+		
+		//only consider wall's current_y_min and max
+		for(int y=0;y<max_y_old;y++){
+			//bindind y
+			int x;
+			int z;
+			
+			//0
+			z = current_z_min;
+			for(x=0;x<max_x_old;x++){
+				if(area[x][z][y]){
+					if(current_y_min_wall[0]>y){
+						current_y_min_wall[0] = y;
+					}
+					break ;
+				}
+			}
+			
+
+			//1
+			z = current_z_max;
+			for(x=0;x<max_x_old;x++){
+				if(area[x][z][y]){
+					if(current_y_min_wall[1]>y){
+						current_y_min_wall[1] = y;
+					}
+					break ;
+				}
+			}
+			
+			//2
+			x = current_x_min;
+			for(z=0;z<max_z_old;z++){
+				if(area[x][z][y]){
+					if(current_y_min_wall[2]>y){
+						current_y_min_wall[2] = y;
+					}
+					break;
+				}
+			}
+			
+			//3
+			x = current_x_max;
+			for(z=0;z<max_z_old;z++){
+				if(area[x][z][y]){
+					if(current_y_min_wall[3]>y){
+						current_y_min_wall[3] = y;
+					}
+					break ;
+				}
+			}
+			
+
+			
+		}
+			
+		for(int y=max_y_old-1;y>=0;y--){
+			//bindind y
+			int x;
+			int z;
+			
+			//0
+			z = current_z_min;
+			for(x=0;x<max_x_old;x++){
+				if(area[x][z][y]){
+					if(current_y_max_wall[0]<y){
+						current_y_max_wall[0] = y;
+					}
+					break ;
+				}
+			}
+			
+
+			//1
+			z = current_z_max;
+			for(x=0;x<max_x_old;x++){
+				if(area[x][z][y]){
+					if(current_y_max_wall[1]<y){
+						current_y_max_wall[1] = y;
+					}
+					break ;
+				}
+			}
+			
+			//2
+			x = current_x_min;
+			for(z=0;z<max_z_old;z++){
+				if(area[x][z][y]){
+					if(current_y_max_wall[2]<y){
+						current_y_max_wall[2] = y;
+					}
+					break;
+				}
+			}
+			
+			//3
+			x = current_x_max;
+			for(z=0;z<max_z_old;z++){
+				if(area[x][z][y]){
+					if(current_y_max_wall[3]<y){
+						current_y_max_wall[3] = y;
+					}
+					break ;
+				}
+			}
+			
+
+			
+		}
+		
+		
 		/*
 		System.out.println(current_x_min+"/"+current_x_max+"/"+max_x_old);
 		System.out.println(current_z_min+"/"+current_z_max+"/"+max_z_old);
@@ -2728,32 +2845,40 @@ public class CyberWorldObjectGenerator{
 		int [] num_wall_blocks= new int[4];
 		int [] num_wall_max_blocks= new int[4];
 		
-		for(int y=current_y_min;y<=current_y_max;y++){
+		for(int y=current_y_min_wall[0];y<=current_y_max_wall[0];y++){
+			//0
 			for(int x=current_x_min;x<=current_x_max;x++){
 				if(area[x][current_z_min][y]){
 					num_wall_blocks[0]++;
 				}
+				num_wall_max_blocks[0]++;
+			}
+			//1
+			for(int x=current_x_min;x<=current_x_max;x++){
 				if(area[x][current_z_max][y]){
 					num_wall_blocks[1]++;
 				}
-				num_wall_max_blocks[0]++;
 				num_wall_max_blocks[1]++;
 			}
-			
+			//2
 			for(int z=current_z_min;z<=current_z_max;z++){
 				if(area[current_x_min][z][y]){
 					num_wall_blocks[2]++;
 				}
-				if(area[current_x_min][z][y]){
+				num_wall_max_blocks[2]++;
+			}
+			//3
+			for(int z=current_z_min;z<=current_z_max;z++){
+				if(area[current_x_max][z][y]){
 					num_wall_blocks[3]++;
 				}
-				num_wall_max_blocks[2]++;
 				num_wall_max_blocks[3]++;
 			}
 		}
+
 		
-		int h = current_y_max-current_y_min+1;
-		int w =0;
+		
+	
 		for(int i=0;i<4;i++){
 			if( (double)(num_wall_blocks[i])/num_wall_max_blocks[i] >SIGN_WALL_BLOCK_RATIO  ){
 				if(i==0  ||  i==1){
@@ -2763,14 +2888,15 @@ public class CyberWorldObjectGenerator{
 					}
 					if(i==1){
 						z=current_z_max;
-					}
-					w = current_x_max - current_x_min +1;
+					}	
+					int h = current_y_max_wall[i]-current_y_min_wall[i]+1;
+					int w = current_x_max - current_x_min +1;
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
+						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w,w,w,w,SIGN_WALL_COVERAGE_RATIO);
 						
-						for(int y=current_y_min;y<=current_y_max;y++){
+						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
 							for(int x=current_x_min;x<=current_x_max;x++){
-								 ans[x][z][y]=g.getMerged(x-current_x_min, y-current_y_min, 0);
+								 ans[x][z][y]=g.getMerged( y-current_y_min_wall[i],x-current_x_min, 0);
 							}
 						}
 					}
@@ -2786,13 +2912,14 @@ public class CyberWorldObjectGenerator{
 						x=current_x_max;
 					}
 
-					w = current_z_max - current_z_min +1;
+					int h = current_y_max_wall[i]-current_y_min_wall[i]+1;
+					int w = current_z_max - current_z_min +1;
 					
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w/2,1,1,1,w/2,w/2,w/2);
-						for(int y=current_y_min;y<=current_y_max;y++){
+						SignGenerator g = new SignGenerator(1,h,w,ed_rng,w,w,w,w,SIGN_WALL_COVERAGE_RATIO);
+						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
 							for(int z=current_z_min;z<=current_z_max;z++){
-								 ans[x][z][y]=g.getMerged(z-current_z_min, y-current_y_min, 0);
+								 ans[x][z][y]=g.getMerged(y-current_y_min_wall[i],z-current_z_min,  0);
 							}
 						}
 					}
@@ -2806,7 +2933,7 @@ public class CyberWorldObjectGenerator{
 		return ans;
 		
 	}
-	private boolean[][][] getfilledArea(CuboidClipboard cc){
+	private static boolean[][][] getfilledArea(CuboidClipboard cc){
 		boolean[][] dia_tmp_x =null;
 		boolean[][] dia_tmp_y =null;
 		boolean[][] dia_tmp_z =null;
@@ -3086,11 +3213,11 @@ public class CyberWorldObjectGenerator{
 
 		System.out.print("\n"+ans.length);
 		*/
-		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_1.schematic",0);
+		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_3.schematic",0);
 		int[][][] tmp = getSignArea(cc_tmp, new Random());
-		for(int i=0;i<tmp.length;i++){
-			for(int j=0;j<tmp[0].length;j++){
-				System.out.print(tmp[i][j][0]);
+		for(int i=0;i<tmp[0].length;i++){
+			for(int j=0;j<tmp[0][0].length;j++){
+				System.out.print(tmp[0][i][j]%10);
 			}
 			System.out.println();
 		}
