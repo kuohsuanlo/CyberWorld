@@ -1394,12 +1394,11 @@ public class CyberWorldObjectGenerator{
 						//rotating
 						current_list.get(type).rotate2D(angle);
 
-
-						ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, layer)*722);
+						long current_seed = cg.getBuildingSeed(chkx, chkz, layer)*722;
+						ed_rng.setSeed(current_seed);
+						
 						int[][][][] sign_area = getSignArea(current_list.get(type),ed_rng);
 
-						//recover the seed
-						ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, layer)*722);
 						
 						int[] ori_idx_i = IntStream.range(0, current_list.get(type).getWidth()).toArray(); 
 						int[] ori_idx_j = IntStream.range(0, current_list.get(type).getLength()).toArray();
@@ -2593,7 +2592,7 @@ public class CyberWorldObjectGenerator{
 		
 		
 	}
-	private static int[][][][] getSignArea(CuboidClipboard cc, Random ed_rng){
+	private int[][][][] getSignArea(CuboidClipboard cc, Random sign_rng){
 		int max_x_old = cc.getWidth();
 		int max_z_old = cc.getLength();
 		int max_y_old = cc.getHeight();
@@ -2886,8 +2885,8 @@ public class CyberWorldObjectGenerator{
 	
 		for(int i=0;i<4;i++){
 			if( (double)(num_wall_blocks[i])/num_wall_max_blocks[i] >SIGN_WALL_BLOCK_RATIO  ){
-				int octave  = (int) (Math.round(Math.random()*2+1));
-				double ratio = SIGN_WALL_COVERAGE_RATIO_MIN+Math.random()*(SIGN_WALL_COVERAGE_RATIO_MAX-SIGN_WALL_COVERAGE_RATIO_MIN);
+				int octave  = (int) (Math.round(sign_rng.nextInt(3)+1));
+				double ratio = SIGN_WALL_COVERAGE_RATIO_MIN+sign_rng.nextDouble()*(SIGN_WALL_COVERAGE_RATIO_MAX-SIGN_WALL_COVERAGE_RATIO_MIN);
 				float rough = Math.round(1);
 				if(i==0  ||  i==1){
 					int z=-1;
@@ -2900,7 +2899,7 @@ public class CyberWorldObjectGenerator{
 					int h = current_y_max_wall[i]-current_y_min_wall[i]+1;
 					int w = current_x_max - current_x_min +1;
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,w,h,ed_rng,w,w,w,w,ratio, octave,rough);
+						SignGenerator g = new SignGenerator(ed_rng,1,w,h,w,w,w,w,ratio, octave,rough);
 						
 						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
 							for(int x=current_x_min;x<=current_x_max;x++){
@@ -2925,7 +2924,7 @@ public class CyberWorldObjectGenerator{
 					int w = current_z_max - current_z_min +1;
 					
 					if(w>SIGN_WALL_MINIMAL_WIDTH){
-						SignGenerator g = new SignGenerator(1,w,h,ed_rng,w,w,w,w,ratio, octave,rough);
+						SignGenerator g = new SignGenerator(ed_rng,1,w,h,w,w,w,w,ratio, octave,rough);
 						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
 							for(int z=current_z_min;z<=current_z_max;z++){
 								 ans[x][z][y][0]=g.getMerged(z-current_z_min,y-current_y_min_wall[i],  0);
@@ -3222,15 +3221,16 @@ public class CyberWorldObjectGenerator{
 		}
 
 		System.out.print("\n"+ans.length);
-		*/
+		
 		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_3.schematic",0);
-		int[][][][] tmp = getSignArea(cc_tmp, new Random());
+		int[][][][] tmp = getSignArea(cc_tmp, new Random().nextLong());
 		for(int i=0;i<tmp[0].length;i++){
 			for(int j=0;j<tmp[0][0].length;j++){
 				System.out.print(tmp[0][i][j][0]%10);
 			}
 			System.out.println();
 		}
+		*/
 	}
 	private static int[] generateExpandedHeightSequence(int[] ori, int max_size){
 

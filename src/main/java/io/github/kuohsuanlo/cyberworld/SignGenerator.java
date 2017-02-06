@@ -47,7 +47,7 @@ public class SignGenerator {
     private int xOffset = 0;
     private int zOffset = 0;
     
-	public SignGenerator(int total_num, int x, int y, Random r, int mmbw,int ss, int ms, int ls, double cover, int octaves,float rough) {
+	public SignGenerator(Random r, int total_num, int x, int y, int mmbw,int ss, int ms, int ls, double cover, int octaves,float rough) {
 		this.x = x;
 		this.y = y;
 		merged = new int[this.x][this.y][total_num];
@@ -55,9 +55,7 @@ public class SignGenerator {
 		rng = r;
 		minBW = mmbw;
 		OCTAVES = octaves;
-
-    	
-        this.seed = r.nextInt(791205);
+		this.seed = rng.nextInt(791205);
         
 		a_size = new int[3];
 		a_build_num = new int[3];
@@ -243,8 +241,7 @@ public class SignGenerator {
 		int wd =20;
 		int set_number =1;
 		Random rng = new Random();
-		rng.setSeed(15992505);
-		SignGenerator g = new SignGenerator(set_number, wd,ht,rng,wd,wd,wd,wd,0.7,1,1);
+		SignGenerator g = new SignGenerator(rng,set_number, wd,ht,wd,wd,wd,wd,0.7,1,1);
 		g.displayGrid(wd,ht,set_number);
 		
 	}
