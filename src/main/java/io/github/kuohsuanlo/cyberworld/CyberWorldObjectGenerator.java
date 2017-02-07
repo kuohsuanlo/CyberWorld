@@ -371,9 +371,11 @@ public class CyberWorldObjectGenerator{
 				}
 				else if(folder_name[n].equals("import")){
 					
+					/*
 					if(deco.size()==0){
-
 						for(int i=0;i<cc_list_deco.size();i++){
+							
+							
 							if(biome_number==0){
 								deco = cc_list_deco;
 								decob = cc_list_deco_b;
@@ -382,9 +384,15 @@ public class CyberWorldObjectGenerator{
 								deco.add(cc_list_deco.get(i));
 								decob.add(cc_list_deco_b.get(i));
 							}
+							
 						}
 						System.out.print("[CyberWorld] : no imported schematic for import deco on biome "+biome_number+", replaced with default schematics");
 					}
+					*/
+					deco = cc_list_deco;
+					decob = cc_list_deco_b;
+					
+					
 					if(s.size()==0){
 						for(int i=0;i<cc_list_s.size();i++){
 							if(biome_number==0){
@@ -1737,13 +1745,11 @@ public class CyberWorldObjectGenerator{
 	
 				
 			boolean less_building_area=false;
-			int[][] less_building_struct = {{4},{6,8,9},{8,11,14,12,15,16}};
 			for(int layer=0;layer<3;layer++){
-				for(int ls_area_idx = 0;ls_area_idx< less_building_struct[layer].length;ls_area_idx++){
-					if(cg.getBuildingStruct(chkx, chkz, layer)==less_building_struct[layer][ls_area_idx]){	
-						less_building_area =true;
-					}
+				if(cg.getBuildingStruct(chkx, chkz, layer)>0  &&  cg.getRoadType(chkx, chkz)==CyberWorldObjectGenerator.DIR_BUILDING){	
+					less_building_area =true;
 				}
+				
 			}
 			
 			
