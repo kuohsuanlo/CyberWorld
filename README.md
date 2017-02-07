@@ -4,9 +4,15 @@
 CyberWorld is a minecraft spigot plugin project. The goal is 
   - Procedurally generating complicated cyberpunk city in minecraft 
   - Automatically merging buildings into mega-structure
+  - Generating the building with sub-structure such as signs, illegal building, etc.
 
-ScreenShot of the output (one of the biome) : 
-![ScreenShot](http://i.imgur.com/j9mkUau.png)
-![ScreenShot](http://i.imgur.com/uu8iroR.png)
+ScreenShot : 
+bird view rendering (without shader)
+![ScreenShot](http://i.imgur.com/88ZMhRM.png)
+
+In game rendering (with shader)
+![ScreenShot](http://i.imgur.com/JBseZLc.png)
+![ScreenShot](http://i.imgur.com/wz9SNm7.png)
+
 A short 1minute demo video : 
 https://www.youtube.com/watch?v=-d-hIOFy1WI
