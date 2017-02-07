@@ -18,7 +18,7 @@ public class CyberWorldBlockPopulator extends BlockPopulator
 
     public void populate(World world, Random random, Chunk chunk){
     	
-		
+		return;
 		
     }
 }
