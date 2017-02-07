@@ -44,7 +44,7 @@ public class CityStreetGenerator implements Serializable{
 	private final int[][][] building_rotation;
 	private final long[][][] building_rng_seeds;
 	private final int[][][] building_struct;
-	private final int[][][] hightway;
+	private final int[][][] highway;
     private final Random rng;
     private final int minBW;
     private final CyberWorldBiomeGenerator bg;
@@ -61,7 +61,7 @@ public class CityStreetGenerator implements Serializable{
 		this.y = y;
 		city = new int[this.x][this.y];
 		sign = new int[this.x][this.y];
-		hightway = new int[this.x][this.y][3];
+		highway = new int[this.x][this.y][3];
 		building = new int[this.x][this.y][3];
 		building_type= new int[this.x][this.y][3];
 		building_rotation= new int[this.x][this.y][3];
@@ -120,8 +120,8 @@ public class CityStreetGenerator implements Serializable{
 					sign[i][j] = CyberWorldObjectGenerator.DIR_BUILDING;
 				}
 				for(int l=0;l<3;l++){
-					if(hightway[i][j][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-						hightway[i][j][l] = CyberWorldObjectGenerator.DIR_BUILDING;
+					if(highway[i][j][l]==CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+						highway[i][j][l] = CyberWorldObjectGenerator.DIR_BUILDING;
 					}
 				}
 			}
@@ -159,7 +159,7 @@ public class CityStreetGenerator implements Serializable{
 	}
 	public int getHighwayType(int rx, int rz,int layer){
 		int[] chunk_coor = c2abs_transform(rx+722*(layer+1),rz+1205*(layer+1),this.x,this.y);
-		return hightway[chunk_coor[0]][chunk_coor[1]][layer];
+		return highway[chunk_coor[0]][chunk_coor[1]][layer];
 	}
 	public int getBuilding(int rx, int rz,int layer){
 		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
@@ -320,15 +320,15 @@ public class CityStreetGenerator implements Serializable{
 					boolean highwayCutout_z = rng.nextDouble()>0.33;
 					if(highwayCutout_x){
 						for(int i=point1x;i<=point2x;i++){
-							if(hightway[i][intersectionY][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-								hightway[i][intersectionY][l]=CyberWorldObjectGenerator.DIR_EAST_WEST;
+							if(highway[i][intersectionY][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+								highway[i][intersectionY][l]=CyberWorldObjectGenerator.DIR_EAST_WEST;
 							}
 						}
 					}
 					if(highwayCutout_z){
 						for(int i=point1y;i<=point2y;i++){
-							if(hightway[intersectionX][i][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
-								hightway[intersectionX][i][l]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
+							if(highway[intersectionX][i][l] ==  CyberWorldObjectGenerator.DIR_NOT_DETERMINED){
+								highway[intersectionX][i][l]=CyberWorldObjectGenerator.DIR_NORTH_SOUTH;
 							}
 						}
 					}
@@ -336,24 +336,24 @@ public class CityStreetGenerator implements Serializable{
 					if(recursiveTimes!=1){
 						if(highwayCutout_x){
 							if(point1x-1>=0){
-								hightway[point1x-1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								highway[point1x-1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 							if(point2x+1<x){
-								hightway[point2x+1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								highway[point2x+1][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 						}
 						if(highwayCutout_z){
 							if(point1y-1>=0){
-								hightway[intersectionX][point1y-1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								highway[intersectionX][point1y-1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 							if(point2y+1<y){
-								hightway[intersectionX][point2y+1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+								highway[intersectionX][point2y+1][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 							}
 						}
 					}
 					//intersection
 					if(highwayCutout_x&&highwayCutout_z){
-						hightway[intersectionX][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
+						highway[intersectionX][intersectionY][l] = CyberWorldObjectGenerator.DIR_INTERSECTION;
 					}
 				}
 			}

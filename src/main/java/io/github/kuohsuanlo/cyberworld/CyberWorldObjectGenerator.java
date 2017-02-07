@@ -1645,6 +1645,205 @@ public class CyberWorldObjectGenerator{
 		return chunkdata;
     	
     }
+
+    public ChunkData generateGroundSign(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
+		//on top, on group, on side
+    	//Building Generation
+    	int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
+    	int sign_height_max = 20;
+    	int sign_height_base = 6;
+    	for(int n=0;n<3;n++){
+    		for(int l=0;l<3;l++){
+        		if(cg.getSignType(chkx, chkz)==this.SIGN_UP  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+            		
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int z = ed_rng.nextInt(16);
+            		boolean has_blocks=false;
+            		int last_idx = 12;
+            		for(int x=15;x>=last_idx;x--){
+            			if(chunkdata.getType(x, y, z)!=Material.AIR){
+            				has_blocks = true;
+            			}
+            		}
+            		for(int x=15;x>=last_idx;x--){
+            			if(chunkdata.getType(x, y, z)==Material.AIR){
+                			chunkdata.setBlock(x, y, z,Material.FENCE);
+                			chunkdata.setBlock(x, y-1, z,Material.IRON_FENCE);
+            			}
+            			else{
+            				break;
+            			}
+            		}
+
+            		if(!has_blocks){
+            			chunkdata.setRegion(last_idx, this.GROUND_LEVEL+3, z, last_idx+1, y+1, z+1, Material.FENCE);
+            		}
+            	}
+            	if( cg.getSignType(chkx, chkz)==this.SIGN_DOWN  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int z = ed_rng.nextInt(16);
+            		boolean has_blocks=false;
+            		int last_idx = 4;
+            		for(int x=0;x<last_idx;x++){
+            			if(chunkdata.getType(x, y, z)!=Material.AIR){
+            				has_blocks = true;
+            			}
+            		}
+        			for(int x=0;x<last_idx;x++){
+            			if(chunkdata.getType(x, y, z)==Material.AIR){
+                			chunkdata.setBlock(x, y, z,Material.FENCE);
+                			chunkdata.setBlock(x, y-1, z,Material.IRON_FENCE);
+            			}
+            			else{
+            				break;
+            			}
+            		}
+        			
+        			if(!has_blocks){
+            			chunkdata.setRegion(last_idx-1, this.GROUND_LEVEL+3, z, last_idx, y+1, z+1, Material.FENCE);
+            		}
+            		
+            	}
+            	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&  
+            			cg.getBuilding(chkx-1, chkz,l)==building_type[l] ){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx-1, chkz, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int z = ed_rng.nextInt(16);
+            		int sign_length = ed_rng.nextInt(5);
+            		int sign_height = ed_rng.nextInt(3)+1;
+            		byte sign_color = (byte)ed_rng.nextInt(16);
+            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
+            		for(int x=0;x<3+sign_length;x++){
+            			chunkdata.setBlock(x, y, z,Material.FENCE);
+            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
+
+            		}
+            	}
+            	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&
+            			cg.getBuilding(chkx+1, chkz,l)==building_type[l] ){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx+1, chkz, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int z = ed_rng.nextInt(16);
+            		int sign_length = ed_rng.nextInt(5);
+            		int sign_height = ed_rng.nextInt(3)+1;
+            		byte sign_color = (byte)ed_rng.nextInt(16);
+            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
+            		for(int x=13-sign_length;x<16;x++){
+            			chunkdata.setBlock(x, y, z,Material.FENCE);
+            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
+            		}
+            	}
+        		
+        		//
+            	if(cg.getSignType(chkx, chkz)==this.SIGN_LEFT  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int x = ed_rng.nextInt(16);
+            		
+            		boolean has_blocks=false;
+            		int last_idx = 12;
+            		for(int z=15;z>=last_idx;z--){
+            			if(chunkdata.getType(x, y, z)!=Material.AIR){
+            				has_blocks = true;
+            			}
+            		}
+            		for(int z=15;z>=last_idx;z--){
+            			if(chunkdata.getType(x, y, z)==Material.AIR){
+                			chunkdata.setBlock(x, y, z,Material.FENCE);
+                			chunkdata.setBlock(x, y-1, z,Material.IRON_FENCE);
+            			}
+            			else{
+            				break;
+            			}
+            		}
+            		
+            		if(!has_blocks){
+            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx, x+1, y+1, last_idx+1, Material.FENCE);
+            		}
+            	}
+            	if( cg.getSignType(chkx, chkz)==this.SIGN_RIGHT  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int x = ed_rng.nextInt(16);
+            		
+            		boolean has_blocks=false;
+            		int last_idx = 4;
+            		for(int z=0;z<last_idx;z++){
+            			if(chunkdata.getType(x, y, z)!=Material.AIR){
+            				has_blocks = true;
+            			}
+            		}
+            		
+            		for(int z=0;z<last_idx;z++){
+            			if(chunkdata.getType(x, y, z)==Material.AIR){
+                			chunkdata.setBlock(x, y, z,Material.FENCE);
+                			chunkdata.setBlock(x, y-1, z,Material.IRON_FENCE);
+            			}
+            			else{
+            				break;
+            			}
+            		}
+        		
+            		if(!has_blocks){
+            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx-1, x+1, y+1, last_idx, Material.FENCE);
+            		}
+            	}
+
+            	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&  
+            			cg.getBuilding(chkx, chkz+1,l)==building_type[l] ){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz+1, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int x = ed_rng.nextInt(16);
+            		int sign_length = ed_rng.nextInt(5);
+            		int sign_height = ed_rng.nextInt(3)+1;
+            		byte sign_color = (byte)ed_rng.nextInt(16);
+            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
+            		for(int z=13-sign_length;z<16;z++){
+            			chunkdata.setBlock(x, y, z,Material.FENCE);
+            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
+            		}
+            	}
+            	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&
+            			cg.getBuilding(chkx, chkz-1,l)==building_type[l] ){
+
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*722+1205*n);
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int x = ed_rng.nextInt(16);
+            		int sign_length = ed_rng.nextInt(5);
+            		int sign_height = ed_rng.nextInt(3)+1;
+            		byte sign_color = (byte)ed_rng.nextInt(16);
+            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
+            		for(int z=0;z<3+sign_length;z++){
+            			chunkdata.setBlock(x, y, z,Material.FENCE);
+            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
+            		}
+            	}
+        	}
+    	}
+    	
+    	
+    	
+
+    	
+		return chunkdata;
+    	
+    }
 	public ChunkData generateGroundDecoration(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
 		int layer_start = GROUND_LEVEL+3;
 		int sx=0;
