@@ -1645,23 +1645,45 @@ public class CyberWorldObjectGenerator{
 		return chunkdata;
     	
     }
-
+    private MaterialData returnSignBlockOuter(Random r, byte sign_color){
+    	MaterialData sign_block_outer;
+    	switch(ed_rng.nextInt(4)){
+		case 0:
+			sign_block_outer= new MaterialData(Material.STAINED_GLASS.getId(), sign_color );
+			break;
+		case 1:
+			sign_block_outer= new MaterialData(Material.STAINED_GLASS_PANE.getId(), sign_color );
+			break;
+		case 2:
+			sign_block_outer= new MaterialData(Material.SEA_LANTERN.getId() );
+			break;
+		case 3:
+			sign_block_outer= new MaterialData(Material.GLOWSTONE.getId() );
+			break;
+		default:
+			sign_block_outer= new MaterialData(Material.AIR.getId() );
+			break;
+    	}
+    	return sign_block_outer;
+    }
     public ChunkData generateGroundSign(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
 		//on top, on group, on side
     	//Building Generation
     	int[] building_type = {CyberWorldObjectGenerator.DIR_S_BUILDING,CyberWorldObjectGenerator.DIR_M_BUILDING,CyberWorldObjectGenerator.DIR_L_BUILDING};
     	int sign_height_max = 20;
+    	int sign_content_height_max = 4;
     	int sign_height_base = 10;
     	int sign_base_hz_shift = 4 ;
     	for(int n=0;n<3;n++){
     		for(int l=0;l<3;l++){
+
+        		// UP-DOWN
         		if(cg.getSignType(chkx, chkz)==this.SIGN_UP  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
             		
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
-            		
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
 
             		boolean has_blocks=false;
@@ -1688,12 +1710,12 @@ public class CyberWorldObjectGenerator{
             	}
             	if( cg.getSignType(chkx, chkz)==this.SIGN_DOWN  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
-            		
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
+            		
             		boolean has_blocks=false;
             		int last_idx = 4 + rng.nextInt(sign_base_hz_shift);
             		for(int x=0;x<last_idx;x++){
@@ -1712,21 +1734,21 @@ public class CyberWorldObjectGenerator{
             		}
         			
         			if(!has_blocks){
-            			chunkdata.setRegion(last_idx-1, this.GROUND_LEVEL+3, z, last_idx, y+1, z+1, Material.FENCE);
+            			chunkdata.setRegion(last_idx-1, this.GROUND_LEVEL+3, z, last_idx, y+1, z+1, sign_material);
             		}
             		
             	}
             	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&  
             			cg.getBuilding(chkx-1, chkz,l)==building_type[l] ){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx-1, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx-1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
-
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
+            		
             		int sign_length = ed_rng.nextInt(5);
-            		int sign_height = ed_rng.nextInt(7)+1;
+            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
             		byte sign_color = (byte)ed_rng.nextInt(16);
             		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
             		for(int x=0;x<3+sign_length;x++){
@@ -1735,24 +1757,8 @@ public class CyberWorldObjectGenerator{
 
             		}
             		
-            		MaterialData sign_block_outer ;
-            		switch(ed_rng.nextInt(4)){
-	            		case 0:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS.getId(), sign_color );
-	            			break;
-	            		case 1:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS_PANE.getId(), sign_color );
-	            			break;
-	            		case 2:
-	            			sign_block_outer= new MaterialData(Material.SEA_LANTERN.getId() );
-	            			break;
-	            		case 3:
-	            			sign_block_outer= new MaterialData(Material.GLOWSTONE.getId() );
-	            			break;
-	            		default:
-	            			sign_block_outer= new MaterialData(Material.AIR.getId() );
-	            			break;
-            		}
+            		MaterialData sign_block_outer = returnSignBlockOuter(ed_rng,sign_color);
+            		
             		
         			chunkdata.setBlock(3+sign_length, y, z,sign_material);
         			chunkdata.setRegion(3+sign_length, y-sign_height, z,3+sign_length+1,y,z+1,sign_block_outer);
@@ -1761,14 +1767,14 @@ public class CyberWorldObjectGenerator{
             	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&
             			cg.getBuilding(chkx+1, chkz,l)==building_type[l] ){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx+1, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx+1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
-
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
+            		
             		int sign_length = ed_rng.nextInt(5);
-            		int sign_height = ed_rng.nextInt(7)+1;
+            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
             		byte sign_color = (byte)ed_rng.nextInt(16);
             		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
             		for(int x=13-sign_length;x<16;x++){
@@ -1776,38 +1782,22 @@ public class CyberWorldObjectGenerator{
             			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
             		}
             		
-            		
-            		MaterialData sign_block_outer ;
-            		switch(ed_rng.nextInt(4)){
-	            		case 0:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS.getId(), sign_color );
-	            			break;
-	            		case 1:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS_PANE.getId(), sign_color );
-	            			break;
-	            		case 2:
-	            			sign_block_outer= new MaterialData(Material.SEA_LANTERN.getId() );
-	            			break;
-	            		case 3:
-	            			sign_block_outer= new MaterialData(Material.GLOWSTONE.getId() );
-	            			break;
-	            		default:
-	            			sign_block_outer= new MaterialData(Material.AIR.getId() );
-	            			break;
-            		}
+
+            		MaterialData sign_block_outer = returnSignBlockOuter(ed_rng,sign_color);
 
         			chunkdata.setBlock(13-sign_length, y, z,sign_material);
         			chunkdata.setRegion(13-sign_length, y-sign_height, z,13-sign_length+1,y,z+1,sign_block_outer);
             	}
         		
-        		//
+            	
+            	
+        		// LEFT-RIGHT
             	if(cg.getSignType(chkx, chkz)==this.SIGN_LEFT  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
-
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
             		boolean has_blocks=false;
@@ -1828,16 +1818,15 @@ public class CyberWorldObjectGenerator{
             		}
             		
             		if(!has_blocks){
-            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx, x+1, y+1, last_idx+1, Material.FENCE);
+            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx, x+1, y+1, last_idx+1, sign_material);
             		}
             	}
             	if( cg.getSignType(chkx, chkz)==this.SIGN_RIGHT  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
-
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
             		boolean has_blocks=false;
@@ -1859,22 +1848,21 @@ public class CyberWorldObjectGenerator{
             		}
         		
             		if(!has_blocks){
-            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx-1, x+1, y+1, last_idx, Material.FENCE);
+            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx-1, x+1, y+1, last_idx, sign_material);
             		}
             	}
 
             	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&  
             			cg.getBuilding(chkx, chkz+1,l)==building_type[l] ){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz+1, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz+1, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
-
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
             		int sign_length = ed_rng.nextInt(5);
-            		int sign_height = ed_rng.nextInt(7)+1;
+            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
             		byte sign_color = (byte)ed_rng.nextInt(16);
             		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
             		for(int z=13-sign_length;z<16;z++){
@@ -1910,14 +1898,14 @@ public class CyberWorldObjectGenerator{
             	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&
             			cg.getBuilding(chkx, chkz-1,l)==building_type[l] ){
 
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*722+1205*n);
+        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
             		int sign_length = ed_rng.nextInt(5);
-            		int sign_height = ed_rng.nextInt(7)+1;
+            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
             		byte sign_color = (byte)ed_rng.nextInt(16);
             		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
             		for(int z=0;z<3+sign_length;z++){
