@@ -31,7 +31,6 @@ import org.bukkit.generator.ChunkGenerator.ChunkData;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Wool;
 
-import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.EditSessionFactory;
 import com.sk89q.worldedit.LocalWorld;
@@ -71,6 +70,9 @@ public class CyberWorldObjectGenerator{
     private final static double SIGN_WALL_COVERAGE_RATIO_MAX = 0.8;
     private final static double HEIGHT_RAND_ODDS = 0.5;
     private final static double HEIGHT_RAND_RATIO = 1.5;
+    private final static int MAP_W = 1000;
+    private final static int MAP_H = 1000;
+    
     private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
     private final static int[] underground_building_level = {3,3,3};
     private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
@@ -91,7 +93,7 @@ public class CyberWorldObjectGenerator{
 		readSchematic();
 		if(c==null){
 			System.out.print("[CyberWorld] : Generating City Map... Please wait.");
-  	   		cg = new CityStreetGenerator(b,1000,1000,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+  	   		cg = new CityStreetGenerator(b,MAP_W,MAP_H,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
   	   		System.out.print("[CyberWorld] : City Map generation done.");
 		}
 		else{
@@ -144,63 +146,63 @@ public class CyberWorldObjectGenerator{
     
     
 
-	private CuboidClipboard cc_tmp = null;
-	private CuboidClipboard cc_backup = null;
+	private SimplifiedSchematic cc_tmp = null;
+	private SimplifiedSchematic cc_backup = null;
 	
 
-	private ArrayList<CuboidClipboard> cc_list_highway = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_citysurface = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_deco = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_s = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_m = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_l = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_deco = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_s = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_m = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_l = new ArrayList<CuboidClipboard>();
+	private ArrayList<SimplifiedSchematic> cc_list_highway = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_citysurface = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_deco = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_s = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_m = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_l = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_deco = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_s = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_m = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_l = new ArrayList<SimplifiedSchematic>();
 
-	private ArrayList<CuboidClipboard> cc_list_highway_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_citysurface_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_deco_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_s_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_m_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_l_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_deco_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_s_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_m_b = new ArrayList<CuboidClipboard>();
-	private ArrayList<CuboidClipboard> cc_list_u_l_b = new ArrayList<CuboidClipboard>();
+	private ArrayList<SimplifiedSchematic> cc_list_highway_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_citysurface_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_deco_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_s_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_m_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_l_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_deco_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_s_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_m_b = new ArrayList<SimplifiedSchematic>();
+	private ArrayList<SimplifiedSchematic> cc_list_u_l_b = new ArrayList<SimplifiedSchematic>();
 	
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_highway = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_citysurface = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_deco = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_s = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_m = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_l = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_deco = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_s = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_m = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_l = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_highway = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_citysurface = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_deco = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_s = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_m = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_l = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_deco = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_s = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_m = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_l = new ArrayList<ArrayList<SimplifiedSchematic>>();
 	
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_highway_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_citysurface_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_deco_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_s_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_m_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_l_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_deco_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_s_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_m_b = new ArrayList<ArrayList<CuboidClipboard>>();
-	private ArrayList<ArrayList<CuboidClipboard>> biome_cc_list_u_l_b = new ArrayList<ArrayList<CuboidClipboard>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_highway_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_citysurface_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_deco_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_s_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_m_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_l_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_deco_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_s_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_m_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
+	private ArrayList<ArrayList<SimplifiedSchematic>> biome_cc_list_u_l_b = new ArrayList<ArrayList<SimplifiedSchematic>>();
 
 
-	private ArrayList<CuboidClipboard> deco =null;
-	private ArrayList<CuboidClipboard> s =null;
-	private ArrayList<CuboidClipboard> m =null;
-	private ArrayList<CuboidClipboard> l =null;
-	private ArrayList<CuboidClipboard> decob =null;
-	private ArrayList<CuboidClipboard> sb =null;
-	private ArrayList<CuboidClipboard> mb =null;
-	private ArrayList<CuboidClipboard> lb =null;
+	private ArrayList<SimplifiedSchematic> deco =null;
+	private ArrayList<SimplifiedSchematic> s =null;
+	private ArrayList<SimplifiedSchematic> m =null;
+	private ArrayList<SimplifiedSchematic> l =null;
+	private ArrayList<SimplifiedSchematic> decob =null;
+	private ArrayList<SimplifiedSchematic> sb =null;
+	private ArrayList<SimplifiedSchematic> mb =null;
+	private ArrayList<SimplifiedSchematic> lb =null;
 	
 	@SuppressWarnings("deprecation")
 	private String current_reading_folder;
@@ -245,8 +247,8 @@ public class CyberWorldObjectGenerator{
 			try(Stream<Path> paths = Files.walk(Paths.get(CyberWorldObjectGenerator.WINDOWS_PATH+current_reading_folder))) {
 			    paths.forEach(filePath -> {
 			        if (Files.isRegularFile(filePath)) {
-			            cc_tmp = Schematic.getSchematic(filePath.toString(),0);
-						cc_backup = Schematic.getSchematic(filePath.toString(),0);
+			            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()) );
+						cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
 						if(cc_tmp.getLength()<=sz_deco*16  && cc_tmp.getWidth()<=sz_deco*16){
 							deco.add(cc_tmp);
 							decob.add(cc_backup);
@@ -287,22 +289,22 @@ public class CyberWorldObjectGenerator{
 			for(n=0;n<folder_name.length;n++){
 				current_reading_folder = folder_name[n];
 
-				deco =new ArrayList<CuboidClipboard>();
-				s  =new ArrayList<CuboidClipboard>();
-				m  =new ArrayList<CuboidClipboard>();
-				l  =new ArrayList<CuboidClipboard>();
-				decob =new ArrayList<CuboidClipboard>();
-				sb  =new ArrayList<CuboidClipboard>();
-				mb  =new ArrayList<CuboidClipboard>();
-				lb  =new ArrayList<CuboidClipboard>();
+				deco =new ArrayList<SimplifiedSchematic>();
+				s  =new ArrayList<SimplifiedSchematic>();
+				m  =new ArrayList<SimplifiedSchematic>();
+				l  =new ArrayList<SimplifiedSchematic>();
+				decob =new ArrayList<SimplifiedSchematic>();
+				sb  =new ArrayList<SimplifiedSchematic>();
+				mb  =new ArrayList<SimplifiedSchematic>();
+				lb  =new ArrayList<SimplifiedSchematic>();
 				
 				try(Stream<Path> paths = Files.walk(Paths.get(CyberWorldObjectGenerator.WINDOWS_PATH+"/"+biome_number+"/"+current_reading_folder))) {
 				    
 					paths.forEach(filePath -> {
 				        if (Files.isRegularFile(filePath)) {
 				        	System.out.println("Now reading schematic : "+filePath.toString());
-				            cc_tmp = Schematic.getSchematic(filePath.toString(),0);
-							cc_backup = Schematic.getSchematic(filePath.toString(),0);
+				            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
+							cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
 							
 							if(cc_tmp.getLength()<=sz_deco*16  && cc_tmp.getWidth()<=sz_deco*16){
 								deco.add(cc_tmp);
@@ -441,33 +443,33 @@ public class CyberWorldObjectGenerator{
 				
 				//copy 
 				if(n==0){
-					biome_cc_list_u_deco.add( (ArrayList<CuboidClipboard>) deco);
-					biome_cc_list_u_s.add( (ArrayList<CuboidClipboard>) s);
-					biome_cc_list_u_m.add( (ArrayList<CuboidClipboard>) m);
-					biome_cc_list_u_l.add( (ArrayList<CuboidClipboard>) l);
-					biome_cc_list_u_deco_b.add( (ArrayList<CuboidClipboard>) decob);
-					biome_cc_list_u_s_b.add( (ArrayList<CuboidClipboard>) sb);
-					biome_cc_list_u_m_b.add( (ArrayList<CuboidClipboard>) mb);
-					biome_cc_list_u_l_b.add( (ArrayList<CuboidClipboard>) lb);
+					biome_cc_list_u_deco.add( (ArrayList<SimplifiedSchematic>) deco);
+					biome_cc_list_u_s.add( (ArrayList<SimplifiedSchematic>) s);
+					biome_cc_list_u_m.add( (ArrayList<SimplifiedSchematic>) m);
+					biome_cc_list_u_l.add( (ArrayList<SimplifiedSchematic>) l);
+					biome_cc_list_u_deco_b.add( (ArrayList<SimplifiedSchematic>) decob);
+					biome_cc_list_u_s_b.add( (ArrayList<SimplifiedSchematic>) sb);
+					biome_cc_list_u_m_b.add( (ArrayList<SimplifiedSchematic>) mb);
+					biome_cc_list_u_l_b.add( (ArrayList<SimplifiedSchematic>) lb);
 					
 				}
 				else if(n==1){
-					biome_cc_list_citysurface.add( (ArrayList<CuboidClipboard>) deco);
-					biome_cc_list_citysurface_b.add( (ArrayList<CuboidClipboard>) decob);
+					biome_cc_list_citysurface.add( (ArrayList<SimplifiedSchematic>) deco);
+					biome_cc_list_citysurface_b.add( (ArrayList<SimplifiedSchematic>) decob);
 				}
 				else if(n==2){
-					biome_cc_list_highway.add( (ArrayList<CuboidClipboard>) deco);
-					biome_cc_list_highway_b.add( (ArrayList<CuboidClipboard>) decob);
+					biome_cc_list_highway.add( (ArrayList<SimplifiedSchematic>) deco);
+					biome_cc_list_highway_b.add( (ArrayList<SimplifiedSchematic>) decob);
 				}
 				else if(n==3){
-					biome_cc_list_deco.add( (ArrayList<CuboidClipboard>) deco);
-					biome_cc_list_s.add( (ArrayList<CuboidClipboard>) s);
-					biome_cc_list_m.add( (ArrayList<CuboidClipboard>) m);
-					biome_cc_list_l.add( (ArrayList<CuboidClipboard>) l);
-					biome_cc_list_deco_b.add( (ArrayList<CuboidClipboard>) decob);
-					biome_cc_list_s_b.add( (ArrayList<CuboidClipboard>) sb);
-					biome_cc_list_m_b.add( (ArrayList<CuboidClipboard>) mb);
-					biome_cc_list_l_b.add( (ArrayList<CuboidClipboard>) lb);
+					biome_cc_list_deco.add( (ArrayList<SimplifiedSchematic>) deco);
+					biome_cc_list_s.add( (ArrayList<SimplifiedSchematic>) s);
+					biome_cc_list_m.add( (ArrayList<SimplifiedSchematic>) m);
+					biome_cc_list_l.add( (ArrayList<SimplifiedSchematic>) l);
+					biome_cc_list_deco_b.add( (ArrayList<SimplifiedSchematic>) decob);
+					biome_cc_list_s_b.add( (ArrayList<SimplifiedSchematic>) sb);
+					biome_cc_list_m_b.add( (ArrayList<SimplifiedSchematic>) mb);
+					biome_cc_list_l_b.add( (ArrayList<SimplifiedSchematic>) lb);
 				}
 			}
 				
@@ -496,17 +498,20 @@ public class CyberWorldObjectGenerator{
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			//Paving Ground
-	    			if(y  == GROUND_LEVEL+2){
-	    				  int block_id = biome_cc_list_citysurface.get(biome_number).get(0).getBlock(new Vector(x,0,z)).getId();
-	    				  int block_data = (byte)  biome_cc_list_citysurface.get(biome_number).get(0).getBlock(new Vector(x,0,z)).getData();
-	    				  chunkdata.setBlock(x, y, z,new MaterialData(block_id,(byte) block_data));
+	    			if(biome_cc_list_citysurface.get(biome_number).size()>0){
+	    				if(y  == GROUND_LEVEL+2){
+		    				  int block_id = biome_cc_list_citysurface.get(biome_number).get(0).getBlockId(x,0,z);
+		    				  byte block_data =  biome_cc_list_citysurface.get(biome_number).get(0).getBlockData(x,0,z);
+		    				  chunkdata.setBlock(x, y, z,new MaterialData(block_id, block_data));
+		    			}
+		    			else if( y ==GROUND_LEVEL+1){
+		    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STONE);
+			        	}
+		    			else if(y ==GROUND_LEVEL){
+		    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.DIRT);
+			        	}
 	    			}
-	    			else if( y ==GROUND_LEVEL+1){
-	    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STONE);
-		        	}
-	    			else if(y ==GROUND_LEVEL){
-	    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.DIRT);
-		        	}
+	    			
 	    		}
 	    	}
 	    }
@@ -1285,18 +1290,19 @@ public class CyberWorldObjectGenerator{
     		    		int k=y-LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
-    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
+    	    				    byte block_data = biome_cc_list_highway.get(biome_number).get(0).getBlockData(x,k,z);
     	    				    if(block_id!=Material.AIR.getId())
-    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id, block_data));
     	    	    		}
         	    		}
     	    		}
         		}
         		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST  ){
         			//rotating
-        			biome_cc_list_highway.get(biome_number).get(0).rotate2D(90);
-
+        			int angle = 90;
+        			biome_cc_list_highway.get(biome_number).get(0).rotate(angle);
+        			
             		int highway_struct_height = biome_cc_list_highway.get(biome_number).get(0).getHeight();
             		int highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
             		int highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
@@ -1304,14 +1310,16 @@ public class CyberWorldObjectGenerator{
     		    		int k=y-LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
-    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
-    	    				    if(block_id!=Material.AIR.getId())
-    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
+    	    				    byte block_data = biome_cc_list_highway.get(biome_number).get(0).getBlockData(x,k,z);
+    	    				   if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id, block_data));
     	    	    		}
         	    		}
     	    		}
-    				biome_cc_list_highway.get(biome_number).get(0).rotate2D(270);
+    				
+    				//rotating back
+    				biome_cc_list_highway.get(biome_number).get(0).rotate(360-angle);
         		}
         		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
 
@@ -1322,16 +1330,17 @@ public class CyberWorldObjectGenerator{
     		    		int k=y-LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
-    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
-    	    				    if(block_id!=Material.AIR.getId())
-    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
+    	    				    byte block_data = biome_cc_list_highway.get(biome_number).get(0).getBlockData(x,k,z);
+    	    				   if(block_id!=Material.AIR.getId())
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id, block_data));
     	    	    		}
         	    		}
     	    		}
         			//rotating
-    				biome_cc_list_highway.get(biome_number).get(0).rotate2D(90);
-
+    				int angle = 90;
+        			biome_cc_list_highway.get(biome_number).get(0).rotate(angle);
+        			
             		highway_struct_height = biome_cc_list_highway.get(biome_number).get(0).getHeight();
             		highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
             		highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
@@ -1340,14 +1349,15 @@ public class CyberWorldObjectGenerator{
     		    		int k=y-LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
-    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getId();
-    	    				    int block_data =  biome_cc_list_highway.get(biome_number).get(0).getBlock(new Vector(x,k,z)).getData();
+    	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
+    	    				    byte block_data = biome_cc_list_highway.get(biome_number).get(0).getBlockData(x,k,z);
     	    				    if(block_id!=Material.AIR.getId())
-    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id,(byte) block_data));
+    	    				    	chunkdata.setBlock(x, y-3, z,new MaterialData(block_id, block_data));
     	    	    		}
         	    		}
     	    		}
-    				biome_cc_list_highway.get(biome_number).get(0).rotate2D(270);
+    				//rotating back
+    				biome_cc_list_highway.get(biome_number).get(0).rotate(360-angle);
     				
         		}
         		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_NOT_ROAD ){
@@ -1385,24 +1395,24 @@ public class CyberWorldObjectGenerator{
 					int j_start = sz*16;
 					int j_max = (sz+1)*16;
 
-					int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
 					//int angle = 0;
 					
-					ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
-					ArrayList<CuboidClipboard> current_b_list =  (ArrayList<CuboidClipboard>) all_b_lists[layer] ;
+					ArrayList<SimplifiedSchematic> current_list =  (ArrayList<SimplifiedSchematic>) all_lists[layer] ;
+					ArrayList<SimplifiedSchematic> current_b_list =  (ArrayList<SimplifiedSchematic>) all_b_lists[layer] ;
 
 					if(current_list.size()>0){
 						int type = cg.getBuildingType(chkx,chkz,layer)%current_list.size();
 						
 						long chunk_seed = cg.getBuildingSeed(chkx, chkz, layer);
 						int block_id  = Material.AIR.getId();
-						int block_data  = 0;
+						byte block_data  = 0;
 						
 						boolean[][][] fillingAirIndeces ;
 						boolean[][][] frameIndeces = null;
 						//rotating
-						current_list.get(type).rotate2D(angle);
-
+						int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
+						current_list.get(type).rotate(angle);
+						
 						long current_seed = cg.getBuildingSeed(chkx, chkz, layer)*722;
 						ed_rng.setSeed(current_seed);
 						
@@ -1446,7 +1456,7 @@ public class CyberWorldObjectGenerator{
 						}
 						
 						if(only_shell){
-							frameIndeces = this.getFrameArea(current_list.get(type));
+							frameIndeces = this.getFrameArea(current_list.get(type),angle);
 						}
 						else{
 							frameIndeces = new boolean [i_max][j_max][k_end] ;
@@ -1458,8 +1468,8 @@ public class CyberWorldObjectGenerator{
 		    						int x = j-j_start;
 		    						int z = i-i_start;
 				    				
-				    				block_id = current_list.get(type).getBlock(new Vector(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j])).getId();
-				            		block_data = current_list.get(type).getBlock(new Vector(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j])).getData();
+				    				block_id = current_list.get(type).getBlockId(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j]);
+				            		block_data = current_list.get(type).getBlockData(expended_idx_i[i],expended_idx_k[k],expended_idx_j[j]);
 				            		
 			    					//replacing illegal block, and light blocks
 				            		boolean isLightSource=false;
@@ -1514,8 +1524,8 @@ public class CyberWorldObjectGenerator{
 				    		}
 				    	}
 			    		//rotating back
-						current_list.get(type).rotate2D(360-angle);
 
+						current_list.get(type).rotate(360-angle);
 					}
 					
 				}
@@ -1539,7 +1549,7 @@ public class CyberWorldObjectGenerator{
 				int layer_start = underground_building_level[layer];
 				int struct_type = cg.getBuildingStruct(chkx, chkz, layer);
 				
-				int tmp_size = ((ArrayList<CuboidClipboard>) all_lists[layer]).size();
+				int tmp_size = ((ArrayList<SimplifiedSchematic>) all_lists[layer]).size();
 				if(tmp_size>0){
 					int type = cg.getBuildingType(chkx,chkz,layer)%(tmp_size);
 					//fixing biome type
@@ -1551,11 +1561,10 @@ public class CyberWorldObjectGenerator{
 						int j_start = sz*16;
 						int j_max = (sz+1)*16;
 
-						int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
 						//int angle = 0;
 						
-						ArrayList<CuboidClipboard> current_list =  (ArrayList<CuboidClipboard>) all_lists[layer] ;
-						ArrayList<CuboidClipboard> current_b_list =  (ArrayList<CuboidClipboard>) all_b_lists[layer] ;
+						ArrayList<SimplifiedSchematic> current_list =  (ArrayList<SimplifiedSchematic>) all_lists[layer] ;
+						ArrayList<SimplifiedSchematic> current_b_list =  (ArrayList<SimplifiedSchematic>) all_b_lists[layer] ;
 						
 
 						
@@ -1567,7 +1576,9 @@ public class CyberWorldObjectGenerator{
 						boolean[][][] fillingAirIndeces ;
 
 						//rotating
-						current_list.get(type).rotate2D(angle);
+						int angle = cg.getBuildingRotation(chkx,chkz,layer)*90;
+						current_list.get(type).rotate(angle);
+						
 						int i_end = Math.min(current_list.get(type).getWidth(),i_max);
 						int j_end = Math.min(current_list.get(type).getLength(),j_max);
 						int k_end = current_list.get(type).getHeight();
@@ -1588,8 +1599,8 @@ public class CyberWorldObjectGenerator{
 		            				for(int j=j_start;j<j_end;j++){
 					    				int x = j-j_start;
 					    				int z = i-i_start;
-				            			block_id = current_list.get(type).getBlock(new Vector(i,k,j)).getId();
-					            		block_data =  current_list.get(type).getBlock(new Vector(i,k,j)).getData();
+				            			block_id = current_list.get(type).getBlockId(i,k,j);
+					            		block_data =  current_list.get(type).getBlockData(i,k,j);
 					            		
 				    					//replacing illegal block, and light blocks
 					            		boolean isLightSource=false;
@@ -1630,7 +1641,7 @@ public class CyberWorldObjectGenerator{
 				    		}
 				    	}
 			    		//rotating back
-						current_list.get(type).rotate2D(360-angle);
+						current_list.get(type).rotate(360-angle);
 					}
 				}
 				
@@ -1931,9 +1942,9 @@ public class CyberWorldObjectGenerator{
 			
 			
 			int type = rng.nextInt(biome_cc_list_deco.get(biome_type).size());
-			CuboidClipboard object = biome_cc_list_deco.get(biome_type).get(type);
-			CuboidClipboard object_b = biome_cc_list_deco.get(biome_type).get(type);
-			int angle = rng.nextInt(4)*90;
+			SimplifiedSchematic object = biome_cc_list_deco.get(biome_type).get(type);
+			SimplifiedSchematic object_b = biome_cc_list_deco.get(biome_type).get(type);
+			
 			
 			//replacing rng seed
 			long chunk_seed = cg.getBuildingSeed(chkx, chkz, 0);
@@ -1945,7 +1956,8 @@ public class CyberWorldObjectGenerator{
 	
 			
 			//rotating
-			object.rotate2D(angle);
+			int angle = rng.nextInt(4)*90;
+			object.rotate(angle);
 			int i_end = i_end = Math.min(object.getWidth(),i_max);
 			int j_end = j_end = Math.min(object.getLength(),j_max);
 			int k_end = k_end = object.getHeight();
@@ -1995,8 +2007,8 @@ public class CyberWorldObjectGenerator{
 			    					chunkdata.setBlock(x, y, z,Material.AIR);
 			    				}
 			            		
-			            		block_id = object.getBlock(new Vector(i,k,j)).getId();
-			            		block_data =  object.getBlock(new Vector(i,k,j)).getData();
+			            		block_id = object.getBlockId(i,k,j);
+			            		block_data =  object.getBlockData(i,k,j);
 			            		
 			            		
 			            		if(block_id!=Material.AIR.getId()){
@@ -2040,9 +2052,12 @@ public class CyberWorldObjectGenerator{
 		            		if(fillingAirIndeces[i][j][k]){
 		    					chunkdata.setBlock(x, y, z,Material.AIR);
 		    				}
-		    				//Bug: finding 3d volumn has bug in getfilledArea
-		            		block_id = object.getBlock(new Vector(i,k,j)).getId();
-		            		block_data =  (object.getBlock(new Vector(i,k,j)).getData()%128);
+		            		//DEBUG
+
+		        			//System.out.println(i+","+k+","+j+"/"+angle+";"+object.getWidth()+","+object.getHeight()+","+object.getLength());
+		        			
+		            		block_id = object.getBlockId(i,k,j);
+		            		block_data = object.getBlockId(i,k,j);
 		            		
 		            		
 		            		if(block_id!=Material.AIR.getId()){
@@ -2059,27 +2074,9 @@ public class CyberWorldObjectGenerator{
 	            	}
 				}
 			}
-	
+			
 			//rotating back
-			object.rotate2D(360-angle);
-	
-	
-			//replacing back
-			i_end = object.getWidth();
-			j_end = object.getLength();
-			k_end = object.getHeight();
-			block_id  = Material.AIR.getId();
-			
-			for(int i=0;i<i_end;i++){
-				for(int j=0;j<j_end;j++){
-	            	for(int k=0;k<k_end;k++){
-	            		block_id = object_b.getBlock(new Vector(i,k,j)).getId();
-	            		object.setBlock(new Vector(i,k,j),new BaseBlock(block_id));
-	            		
-	            	}
-				}
-	    	}
-			
+			object.rotate(360-angle);
 		
 
 		}
@@ -2674,7 +2671,7 @@ public class CyberWorldObjectGenerator{
 		return overlap_area;
 		
 	}
-	private boolean[][][] getFrameArea(CuboidClipboard cc){
+	private boolean[][][] getFrameArea(SimplifiedSchematic cc, int angle){
 		
 		int max_x_old = cc.getWidth();
 		int max_z_old = cc.getLength();
@@ -2686,7 +2683,7 @@ public class CyberWorldObjectGenerator{
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
-					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+					if(cc.getBlockId(x,y,z)!=Material.AIR.getId()){
 						area[x][z][y]=true;
 					}
 				}
@@ -2870,7 +2867,7 @@ public class CyberWorldObjectGenerator{
 		
 		
 	}
-	private int[][][][] getSignArea(CuboidClipboard cc, Random sign_rng){
+	private int[][][][] getSignArea(SimplifiedSchematic cc, Random sign_rng){
 		int max_x_old = cc.getWidth();
 		int max_z_old = cc.getLength();
 		int max_y_old = cc.getHeight();
@@ -2883,7 +2880,7 @@ public class CyberWorldObjectGenerator{
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
-					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+					if(cc.getBlockId(x,y,z)!=Material.AIR.getId()){
 						area[x][z][y]=true;
 					}
 				}
@@ -3220,7 +3217,7 @@ public class CyberWorldObjectGenerator{
 		return ans;
 		
 	}
-	private static boolean[][][] getfilledArea(CuboidClipboard cc){
+	private boolean[][][] getfilledArea(SimplifiedSchematic cc){
 		boolean[][] dia_tmp_x =null;
 		boolean[][] dia_tmp_y =null;
 		boolean[][] dia_tmp_z =null;
@@ -3239,7 +3236,7 @@ public class CyberWorldObjectGenerator{
 		for(int y=0;y<max_y_old;y++){
 			for(int x=0;x<max_x_old;x++){
 				for(int z=0;z<max_z_old;z++){
-					if(cc.getBlock(new Vector(x,y,z)).getId()!=Material.AIR.getId()){
+					if(cc.getBlockId(x,y,z)!=Material.AIR.getId()){
 						area[x][z][y]=true;
 					}
 				}
@@ -3503,7 +3500,7 @@ public class CyberWorldObjectGenerator{
 
 		System.out.print("\n"+ans.length);
 		
-		CuboidClipboard cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_3.schematic",0);
+		SimplfiedSchematic cc_tmp = Schematic.getSchematic("R:/Server/1.11_Spigot/plugins/CyberWorld/schematics/import_/"+"mid_3.schematic",0);
 		int[][][][] tmp = getSignArea(cc_tmp, new Random().nextLong());
 		for(int i=0;i<tmp[0].length;i++){
 			for(int j=0;j<tmp[0][0].length;j++){
@@ -3622,28 +3619,7 @@ public class CyberWorldObjectGenerator{
 		return ans;
 	}
 	
-	private void printMap(boolean[][][] fillingAirIndeces){
-		String buffer ="";
-		System.out.println("-------------------------------------");
-		buffer ="";
-		for(int y=0;y<fillingAirIndeces[0][0].length;y++){
-			System.out.println("y = "+y);
-			for(int x=0;x<fillingAirIndeces.length;x++){
-				for(int z=0;z<fillingAirIndeces[0].length;z++){
-					if( fillingAirIndeces[x][z][y]){
-						buffer +="@";
-					}
-					else{
-						buffer +=".";
-					}
-					
-				}
-				System.out.println(buffer);
-				buffer="";
-			}
-		}
-		
-	}
+	
 
 }
  		

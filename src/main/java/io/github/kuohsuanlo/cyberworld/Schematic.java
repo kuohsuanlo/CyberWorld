@@ -24,35 +24,25 @@ import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.SchematicFormat;
 import com.sk89q.worldedit.session.ClipboardHolder;
 
-/**
-*         @author BlahBerrys (eballer48) - ericballard7@gmail.com
-*
-*         An easy-to-use API for saving, loading, and pasting WorldEdit/MCEdit
-*         schematics. (Built against WorldEdit 6.1)
-*
-*/
-
 @SuppressWarnings("deprecation")
 public class Schematic {
 
-    public static CuboidClipboard getSchematic(String schematicName, int angle) {
-             File dir = new File(schematicName);
+    public static CuboidClipboard getSchematic(String schematicName) {
+         File dir = new File(schematicName);
 
-
-            SchematicFormat schematic = SchematicFormat.getFormat(dir);
-            CuboidClipboard clipboard = null;
-            
-			try {
-				clipboard = schematic.load(dir);
-				
-			} catch (DataException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(angle!=0){
-				clipboard.rotate2D(angle);
-			}
-            return clipboard;
+        SchematicFormat schematic = SchematicFormat.getFormat(dir);
+        CuboidClipboard clipboard = null;
+        
+		try {
+			clipboard = schematic.load(dir);
+			
+		} catch (DataException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dir = null;
+		schematic = null;
+        return clipboard;
 
     }
 
