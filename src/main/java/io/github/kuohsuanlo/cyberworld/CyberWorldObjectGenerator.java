@@ -51,6 +51,7 @@ public class CyberWorldObjectGenerator{
 	private final int BIOME_NUMBERS;
 	private Logger log = Logger.getLogger("Minecraft");
     private CityStreetGenerator cg;
+    private CyberWorldBiomeGenerator bg;
     public CityStreetGenerator getCg() {
 		return cg;
 	}
@@ -86,7 +87,7 @@ public class CyberWorldObjectGenerator{
 		bm_rng.setSeed(testingSeed);
 		ed_rng = new Random();
 		ed_rng.setSeed(testingSeed);
-
+		bg = b;
 		readSchematic();
 		if(c==null){
 			System.out.print("[CyberWorld] : Generating City Map... Please wait.");
@@ -1738,9 +1739,10 @@ public class CyberWorldObjectGenerator{
             		}
             		
             	}
-            	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&  
-            			cg.getBuilding(chkx-1, chkz,l)==building_type[l] ){
-
+            	if( 	cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&  
+            			cg.getBuilding(chkx-1, chkz,l)==building_type[l] &&
+            			this.bg.generateType(chkx-1, chkz,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+            		
         			ed_rng.setSeed(cg.getBuildingSeed(chkx-1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
             		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
@@ -1764,8 +1766,9 @@ public class CyberWorldObjectGenerator{
         			chunkdata.setRegion(3+sign_length, y-sign_height, z,3+sign_length+1,y,z+1,sign_block_outer);
         			
             	}
-            	if(cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&
-            			cg.getBuilding(chkx+1, chkz,l)==building_type[l] ){
+            	if(		cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&
+            			cg.getBuilding(chkx+1, chkz,l)==building_type[l] &&
+            			this.bg.generateType(chkx+1, chkz,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx+1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
@@ -1785,8 +1788,8 @@ public class CyberWorldObjectGenerator{
 
             		MaterialData sign_block_outer = returnSignBlockOuter(ed_rng,sign_color);
 
-        			chunkdata.setBlock(13-sign_length, y, z,sign_material);
-        			chunkdata.setRegion(13-sign_length, y-sign_height, z,13-sign_length+1,y,z+1,sign_block_outer);
+        			chunkdata.setBlock(13-sign_length-1, y, z,sign_material);
+        			chunkdata.setRegion(13-sign_length-1, y-sign_height, z,13-sign_length,y,z+1,sign_block_outer);
             	}
         		
             	
@@ -1852,8 +1855,36 @@ public class CyberWorldObjectGenerator{
             		}
             	}
 
-            	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&  
-            			cg.getBuilding(chkx, chkz+1,l)==building_type[l] ){
+            	if(		cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&
+            			cg.getBuilding(chkx, chkz-1,l)==building_type[l] &&
+            			this.bg.generateType(chkx, chkz-1,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+        			
+            		ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*(1205*(n+1)+722*(l+1)));
+        			
+            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int x = ed_rng.nextInt(16);
+            		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
+            		
+            		int sign_length = ed_rng.nextInt(5);
+            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
+            		byte sign_color = (byte)ed_rng.nextInt(16);
+            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
+            		for(int z=0;z<3+sign_length;z++){
+            			chunkdata.setBlock(x, y, z,sign_material);
+            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
+            		}
+            		
+            		MaterialData sign_block_outer = returnSignBlockOuter(ed_rng,sign_color);
+
+        			chunkdata.setBlock(x, y, 3+sign_length,sign_material);
+        			chunkdata.setRegion(x, y-sign_height, 3+sign_length,x+1,y,3+sign_length+1,sign_block_outer);
+        			
+            		
+            	}
+
+            	if(		cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&  
+            			cg.getBuilding(chkx, chkz+1,l)==building_type[l] &&
+            			this.bg.generateType(chkx, chkz+1,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz+1, l)*(1205*(n+1)+722*(l+1)));
         			
@@ -1870,71 +1901,10 @@ public class CyberWorldObjectGenerator{
             			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
             		}
             		
-            		MaterialData sign_block_outer ;
-            		switch(ed_rng.nextInt(4)){
-	            		case 0:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS.getId(), sign_color );
-	            			break;
-	            		case 1:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS_PANE.getId(), sign_color );
-	            			break;
-	            		case 2:
-	            			sign_block_outer= new MaterialData(Material.SEA_LANTERN.getId() );
-	            			break;
-	            		case 3:
-	            			sign_block_outer= new MaterialData(Material.GLOWSTONE.getId() );
-	            			break;
-	            		default:
-	            			sign_block_outer= new MaterialData(Material.AIR.getId() );
-	            			break;
-            		}
-            		
+            		MaterialData sign_block_outer = returnSignBlockOuter(ed_rng,sign_color);
 
-        			chunkdata.setBlock(x,y,13-sign_length,sign_material);
-        			chunkdata.setRegion(x,y,13-sign_length,x, y-sign_height,13-sign_length+1,sign_block_outer);
-            	
-            		
-            	}
-            	if(cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&
-            			cg.getBuilding(chkx, chkz-1,l)==building_type[l] ){
-
-        			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*(1205*(n+1)+722*(l+1)));
-        			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
-            		int x = ed_rng.nextInt(16);
-            		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
-            		
-            		int sign_length = ed_rng.nextInt(5);
-            		int sign_height = ed_rng.nextInt(sign_content_height_max)+1;
-            		byte sign_color = (byte)ed_rng.nextInt(16);
-            		MaterialData sign_block = new MaterialData(Material.WOOL.getId(), sign_color );
-            		for(int z=0;z<3+sign_length;z++){
-            			chunkdata.setBlock(x, y, z,sign_material);
-            			chunkdata.setRegion(x, y-sign_height, z,x+1,y,z+1,sign_block);
-            		}
-            		
-            		MaterialData sign_block_outer ;
-            		switch(ed_rng.nextInt(4)){
-	            		case 0:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS.getId(), sign_color );
-	            			break;
-	            		case 1:
-	            			sign_block_outer= new MaterialData(Material.STAINED_GLASS_PANE.getId(), sign_color );
-	            			break;
-	            		case 2:
-	            			sign_block_outer= new MaterialData(Material.SEA_LANTERN.getId() );
-	            			break;
-	            		case 3:
-	            			sign_block_outer= new MaterialData(Material.GLOWSTONE.getId() );
-	            			break;
-	            		default:
-	            			sign_block_outer= new MaterialData(Material.AIR.getId() );
-	            			break;
-            		}
-
-        			chunkdata.setBlock(x, y, 3+sign_length,sign_material);
-        			chunkdata.setRegion(x, y-sign_height, 3+sign_length,x+1,y,3+sign_length+1,sign_block_outer);
-        			
+        			chunkdata.setBlock(x,y,13-sign_length-1,sign_material);
+        			chunkdata.setRegion(x,y-sign_height,13-sign_length-1,x+1, y,13-sign_length,sign_block_outer);
             		
             	}
         	}
@@ -3497,7 +3467,10 @@ public class CyberWorldObjectGenerator{
 				block_id==Material.EMERALD_ORE.getId()  || 
 				block_id==Material.BEDROCK.getId()  ||     
 				block_id==Material.BEACON.getId()  ||     
-				block_id==Material.TNT.getId()  ||      
+				block_id==Material.TNT.getId()  ||         
+				block_id==Material.ICE.getId()  ||         
+				block_id==Material.FROSTED_ICE.getId()  ||         
+				block_id==Material.PACKED_ICE.getId()  ||      
 				block_id==Material.COMMAND.getId()  ||    
 				block_id==Material.COMMAND_CHAIN.getId()  ||    
 				block_id==Material.COMMAND_MINECART.getId()  ||    

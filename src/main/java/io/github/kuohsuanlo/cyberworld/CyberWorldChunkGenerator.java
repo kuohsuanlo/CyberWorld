@@ -14,10 +14,7 @@ import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
 
-public class CyberWorldChunkGenerator extends ChunkGenerator
-{
-
-    private byte[] layerDataValues;
+public class CyberWorldChunkGenerator extends ChunkGenerator{
 
     private CyberWorld plugin;
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
@@ -63,32 +60,15 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         	chunkdata = og.generateFactoryRoad(chunkdata, random, chkx, chkz,biome_type, biomes);
         	chunkdata = og.generateFactorySewer(chunkdata, random, chkx, chkz,biome_type, biomes);
     	}
-
-
-		
-		//update light
-		/*
-		for(int yi=0;yi<16;yi++){
-			List<ChunkInfo> chkinfo = LightAPI.collectChunks(world,chkx*16+7,yi*16+7,chkz*16+7);
-			for(int i=0;i<chkinfo.size();i++){
-				LightAPI.updateChunk(chkinfo.get(i));
-			}
-		
-		}*/
 		
         return chunkdata;
     } 
+    /*
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world)
     {
-        if (layerDataValues != null)
-        {
-            return Arrays.asList((BlockPopulator)new CyberWorldBlockPopulator(layerDataValues));
-        } else
-        {
-            // This is the default, but just in case default populators change to stock minecraft populators by default...
-            return new ArrayList<BlockPopulator>();
-        }
+    	return new ArrayList<BlockPopulator>();
+    	
     }
     @Override
     public Location getFixedSpawnLocation(World world, Random random)
@@ -104,5 +84,5 @@ public class CyberWorldChunkGenerator extends ChunkGenerator
         }
 
         return new Location(world, 0, world.getHighestBlockYAt(0, 0), 0);
-    }
+    }*/
 }
