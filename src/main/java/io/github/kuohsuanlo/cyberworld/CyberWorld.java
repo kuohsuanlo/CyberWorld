@@ -31,7 +31,6 @@ public class CyberWorld extends JavaPlugin{
     
     /*Configuration*/
 	public int BIOME_TYPES;
-    public int BIOME_NUMBERS;
     public int BIOME_NUMBER_WITH_BUILDING;
     public int BIOME_OCTAVE;
     
@@ -82,7 +81,6 @@ public class CyberWorld extends JavaPlugin{
     	config = this.getConfig();
     	config.addDefault("version",version_string);
     	config.addDefault("BIOME_TYPES",3);
-    	config.addDefault("BIOME_NUMBERS",3);
     	config.addDefault("BIOME_NUMBER_WITH_BUILDING",4);
     	config.addDefault("BIOME_OCTAVE",5);
     	config.addDefault("GROUND_LEVEL",50);
@@ -120,7 +118,6 @@ public class CyberWorld extends JavaPlugin{
     	saveConfig();
  
     	BIOME_TYPES = config.getInt("BIOME_TYPES");
-    	BIOME_NUMBERS = config.getInt("BIOME_NUMBERS");
     	BIOME_NUMBER_WITH_BUILDING = config.getInt("BIOME_NUMBER_WITH_BUILDING")+1;
     	BIOME_OCTAVE = config.getInt("BIOME_OCTAVE");
     	GROUND_LEVEL = config.getInt("GROUND_LEVEL");
