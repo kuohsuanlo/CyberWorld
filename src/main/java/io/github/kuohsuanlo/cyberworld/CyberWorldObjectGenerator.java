@@ -44,11 +44,10 @@ import com.sk89q.worldedit.world.DataException;
 
 
 public class CyberWorldObjectGenerator{
+    private CyberWorld plugin;
 	private final Random rng;
 	private final Random bm_rng;
 	private final Random ed_rng;
-	private final int BIOME_NUMBERS;
-	private Logger log = Logger.getLogger("Minecraft");
     private CityStreetGenerator cg;
     private CyberWorldBiomeGenerator bg;
     public CityStreetGenerator getCg() {
@@ -56,33 +55,19 @@ public class CyberWorldObjectGenerator{
 	}
 	private long testingSeed= 1205;
     
-	private int sz_deco=1;
-	private int sz_s=2;
-	private int sz_m=4;
-	private int sz_l=15;
-	private int sz_block=20;
-
     private final TerrainHeightGenerator hcg;
-    private final static int GROUND_LEVEL = 50;
-    private final static double SIGN_WALL_BLOCK_RATIO = 0.4;
-    private final static double SIGN_WALL_MINIMAL_WIDTH = 12;
-    private final static double SIGN_WALL_COVERAGE_RATIO_MIN = 0.2;
-    private final static double SIGN_WALL_COVERAGE_RATIO_MAX = 0.8;
-    private final static double HEIGHT_RAND_ODDS = 0.5;
-    private final static double HEIGHT_RAND_RATIO = 1.5;
-    private final static int MAP_W = 1000;
-    private final static int MAP_H = 1000;
-    
-    private final static int[] all_building_level = {GROUND_LEVEL+3,GROUND_LEVEL+3,GROUND_LEVEL+3};
-    private final static int[] underground_building_level = {3,3,3};
-    private final static int[] LAYER_HEIGHT = {GROUND_LEVEL+20,GROUND_LEVEL+40,GROUND_LEVEL+80};
-    private final int TERRAIN_OCTAVE = 8;
-    private final int TERRAIN_HEIGHT = 100;
-    private final int SEA_LEVEL = 45;
+
+	private static final int[] STAIRS_LIST = {67,108,109,114,128,134,135,136,156,163,164,180,203};
+	private static final int[] SLABS_LIST = {44,126,205};
+	private static final int[] FENCE_LIST = {85,113,188,189,190,191,192};
+	private static final int[] BLOCKS_LIST = {1,4,5,17,24,43,45,82,87,88,98,121,125,155,162,168,172,179,181,201,202,204,206};
+	private static final int[] BLOCKS_DMAX = {7,1,6, 4, 3, 8, 1, 1, 1, 1, 4,  1,  6,  3,  2,  3,  1,  3,  1,  1,  1,  1,  1};
+	
+  
     
     
-	public CyberWorldObjectGenerator(int biome_numbers, CyberWorldBiomeGenerator b, CityStreetGenerator c){
-		BIOME_NUMBERS = biome_numbers;
+	public CyberWorldObjectGenerator(CyberWorld p, int biome_numbers, CyberWorldBiomeGenerator b, CityStreetGenerator c){
+		plugin = p;
 		rng = new Random();
 		rng.setSeed(testingSeed);
 		bm_rng = new Random();
@@ -93,13 +78,13 @@ public class CyberWorldObjectGenerator{
 		readSchematic();
 		if(c==null){
 			System.out.print("[CyberWorld] : Generating City Map... Please wait.");
-  	   		cg = new CityStreetGenerator(b,MAP_W,MAP_H,rng,sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),sz_s,sz_m,sz_l,1,1,1);
+  	   		cg = new CityStreetGenerator(b,plugin.MAP_W,plugin.MAP_H,rng,plugin.sz_block,cc_list_s.size(),cc_list_m.size(),cc_list_l.size(),plugin.sz_s,plugin.sz_m,plugin.sz_l,1,1,1);
   	   		System.out.print("[CyberWorld] : City Map generation done.");
 		}
 		else{
 			cg = c;
 		}
-		hcg = new TerrainHeightGenerator(rng,TERRAIN_HEIGHT,TERRAIN_OCTAVE,GROUND_LEVEL);
+		hcg = new TerrainHeightGenerator(rng,plugin.TERRAIN_HEIGHT,plugin.TERRAIN_OCTAVE,plugin.GROUND_LEVEL);
 
 	}
 
@@ -140,7 +125,6 @@ public class CyberWorldObjectGenerator{
 	private static int[] LAYER_SW_MIN_END = {LAYER_SRT[0]+LAYER_SW_WD[0],LAYER_SRT[1]+LAYER_SW_WD[1],LAYER_SRT[2]+LAYER_SW_WD[2]};
 	private static int[] LAYER_SW_MAX_END = {LAYER_END[0]-LAYER_SW_WD[0],LAYER_END[1]-LAYER_SW_WD[1],LAYER_END[2]-LAYER_SW_WD[2]};
 
-    public static final String WINDOWS_PATH="./plugins/CyberWorld/schematics/";
    
     public static final int MAX_SPACE_HEIGHT = 256; // 0-255
     
@@ -204,7 +188,6 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<SimplifiedSchematic> mb =null;
 	private ArrayList<SimplifiedSchematic> lb =null;
 	
-	@SuppressWarnings("deprecation")
 	private String current_reading_folder;
 	private void readSchematic(){
 		String[] folder_name = {"underground","citysurface","highway","import"};
@@ -244,24 +227,24 @@ public class CyberWorldObjectGenerator{
 				lb = cc_list_l_b;
 			}
 			
-			try(Stream<Path> paths = Files.walk(Paths.get(CyberWorldObjectGenerator.WINDOWS_PATH+current_reading_folder))) {
+			try(Stream<Path> paths = Files.walk(Paths.get(plugin.WINDOWS_PATH+current_reading_folder))) {
 			    paths.forEach(filePath -> {
 			        if (Files.isRegularFile(filePath)) {
 			            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()) );
 						cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
-						if(cc_tmp.getLength()<=sz_deco*16  && cc_tmp.getWidth()<=sz_deco*16){
+						if(cc_tmp.getLength()<=plugin.sz_deco*16  && cc_tmp.getWidth()<=plugin.sz_deco*16){
 							deco.add(cc_tmp);
 							decob.add(cc_backup);
 						}
-						else if(cc_tmp.getLength()<=sz_s*16  && cc_tmp.getWidth()<=sz_s*16){
+						else if(cc_tmp.getLength()<=plugin.sz_s*16  && cc_tmp.getWidth()<=plugin.sz_s*16){
 							s.add(cc_tmp);
 							sb.add(cc_backup);
 						}
-						else if(cc_tmp.getLength()<=sz_m*16  && cc_tmp.getWidth()<=sz_m*16){
+						else if(cc_tmp.getLength()<=plugin.sz_m*16  && cc_tmp.getWidth()<=plugin.sz_m*16){
 							m.add(cc_tmp);
 							mb.add(cc_backup);
 						}
-						else if(cc_tmp.getLength()<=sz_l*16  && cc_tmp.getWidth()<=sz_l*16){
+						else if(cc_tmp.getLength()<=plugin.sz_l*16  && cc_tmp.getWidth()<=plugin.sz_l*16){
 							l.add(cc_tmp);
 							lb.add(cc_backup);
 						}
@@ -274,7 +257,7 @@ public class CyberWorldObjectGenerator{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
-			System.out.print("[CyberWorld] : Final numbers of default's " + folder_name[n] + " read schematic("+sz_deco+"/"+sz_s+"/"+sz_m+"/"+sz_l+") = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
+			System.out.print("[CyberWorld] : Final numbers of default's " + folder_name[n] + " read schematic("+plugin.sz_deco+"/"+plugin.sz_s+"/"+plugin.sz_m+"/"+plugin.sz_l+") = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
 			
 		}
 		
@@ -282,7 +265,7 @@ public class CyberWorldObjectGenerator{
 		
 		//read import schematics
 		
-		for(int biome_number=0;biome_number<BIOME_NUMBERS;biome_number++){
+		for(int biome_number=0;biome_number<plugin.BIOME_NUMBER_WITH_BUILDING;biome_number++){
 			
 			
 			
@@ -298,7 +281,7 @@ public class CyberWorldObjectGenerator{
 				mb  =new ArrayList<SimplifiedSchematic>();
 				lb  =new ArrayList<SimplifiedSchematic>();
 				
-				try(Stream<Path> paths = Files.walk(Paths.get(CyberWorldObjectGenerator.WINDOWS_PATH+"/"+biome_number+"/"+current_reading_folder))) {
+				try(Stream<Path> paths = Files.walk(Paths.get(plugin.WINDOWS_PATH+"/"+biome_number+"/"+current_reading_folder))) {
 				    
 					paths.forEach(filePath -> {
 				        if (Files.isRegularFile(filePath)) {
@@ -306,19 +289,19 @@ public class CyberWorldObjectGenerator{
 				            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
 							cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
 							
-							if(cc_tmp.getLength()<=sz_deco*16  && cc_tmp.getWidth()<=sz_deco*16){
+							if(cc_tmp.getLength()<=plugin.sz_deco*16  && cc_tmp.getWidth()<=plugin.sz_deco*16){
 								deco.add(cc_tmp);
 								decob.add(cc_backup);
 							}
-							else if(cc_tmp.getLength()<=sz_s*16  && cc_tmp.getWidth()<=sz_s*16){
+							else if(cc_tmp.getLength()<=plugin.sz_s*16  && cc_tmp.getWidth()<=plugin.sz_s*16){
 								s.add(cc_tmp);
 								sb.add(cc_backup);
 							}
-							else if(cc_tmp.getLength()<=sz_m*16  && cc_tmp.getWidth()<=sz_m*16){
+							else if(cc_tmp.getLength()<=plugin.sz_m*16  && cc_tmp.getWidth()<=plugin.sz_m*16){
 								m.add(cc_tmp);
 								mb.add(cc_backup);
 							}
-							else if(cc_tmp.getLength()<=sz_l*16  && cc_tmp.getWidth()<=sz_l*16){
+							else if(cc_tmp.getLength()<=plugin.sz_l*16  && cc_tmp.getWidth()<=plugin.sz_l*16){
 								l.add(cc_tmp);
 								lb.add(cc_backup);
 							}
@@ -402,7 +385,7 @@ public class CyberWorldObjectGenerator{
 								s = cc_list_s;
 								sb = cc_list_s_b;
 							}
-							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
+							else if( i%plugin.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
 								s.add(cc_list_s.get(i));
 								sb.add(cc_list_s_b.get(i));
 							}
@@ -415,7 +398,7 @@ public class CyberWorldObjectGenerator{
 								m = cc_list_m;
 								mb = cc_list_m_b;
 							}
-							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0 ){
+							else if( i%plugin.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0 ){
 								m.add(cc_list_m.get(i));
 								mb.add(cc_list_m_b.get(i));
 							}
@@ -428,7 +411,7 @@ public class CyberWorldObjectGenerator{
 								l = cc_list_l;
 								lb = cc_list_l_b;
 							}
-							else if( i%CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
+							else if( i%plugin.BIOME_NUMBER_WITH_BUILDING==biome_number  ||  rng.nextInt(5)==0){
 								
 								l.add(cc_list_l.get(i));
 								lb.add(cc_list_l_b.get(i));
@@ -438,7 +421,7 @@ public class CyberWorldObjectGenerator{
 					}
 				}
 				
-				System.out.print("[CyberWorld] : Final numbers of "+ "biome type : "+biome_number +"'s "+ folder_name[n] + " read schematic("+sz_deco+"/"+sz_s+"/"+sz_m+"/"+sz_l+") = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
+				System.out.print("[CyberWorld] : Final numbers of "+ "biome type : "+biome_number +"'s "+ folder_name[n] + " read schematic("+plugin.sz_deco+"/"+plugin.sz_s+"/"+plugin.sz_m+"/"+plugin.sz_l+") = "+deco.size()+"/"+s.size()+"/"+m.size()+"/"+l.size());
 				
 				
 				//copy 
@@ -494,20 +477,20 @@ public class CyberWorldObjectGenerator{
         return chunkdata;
     }
 	public ChunkData generateCitySurface(ChunkData chunkdata, Random random, int chkx, int chkz, int biome_number, BiomeGrid biomes){
-        for(int y=GROUND_LEVEL;y<=GROUND_LEVEL+3;y++){
+        for(int y=plugin.GROUND_LEVEL;y<=plugin.GROUND_LEVEL+3;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			//Paving Ground
 	    			if(biome_cc_list_citysurface.get(biome_number).size()>0){
-	    				if(y  == GROUND_LEVEL+2){
+	    				if(y  == plugin.GROUND_LEVEL+2){
 		    				  int block_id = biome_cc_list_citysurface.get(biome_number).get(0).getBlockId(x,0,z);
 		    				  byte block_data =  biome_cc_list_citysurface.get(biome_number).get(0).getBlockData(x,0,z);
 		    				  chunkdata.setBlock(x, y, z,new MaterialData(block_id, block_data));
 		    			}
-		    			else if( y ==GROUND_LEVEL+1){
+		    			else if( y ==plugin.GROUND_LEVEL+1){
 		    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.STONE);
 			        	}
-		    			else if(y ==GROUND_LEVEL){
+		    			else if(y ==plugin.GROUND_LEVEL){
 		    				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.DIRT);
 			        	}
 	    			}
@@ -522,16 +505,16 @@ public class CyberWorldObjectGenerator{
 		//Paving Roads
 		int y;
     	if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
-        	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+        	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 		else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
-	    	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+	    	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 		else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
-	    	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+	    	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 
-    	y=GROUND_LEVEL+3;
+    	y=plugin.GROUND_LEVEL+3;
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
     			
@@ -559,7 +542,7 @@ public class CyberWorldObjectGenerator{
 	    
 		
 		//road line
-		y=GROUND_LEVEL+2;
+		y=plugin.GROUND_LEVEL+2;
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
     			//Here need to import the map so we could what direction to create the road.
@@ -599,22 +582,22 @@ public class CyberWorldObjectGenerator{
 		//Paving Roads
 		int y;
     	if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
-        	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+        	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 		else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
-	    	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+	    	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 		else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
-	    	chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_MATERIAL);
+	    	chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_MATERIAL);
 		}
 
-    	y=GROUND_LEVEL+3;
+    	y=plugin.GROUND_LEVEL+3;
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
     			
     			if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
-    				chunkdata.setRegion(0,GROUND_LEVEL,0,16,GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
-    				chunkdata.setRegion(0,GROUND_LEVEL,15,16,GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(0,plugin.GROUND_LEVEL,15,16,plugin.GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
     				
     				
         			if( (z>=1&&z<=2)  ||  (z>=13&&z<=14)){
@@ -627,8 +610,8 @@ public class CyberWorldObjectGenerator{
         			}
     			}
     			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
-    				chunkdata.setRegion(0,GROUND_LEVEL,0,1,GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
-    				chunkdata.setRegion(15,GROUND_LEVEL,0,16,GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,1,plugin.GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(15,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
     		    	
     				if( (x>=1&&x<=2)  ||  (x>=13&&x<=14)){
         				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
@@ -640,10 +623,10 @@ public class CyberWorldObjectGenerator{
         			}
     			}
     			else if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
-    				chunkdata.setRegion(0,GROUND_LEVEL,0,1,GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
-    				chunkdata.setRegion(15,GROUND_LEVEL,0,16,GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
-    				chunkdata.setRegion(0,GROUND_LEVEL,15,1,GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
-    				chunkdata.setRegion(15,GROUND_LEVEL,15,16,GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(0,plugin.GROUND_LEVEL,0,1,plugin.GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(15,plugin.GROUND_LEVEL,0,16,plugin.GROUND_LEVEL+3,1,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(0,plugin.GROUND_LEVEL,15,1,plugin.GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
+    				chunkdata.setRegion(15,plugin.GROUND_LEVEL,15,16,plugin.GROUND_LEVEL+3,16,ROAD_OUTSIDE_MATERIAL);
     				
     				if( (x<=2  ||  x>=13)  && (z<=2  ||  z>=13)){
         				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,ROAD_SIDEWALK_MATERIAL_1);
@@ -664,7 +647,7 @@ public class CyberWorldObjectGenerator{
 	    
 		
 		//road line
-		y=GROUND_LEVEL+2;
+		y=plugin.GROUND_LEVEL+2;
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
     			//Here need to import the map so we could what direction to create the road.
@@ -705,12 +688,12 @@ public class CyberWorldObjectGenerator{
 
 		int sewer_pipe_width = 5;
 		int sewer_pipe_thick = 2;
-		int sewer_pipe_height= GROUND_LEVEL-16;
+		int sewer_pipe_height= plugin.GROUND_LEVEL-16;
 		int pillar_width = 3;
-	    for(int y=0;y<GROUND_LEVEL+3;y++){
+	    for(int y=0;y<plugin.GROUND_LEVEL+3;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
-	    			if(y >=2 && y <GROUND_LEVEL+1){
+	    			if(y >=2 && y <plugin.GROUND_LEVEL+1){
 	    				//Building Sewer Pipe, Sewer Ground
 		        		if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ){ //ROAD
 
@@ -795,7 +778,7 @@ public class CyberWorldObjectGenerator{
 		        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.BRICK);
 		        			}
 		        			else{
-			        			if(y>=GROUND_LEVEL-5){
+			        			if(y>=plugin.GROUND_LEVEL-5){
 			        				if(d<=0.05){
 				        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.COBBLESTONE);
 				        			}
@@ -1001,7 +984,7 @@ public class CyberWorldObjectGenerator{
 					//Upward pipe exit,entry to road
 	    			
 	    			//Cross 
-	    			if(y==GROUND_LEVEL+2  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+	    			if(y==plugin.GROUND_LEVEL+2  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
 	    				//double d = rng.nextDouble();
 	        			if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<sewer_pipe_width*sewer_pipe_width  && 
 	        					((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))>=(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)      ){
@@ -1013,7 +996,7 @@ public class CyberWorldObjectGenerator{
 	    			}
 	    			
 	    			//upward
-	    			if(y>sewer_pipe_height  &&  y<=GROUND_LEVEL+1  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
+	    			if(y>sewer_pipe_height  &&  y<=plugin.GROUND_LEVEL+1  &&  cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION){
 	    				if(((x-7.5)*(x-7.5)+(z-7.5)*(z-7.5))<(sewer_pipe_width-sewer_pipe_thick)*(sewer_pipe_width-sewer_pipe_thick)){
 	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);
 	        			}
@@ -1029,7 +1012,7 @@ public class CyberWorldObjectGenerator{
 		int cave_height = (int) (Math.round( rng.nextDouble()*3)+4);
 		int cave_width = (int) (Math.round( rng.nextDouble()*1)+3);
 		
-	    for(int y=3;y<GROUND_LEVEL+1;y++){
+	    for(int y=3;y<plugin.GROUND_LEVEL+1;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
 	    			//double d =  rng.nextDouble();
@@ -1053,10 +1036,10 @@ public class CyberWorldObjectGenerator{
 	    
 	    //Building Sewer gate
 	    if(cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
-		    for(int y=0;y<GROUND_LEVEL+1;y++){
+		    for(int y=0;y<plugin.GROUND_LEVEL+1;y++){
 		    	for(int x=0;x<16;x++){
 		    		for(int z=0;z<16;z++){
-	    				if((y>=5  &&  y<GROUND_LEVEL+1)  &&  ( (x<=0  ||  x>=15)  ||  (z<=0  ||  z>=15) )){
+	    				if((y>=5  &&  y<plugin.GROUND_LEVEL+1)  &&  ( (x<=0  ||  x>=15)  ||  (z<=0  ||  z>=15) )){
 	    					double d = rng.nextDouble();
 	    					if((x==0 || x==15) && (z==0  ||  z==15)  &&  d>=0.2){
 	    						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.MOSSY_COBBLESTONE);
@@ -1071,8 +1054,8 @@ public class CyberWorldObjectGenerator{
 	    		for(int z=0;z<16;z++){
 	    			double d = rng.nextDouble();
 	    			if(d>=0.5){
-	    				for(int y=0;y<GROUND_LEVEL+1;y++){
-	    					if((y>=5  &&  y<GROUND_LEVEL+1)  &&  ( (x<=0  ||  x>=15)  ||  (z<=0  ||  z>=15) )){
+	    				for(int y=0;y<plugin.GROUND_LEVEL+1;y++){
+	    					if((y>=5  &&  y<plugin.GROUND_LEVEL+1)  &&  ( (x<=0  ||  x>=15)  ||  (z<=0  ||  z>=15) )){
 	    						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.GLASS);
 	    					}
 	    				}
@@ -1090,7 +1073,7 @@ public class CyberWorldObjectGenerator{
     	//Paving High Roads
     	for(int level=2;level>=0;level--){
     		int road_tube_width = 7;
-    		int road_y_middle = LAYER_HEIGHT[level]+road_tube_width/2;
+    		int road_y_middle = plugin.LAYER_HEIGHT[level]+road_tube_width/2;
     		int road_tube_thick = 1;
     	    //HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.STAINED_GLASS.getId(), (byte)(Math.abs(chkx+chkz)%16)  );
     	    HIGHWAY_TUBES_MATERIAL = new MaterialData(Material.GLASS.getId()  );
@@ -1099,11 +1082,11 @@ public class CyberWorldObjectGenerator{
 			boolean EW_tunnel = false;
 			boolean NS_tunnel = false;
 			boolean IT_tunnel = false;
-    		for(int y=LAYER_HEIGHT[level]-1;y<LAYER_HEIGHT[level]+road_tube_width*2;y++){
+    		for(int y=plugin.LAYER_HEIGHT[level]-1;y<plugin.LAYER_HEIGHT[level]+road_tube_width*2;y++){
     	    	for(int x=0;x<16;x++){
     	    		for(int z=0;z<16;z++){
     	    			//Road & tube checking
-        				if(y >=LAYER_HEIGHT[level]-1 && y<LAYER_HEIGHT[level]+road_tube_width*2){
+        				if(y >=plugin.LAYER_HEIGHT[level]-1 && y<plugin.LAYER_HEIGHT[level]+road_tube_width*2){
         					if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
               	    			if(chunkdata.getType(x, y, z)!=Material.AIR){
         							if(((z-7.5)*(z-7.5)+(y-road_y_middle)*(y-road_y_middle))<road_tube_width*road_tube_width){
@@ -1114,7 +1097,7 @@ public class CyberWorldObjectGenerator{
         							}
         						}
               	    			
-        						if(z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]  &&  y<LAYER_HEIGHT[level]+2){
+        						if(z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]  &&  y<plugin.LAYER_HEIGHT[level]+2){
             						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,HIGHWAY_MATERIAL);
             					}
               	    		}
@@ -1129,7 +1112,7 @@ public class CyberWorldObjectGenerator{
         								
         							}
         						}
-              	    			if(x>=LAYER_SRT[level]  &&  x<=LAYER_END[level]  &&  y<LAYER_HEIGHT[level]+2){
+              	    			if(x>=LAYER_SRT[level]  &&  x<=LAYER_END[level]  &&  y<plugin.LAYER_HEIGHT[level]+2){
             						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,HIGHWAY_MATERIAL);
             					}
               	    		}
@@ -1148,7 +1131,7 @@ public class CyberWorldObjectGenerator{
         								}
         							}
         						}
-              	    			if( ((x>=LAYER_SRT[level]  &&  x<=LAYER_END[level])  ||  (z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]))  &&  y<LAYER_HEIGHT[level]+2){
+              	    			if( ((x>=LAYER_SRT[level]  &&  x<=LAYER_END[level])  ||  (z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]))  &&  y<plugin.LAYER_HEIGHT[level]+2){
             						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,HIGHWAY_MATERIAL);
             					}
             					
@@ -1161,7 +1144,7 @@ public class CyberWorldObjectGenerator{
         	        	}
 
         				//Fence
-        				if(y >=LAYER_HEIGHT[level]+2 && y<LAYER_HEIGHT[level]+3){
+        				if(y >=plugin.LAYER_HEIGHT[level]+2 && y<plugin.LAYER_HEIGHT[level]+3){
                	    		if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     	                			if((z<=LAYER_SW_MIN_END[level]  &&  z>=LAYER_SRT[level])  ||  (z>=LAYER_SW_MAX_END[level]  &&  z<=LAYER_END[level])){
     	                				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,HIGHWAY_FENCE);
@@ -1188,7 +1171,7 @@ public class CyberWorldObjectGenerator{
     	    	}
     		}
 
-    		for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+road_tube_width*2;y++){
+    		for(int y=plugin.LAYER_HEIGHT[level];y<plugin.LAYER_HEIGHT[level]+road_tube_width*2;y++){
     	    	//tube constructing
     	    	for(int x=0;x<16;x++){
     	    		for(int z=0;z<16;z++){
@@ -1227,7 +1210,7 @@ public class CyberWorldObjectGenerator{
     	        			if(y>=road_y_middle  &&  ((z-7.5)*(z-7.5)+(y-road_y_middle)*(y-road_y_middle))<(road_tube_width-road_tube_thick)*(road_tube_width-road_tube_thick)){
     	        				chunkdata.setRegion(x,y,z,x+1,y+1,z+1,Material.AIR);		        			
     	        			}
-          	    			if( ((x>=LAYER_SRT[level]  &&  x<=LAYER_END[level])  ||  (z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]))  &&  y<LAYER_HEIGHT[level]+2){
+          	    			if( ((x>=LAYER_SRT[level]  &&  x<=LAYER_END[level])  ||  (z>=LAYER_SRT[level]  &&  z<=LAYER_END[level]))  &&  y<plugin.LAYER_HEIGHT[level]+2){
         						chunkdata.setRegion(x,y,z,x+1,y+1,z+1,HIGHWAY_MATERIAL);
         					}
       	    			}
@@ -1259,12 +1242,12 @@ public class CyberWorldObjectGenerator{
     	    		for(int z=0;z<16;z++){
     	    			if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_EAST_WEST ){
     	    				if((z >= 6  &&  z<=9)  &&  (x==7  ||  x==8) ){
-    	    					chunkdata.setRegion(x,GROUND_LEVEL+3,z,x+1,LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
+    	    					chunkdata.setRegion(x,plugin.GROUND_LEVEL+3,z,x+1,plugin.LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
     	        			}
     	  	    		}
     	  	    		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_NORTH_SOUTH ){
     	  	    			if((x >= 6  &&  x<=9)  &&  (z==7  ||  z==8) ){
-    	    					chunkdata.setRegion(x,GROUND_LEVEL+3,z,x+1,LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
+    	    					chunkdata.setRegion(x,plugin.GROUND_LEVEL+3,z,x+1,plugin.LAYER_HEIGHT[level],z+1,HIGHWAY_MATERIAL);
     	        			}
     	  	    		}
     	  	    		else if(cg.getHighwayType(chkx,chkz,level)==CyberWorldObjectGenerator.DIR_INTERSECTION ){
@@ -1286,8 +1269,8 @@ public class CyberWorldObjectGenerator{
     	    		int highway_struct_height = biome_cc_list_highway.get(biome_number).get(0).getHeight();
     	    		int highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
     	    		int highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
-    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
-    		    		int k=y-LAYER_HEIGHT[level];
+    				for(int y=plugin.LAYER_HEIGHT[level];y<plugin.LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-plugin.LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
@@ -1306,8 +1289,8 @@ public class CyberWorldObjectGenerator{
             		int highway_struct_height = biome_cc_list_highway.get(biome_number).get(0).getHeight();
             		int highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
             		int highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
-    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
-    		    		int k=y-LAYER_HEIGHT[level];
+    				for(int y=plugin.LAYER_HEIGHT[level];y<plugin.LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-plugin.LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
@@ -1326,8 +1309,8 @@ public class CyberWorldObjectGenerator{
             		int highway_struct_height = biome_cc_list_highway.get(biome_number).get(0).getHeight();
             		int highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
             		int highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
-    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
-    		    		int k=y-LAYER_HEIGHT[level];
+    				for(int y=plugin.LAYER_HEIGHT[level];y<plugin.LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-plugin.LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
@@ -1345,8 +1328,8 @@ public class CyberWorldObjectGenerator{
             		highway_struct_width = biome_cc_list_highway.get(biome_number).get(0).getWidth();
             		highway_struct_length = biome_cc_list_highway.get(biome_number).get(0).getLength();
             		
-    				for(int y=LAYER_HEIGHT[level];y<LAYER_HEIGHT[level]+highway_struct_height;y++){
-    		    		int k=y-LAYER_HEIGHT[level];
+    				for(int y=plugin.LAYER_HEIGHT[level];y<plugin.LAYER_HEIGHT[level]+highway_struct_height;y++){
+    		    		int k=y-plugin.LAYER_HEIGHT[level];
     	    			for(int x=0;x<highway_struct_width;x++){
     	    	    		for(int z=0;z<highway_struct_length;z++){
     	    	    			int block_id = biome_cc_list_highway.get(biome_number).get(0).getBlockId(x,k,z);
@@ -1383,7 +1366,7 @@ public class CyberWorldObjectGenerator{
 		int s_layer_nubmer=start_of_layer;
 		for(layer=s_layer_nubmer;layer>=0;layer--){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
-				int layer_start = all_building_level[layer];
+				int layer_start = plugin.all_building_level[layer];
 				int struct_type = cg.getBuildingStruct(chkx, chkz, layer);
 				
 				//fixing biome type
@@ -1432,12 +1415,12 @@ public class CyberWorldObjectGenerator{
 						
 						
 						int new_height = current_list.get(type).getHeight();
-						if(ed_rng.nextDouble()<HEIGHT_RAND_ODDS){
-							new_height+= ed_rng.nextInt((int)(current_list.get(type).getHeight()*(HEIGHT_RAND_RATIO-1)));
+						if(ed_rng.nextDouble()<plugin.HEIGHT_RAND_ODDS){
+							new_height+= ed_rng.nextInt((int)(current_list.get(type).getHeight()*(plugin.HEIGHT_RAND_RATIO-1)));
 							
 						}
 						
-						if(new_height>this.MAX_SPACE_HEIGHT-this.SEA_LEVEL){
+						if(new_height>this.MAX_SPACE_HEIGHT-this.plugin.SEA_LEVEL){
 							new_height = current_list.get(type).getHeight();
 						}
 						int[] expended_idx_k = this.generateExpandedHeightSequence(ori_idx_k,new_height);
@@ -1546,7 +1529,7 @@ public class CyberWorldObjectGenerator{
 		int s_layer_nubmer=start_of_layer;
 		for(layer=s_layer_nubmer;layer>=0;layer--){
 			if(cg.getBuilding(chkx, chkz, layer)==building_type[layer]){	
-				int layer_start = underground_building_level[layer];
+				int layer_start = plugin.underground_building_level[layer];
 				int struct_type = cg.getBuildingStruct(chkx, chkz, layer);
 				
 				int tmp_size = ((ArrayList<SimplifiedSchematic>) all_lists[layer]).size();
@@ -1594,7 +1577,7 @@ public class CyberWorldObjectGenerator{
 						
 		            	for(int k=0;k<k_end;k++){
 		            		int y = k+layer_start;
-		            		if(y<Math.max(k+layer_start,GROUND_LEVEL)){
+		            		if(y<Math.max(k+layer_start,plugin.GROUND_LEVEL)){
 		            			for(int i=i_start;i<i_end;i++){
 		            				for(int j=j_start;j<j_end;j++){
 					    				int x = j-j_start;
@@ -1694,7 +1677,7 @@ public class CyberWorldObjectGenerator{
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
             		
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
 
@@ -1717,14 +1700,14 @@ public class CyberWorldObjectGenerator{
             		}
 
             		if(!has_blocks){
-            			chunkdata.setRegion(last_idx, this.GROUND_LEVEL+3, z, last_idx+1, y+1, z+1, sign_material);
+            			chunkdata.setRegion(last_idx, this.plugin.GROUND_LEVEL+3, z, last_idx+1, y+1, z+1, sign_material);
             		}
             	}
             	if( cg.getSignType(chkx, chkz)==this.SIGN_DOWN  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1746,17 +1729,17 @@ public class CyberWorldObjectGenerator{
             		}
         			
         			if(!has_blocks){
-            			chunkdata.setRegion(last_idx-1, this.GROUND_LEVEL+3, z, last_idx, y+1, z+1, sign_material);
+            			chunkdata.setRegion(last_idx-1, this.plugin.GROUND_LEVEL+3, z, last_idx, y+1, z+1, sign_material);
             		}
             		
             	}
             	if( 	cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&  
             			cg.getBuilding(chkx-1, chkz,l)==building_type[l] &&
-            			this.bg.generateType(chkx-1, chkz,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+            			this.bg.generateType(chkx-1, chkz,true)<=plugin.BIOME_NUMBER_WITH_BUILDING){
             		
         			ed_rng.setSeed(cg.getBuildingSeed(chkx-1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1779,11 +1762,11 @@ public class CyberWorldObjectGenerator{
             	}
             	if(		cg.getSignType(chkx, chkz)==this.DIR_NORTH_SOUTH  &&
             			cg.getBuilding(chkx+1, chkz,l)==building_type[l] &&
-            			this.bg.generateType(chkx+1, chkz,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+            			this.bg.generateType(chkx+1, chkz,true)<=plugin.BIOME_NUMBER_WITH_BUILDING){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx+1, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int z = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1810,7 +1793,7 @@ public class CyberWorldObjectGenerator{
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1832,14 +1815,14 @@ public class CyberWorldObjectGenerator{
             		}
             		
             		if(!has_blocks){
-            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx, x+1, y+1, last_idx+1, sign_material);
+            			chunkdata.setRegion(x, this.plugin.GROUND_LEVEL+3, last_idx, x+1, y+1, last_idx+1, sign_material);
             		}
             	}
             	if( cg.getSignType(chkx, chkz)==this.SIGN_RIGHT  &&  cg.getBuilding(chkx, chkz,l)==building_type[l]){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1862,17 +1845,17 @@ public class CyberWorldObjectGenerator{
             		}
         		
             		if(!has_blocks){
-            			chunkdata.setRegion(x, this.GROUND_LEVEL+3, last_idx-1, x+1, y+1, last_idx, sign_material);
+            			chunkdata.setRegion(x, this.plugin.GROUND_LEVEL+3, last_idx-1, x+1, y+1, last_idx, sign_material);
             		}
             	}
 
             	if(		cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&
             			cg.getBuilding(chkx, chkz-1,l)==building_type[l] &&
-            			this.bg.generateType(chkx, chkz-1,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+            			this.bg.generateType(chkx, chkz-1,true)<=plugin.BIOME_NUMBER_WITH_BUILDING){
         			
             		ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz-1, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1895,11 +1878,11 @@ public class CyberWorldObjectGenerator{
 
             	if(		cg.getSignType(chkx, chkz)==this.DIR_EAST_WEST  &&  
             			cg.getBuilding(chkx, chkz+1,l)==building_type[l] &&
-            			this.bg.generateType(chkx, chkz+1,true)<=CyberWorldChunkGenerator.BIOME_NUMBER_WITH_BUILDING){
+            			this.bg.generateType(chkx, chkz+1,true)<=plugin.BIOME_NUMBER_WITH_BUILDING){
 
         			ed_rng.setSeed(cg.getBuildingSeed(chkx, chkz+1, l)*(1205*(n+1)+722*(l+1)));
         			
-            		int y = this.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
+            		int y = this.plugin.GROUND_LEVEL+sign_height_base+ed_rng.nextInt(sign_height_max);
             		int x = ed_rng.nextInt(16);
             		MaterialData sign_material = new MaterialData(FENCE_LIST[ed_rng.nextInt(FENCE_LIST.length)] );
             		
@@ -1929,7 +1912,7 @@ public class CyberWorldObjectGenerator{
     	
     }
 	public ChunkData generateGroundDecoration(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
-		int layer_start = GROUND_LEVEL+3;
+		int layer_start = plugin.GROUND_LEVEL+3;
 		int sx=0;
 		int sz=0;
 		int i_start = sx*16;
@@ -2113,7 +2096,8 @@ public class CyberWorldObjectGenerator{
 	public ChunkData generateTerrain(ChunkData chunkdata, Random random, int chkx, int chkz,int biome_type, BiomeGrid biomes){
 		Material ground = null;
 		int heightRevisedRatio = 5;
-		
+		double hillsRatio = 1.02;
+		double exhillsRatio = 1.05;
 		
     	for(int x=0;x<16;x++){
     		for(int z=0;z<16;z++){
@@ -2128,7 +2112,7 @@ public class CyberWorldObjectGenerator{
     					biomes.getBiome(x, z).equals(Biome.DEEP_OCEAN)){
         				
         				ground = Material.CLAY;
-        				height = (int) ((SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio)*0.5);
+        				height = (int) ((plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio)*0.5);
         				/*
         				switch(random.nextInt(3)){
 	        			case 0:
@@ -2146,34 +2130,34 @@ public class CyberWorldObjectGenerator{
 	    				chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
 	        			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
 	        			
-		        		chunkdata.setRegion(x,height,z,x+1,SEA_LEVEL+1,z+1,Material.WATER);
+		        		chunkdata.setRegion(x,height,z,x+1,plugin.SEA_LEVEL+1,z+1,Material.WATER);
 		        		
 	        			
         			}
         			else{
         				if(biomes.getBiome(x, z).equals(Biome.FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_BIRCH_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.ROOFED_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.JUNGLE)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			//Hills
             			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST_HILLS) ||
@@ -2187,7 +2171,7 @@ public class CyberWorldObjectGenerator{
             					biomes.getBiome(x, z).equals(Biome.TAIGA_HILLS) ||
             					biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST_HILLS) ){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(Math.round((height-SEA_LEVEL)*1.15)));
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(Math.round((height-plugin.SEA_LEVEL)*hillsRatio)));
             			}
             			//Exterme hills
             			else if(biomes.getBiome(x, z).equals(Biome.EXTREME_HILLS) ||
@@ -2196,63 +2180,63 @@ public class CyberWorldObjectGenerator{
             					biomes.getBiome(x, z).equals(Biome.MUTATED_EXTREME_HILLS_WITH_TREES) ||
             					biomes.getBiome(x, z).equals(Biome.SMALLER_EXTREME_HILLS) ){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(Math.round((height-SEA_LEVEL)*1.25)));
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(Math.round((height-plugin.SEA_LEVEL)*exhillsRatio)));
             			}
             			//
             			
             			//Forest
             			else if(biomes.getBiome(x, z).equals(Biome.BIRCH_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_BIRCH_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.ROOFED_FOREST)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			//Plain
             			else if(biomes.getBiome(x, z).equals(Biome.PLAINS)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_PLAINS)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.SAVANNA)){
             				ground = Material.GRASS;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			//Desert
             			else if(biomes.getBiome(x, z).equals(Biome.DESERT)){
             				ground = Material.SAND;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_DESERT)){
             				ground = Material.SAND;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			
             			//Swamp
             			else if(biomes.getBiome(x, z).equals(Biome.MUTATED_SWAMPLAND)){
             				ground = Material.WATER;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.SWAMPLAND)){
             				ground = Material.WATER;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			
             			else if(biomes.getBiome(x, z).equals(Biome.RIVER)){
             				ground = Material.WATER;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             				chunkdata.setRegion(x,(int) Math.round(height*0.95),z,x+1,height+1,z+1,Material.WATER);
             				height*=0.95;
             			}
@@ -2260,27 +2244,27 @@ public class CyberWorldObjectGenerator{
             			//BEACHES
             			else if(biomes.getBiome(x, z).equals(Biome.BEACHES)){
             				ground = Material.SAND;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.COLD_BEACH)){
             				ground = Material.SNOW_BLOCK;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			else if(biomes.getBiome(x, z).equals(Biome.STONE_BEACH)){
             				ground = Material.STONE;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			
             			//MESA
             			else if(biomes.getBiome(x, z).equals(Biome.MESA)){
             				ground = Material.RED_SANDSTONE;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
             			
             			
             			else {
             				ground = Material.CLAY;
-            				height = (int) (SEA_LEVEL+Math.abs(height-SEA_LEVEL)/heightRevisedRatio);
+            				height = (int) (plugin.SEA_LEVEL+Math.abs(height-plugin.SEA_LEVEL)/heightRevisedRatio);
             			}
         				chunkdata.setRegion(x,3,z,x+1,height-3,z+1,Material.STONE);
             			chunkdata.setRegion(x,height-3,z,x+1,height,z+1,Material.DIRT);		
@@ -2311,13 +2295,13 @@ public class CyberWorldObjectGenerator{
 
 		int sewer_pipe_width = 5;
 		int sewer_pipe_thick = 2;
-		int sewer_pipe_height= GROUND_LEVEL-16;
+		int sewer_pipe_height= plugin.GROUND_LEVEL-16;
 		boolean ew = false;
 		boolean ns = false;
-	    for(int y=2;y<GROUND_LEVEL+3;y++){
+	    for(int y=2;y<plugin.GROUND_LEVEL+3;y++){
 	    	for(int x=0;x<16;x++){
 	    		for(int z=0;z<16;z++){
-	    			if(y >=2 && y <GROUND_LEVEL+1){
+	    			if(y >=2 && y <plugin.GROUND_LEVEL+1){
 	    				double d = rng.nextDouble();
 	    				//Building Sewer Pipe, Sewer Ground
 	    				if ( cg.getRoadType(chkx,chkz)==CyberWorldObjectGenerator.DIR_EAST_WEST ||
@@ -2580,12 +2564,6 @@ public class CyberWorldObjectGenerator{
 	    return chunkdata;
    	
 	}
-	
-	private static final int[] STAIRS_LIST = {67,108,109,114,128,134,135,136,156,163,164,180,203};
-	private static final int[] SLABS_LIST = {44,126,205};
-	private static final int[] FENCE_LIST = {85,113,188,189,190,191,192};
-	private static final int[] BLOCKS_LIST = {1,4,5,17,24,43,45,82,87,88,98,121,125,155,162,168,172,179,181,201,202,204,206};
-	private static final int[] BLOCKS_DMAX = {7,1,6, 4, 3, 8, 1, 1, 1, 1, 4,  1,  6,  3,  2,  3,  1,  3,  1,  1,  1,  1,  1};
 	private MaterialData getReplacedMaterial(Random replace_rng, int id,int original_data_int,long seeds){
 		byte original_data = (byte) original_data_int;
 		if(id==Material.GLASS.getId()  ||   
@@ -3159,9 +3137,9 @@ public class CyberWorldObjectGenerator{
 		
 	
 		for(int i=0;i<4;i++){
-			if( (double)(num_wall_blocks[i])/num_wall_max_blocks[i] >SIGN_WALL_BLOCK_RATIO  ){
+			if( (double)(num_wall_blocks[i])/num_wall_max_blocks[i] >plugin.SIGN_WALL_BLOCK_RATIO  ){
 				int octave  = (int) (Math.round(sign_rng.nextInt(3)+1));
-				double ratio = SIGN_WALL_COVERAGE_RATIO_MIN+sign_rng.nextDouble()*(SIGN_WALL_COVERAGE_RATIO_MAX-SIGN_WALL_COVERAGE_RATIO_MIN);
+				double ratio = plugin.SIGN_WALL_COVERAGE_RATIO_MIN+sign_rng.nextDouble()*(plugin.SIGN_WALL_COVERAGE_RATIO_MAX-plugin.SIGN_WALL_COVERAGE_RATIO_MIN);
 				float rough = Math.round(1);
 				if(i==0  ||  i==1){
 					int z=-1;
@@ -3173,7 +3151,7 @@ public class CyberWorldObjectGenerator{
 					}	
 					int h = current_y_max_wall[i]-current_y_min_wall[i]+1;
 					int w = current_x_max - current_x_min +1;
-					if(w>SIGN_WALL_MINIMAL_WIDTH){
+					if(w>plugin.SIGN_WALL_MINIMAL_WIDTH){
 						SignGenerator g = new SignGenerator(ed_rng,1,w,h,w,w,w,w,ratio, octave,rough);
 						
 						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
@@ -3198,7 +3176,7 @@ public class CyberWorldObjectGenerator{
 					int h = current_y_max_wall[i]-current_y_min_wall[i]+1;
 					int w = current_z_max - current_z_min +1;
 					
-					if(w>SIGN_WALL_MINIMAL_WIDTH){
+					if(w>plugin.SIGN_WALL_MINIMAL_WIDTH){
 						SignGenerator g = new SignGenerator(ed_rng,1,w,h,w,w,w,w,ratio, octave,rough);
 						for(int y=current_y_min_wall[i];y<=current_y_max_wall[i];y++){
 							for(int z=current_z_min;z<=current_z_max;z++){

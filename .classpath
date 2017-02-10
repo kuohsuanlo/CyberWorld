@@ -6,6 +6,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="lib"/>
 	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -32,6 +33,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/workspace/CyberWorld/lib/worldedit-bukkit-6.1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/worldedit-bukkit-6.1.5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
