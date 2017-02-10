@@ -40,6 +40,13 @@ public class CyberWorld extends JavaPlugin{
     public double SIGN_WALL_MINIMAL_WIDTH ;
     public double SIGN_WALL_COVERAGE_RATIO_MIN;
     public double SIGN_WALL_COVERAGE_RATIO_MAX;
+    
+    public int GROUND_SIGN_EXTRA_HEIGHT_MAX;
+    public int GROUND_SIGN_CONTENT_HEIGHT_MAX;
+    public int GROUND_SIGN_HEIGHT_BASE;
+    public int GROUND_SIGN_BASE_HZ_SHIFT_MAX;
+    
+    
     public double HEIGHT_RAND_ODDS;
     public double HEIGHT_RAND_RATIO ;
     public int MAP_W;
@@ -66,7 +73,7 @@ public class CyberWorld extends JavaPlugin{
     public CyberWorld(){
     	readConfig();
         createBiomeFolder();
-        readCityStreetGenerator();
+        //readCityStreetGenerator();
         
         c = new CyberWorldChunkGenerator(this,cityg);
     } 
@@ -87,6 +94,10 @@ public class CyberWorld extends JavaPlugin{
     	config.addDefault("HEIGHT_RAND_ODDS",0.5);
     	config.addDefault("HEIGHT_RAND_RATIO",1.5);
     	
+    	config.addDefault("GROUND_SIGN_EXTRA_HEIGHT_MAX",20);
+    	config.addDefault("GROUND_SIGN_CONTENT_HEIGHT_MAX",4);
+    	config.addDefault("GROUND_SIGN_HEIGHT_BASE",10);
+    	config.addDefault("GROUND_SIGN_BASE_HZ_SHIFT_MAX",4);
 
     	config.addDefault("MAP_W",1000);
     	config.addDefault("MAP_H",1000);
@@ -121,7 +132,12 @@ public class CyberWorld extends JavaPlugin{
     	HEIGHT_RAND_ODDS = config.getDouble("HEIGHT_RAND_ODDS");
     	HEIGHT_RAND_RATIO = config.getDouble("HEIGHT_RAND_RATIO");
 
-
+    	GROUND_SIGN_EXTRA_HEIGHT_MAX = config.getInt("GROUND_SIGN_EXTRA_HEIGHT_MAX");
+    	GROUND_SIGN_CONTENT_HEIGHT_MAX = config.getInt("GROUND_SIGN_CONTENT_HEIGHT_MAX");
+    	GROUND_SIGN_HEIGHT_BASE = config.getInt("GROUND_SIGN_HEIGHT_BASE");
+    	GROUND_SIGN_BASE_HZ_SHIFT_MAX = config.getInt("GROUND_SIGN_BASE_HZ_SHIFT_MAX");
+    	
+    	
     	MAP_W = config.getInt("MAP_W");
     	MAP_H = config.getInt("MAP_H");
     	TERRAIN_OCTAVE = config.getInt("TERRAIN_OCTAVE");
@@ -165,7 +181,7 @@ public class CyberWorld extends JavaPlugin{
         
     }
     public void onDisable(){
-    	saveCityStreetGenerator();
+    	//saveCityStreetGenerator();
     }
 
     @Override
