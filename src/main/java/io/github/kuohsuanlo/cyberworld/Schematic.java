@@ -26,13 +26,13 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 
 @SuppressWarnings("deprecation")
 public class Schematic {
-
-    public static CuboidClipboard getSchematic(String schematicName) {
-         File dir = new File(schematicName);
+	SchematicFormat schematic = null;
+	CuboidClipboard clipboard = null;
+    public CuboidClipboard getSchematic(String schematicName) {
+        File dir = new File(schematicName);
 
         SchematicFormat schematic = SchematicFormat.getFormat(dir);
-        CuboidClipboard clipboard = null;
-        
+      
 		try {
 			clipboard = schematic.load(dir);
 			

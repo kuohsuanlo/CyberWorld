@@ -189,6 +189,7 @@ public class CyberWorldObjectGenerator{
 	private ArrayList<SimplifiedSchematic> lb =null;
 	
 	private String current_reading_folder;
+	private Schematic sreader= new Schematic();
 	private void readSchematic(){
 		String[] folder_name = {"underground","citysurface","highway","import"};
 
@@ -230,8 +231,8 @@ public class CyberWorldObjectGenerator{
 			try(Stream<Path> paths = Files.walk(Paths.get(plugin.WINDOWS_PATH+current_reading_folder))) {
 			    paths.forEach(filePath -> {
 			        if (Files.isRegularFile(filePath)) {
-			            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()) );
-						cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
+			            cc_tmp = new SimplifiedSchematic(sreader.getSchematic(filePath.toString()) );
+						cc_backup = new SimplifiedSchematic(sreader.getSchematic(filePath.toString()));
 						if(cc_tmp.getLength()<=plugin.sz_deco*16  && cc_tmp.getWidth()<=plugin.sz_deco*16){
 							deco.add(cc_tmp);
 							decob.add(cc_backup);
@@ -286,8 +287,8 @@ public class CyberWorldObjectGenerator{
 					paths.forEach(filePath -> {
 				        if (Files.isRegularFile(filePath)) {
 				        	System.out.println("Now reading schematic : "+filePath.toString());
-				            cc_tmp = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
-							cc_backup = new SimplifiedSchematic(Schematic.getSchematic(filePath.toString()));
+				            cc_tmp = new SimplifiedSchematic(sreader.getSchematic(filePath.toString()));
+							cc_backup = new SimplifiedSchematic(sreader.getSchematic(filePath.toString()));
 							
 							if(cc_tmp.getLength()<=plugin.sz_deco*16  && cc_tmp.getWidth()<=plugin.sz_deco*16){
 								deco.add(cc_tmp);
