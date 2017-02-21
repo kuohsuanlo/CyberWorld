@@ -127,7 +127,7 @@ public class CityStreetGenerator implements Serializable{
 			}
 		}
 		
-		/*
+		
 		for(int i=0+1;i<x-1;i++){
 			for(int j=0+1;j<y-1;j++){
 				if(city[i][j]!=CyberWorldObjectGenerator.DIR_BUILDING){
@@ -147,7 +147,7 @@ public class CityStreetGenerator implements Serializable{
 				}
 			}
 		}
-		*/
+		
 	}
 	public int getRoadType(int rx, int rz){
 		int[] chunk_coor = c2abs_transform(rx,rz,this.x,this.y);
@@ -368,7 +368,7 @@ public class CityStreetGenerator implements Serializable{
 					//int tmp  = this.getBuildingStruct(i,j, l);
 					
 					//int tmp  = this.getBuildingType(i,j,l);
-					int tmp  = this.getSignType(i,j);
+					int tmp  = this.getRoadType(i,j);
 					if(tmp>0){
 						System.out.print(Integer.toHexString(tmp));
 					}
