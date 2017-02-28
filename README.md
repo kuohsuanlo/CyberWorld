@@ -18,7 +18,7 @@ For more images :
 http://imgur.com/a/xoJft
 
 A short 1minute demo video : 
-https://www.youtube.com/watch?v=-d-hIOFy1WI
+https://www.youtube.com/watch?v=NIHs_7g5-e4
 
 ###############################################################################
 
