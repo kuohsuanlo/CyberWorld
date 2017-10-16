@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.kuohsuanlo</groupId>
   <artifactId>cyberworld</artifactId>
-  <version>1.0.0ac</version>
+  <version>1.0.1.12a</version>
   <name>CyberWorld</name>
   <url>http://dev.bukkit.org/bukkit-plugins/cyberworld/</url>
 
@@ -13,18 +13,18 @@
     </repository>
 </repositories>
 <dependencies>
-    <!--Spigot API-->
+	 <!--Spigot API-->
     <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.11.2-R0.1-SNAPSHOT</version>
+           <version>1.12.2-R0.1-SNAPSHOT</version>
            <scope>provided</scope>
     </dependency>
     <!--Bukkit API-->
     <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
     </dependency>
     
