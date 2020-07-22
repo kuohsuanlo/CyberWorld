@@ -1,4 +1,5 @@
-# CyberWorld  (English version)
+# CyberWorld  (English version) --- Powered by [LogoCat](https://mcuuid.net/?q=logocat) 
+[![mcfallout](https://i.imgur.com/o6S7V07.png)](https://mcfallout.net)
 
 CyberWorld is a minecraft spigot plugin project. The goal is 
   - Procedurally generating complicated cyberpunk city in minecraft 
@@ -99,4 +100,4 @@ SIZE_LARGE: 15
 SIZE_BLOCK: 20
   - The unit of size here is "chunk width", meaning that if your schematic is 30x30, it would be classified as 2x2 --mall
   - There are three types of building, from small to large. 
-  - The plugin paste from large - medium - small.
+  - The plugin paste from large - medium - small. 
